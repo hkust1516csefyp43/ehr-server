@@ -17,10 +17,9 @@ router.get('/apk/', function (req, res, next) {
  * Send JSON Array of countries
  */
 router.get('/country/', function (req, res, next) {
+    //TODO retrieve the whole country table from db
     //TODO should I embed the JSON Object to this file or keep it separated?
     res.send('[{"country_id":1,"english_name":"Hong Kong","phone_country_code":852},{"country_id":2,"english_name":"China","phone_country_code":86},{"country_id":3,"english_name":"Macau","phone_country_code":853},{"country_id":4,"english_name":"Cambodia","phone_country_code":855}]');
 });
-
-
 
 module.exports = router;
