@@ -17,13 +17,20 @@ router.get('/apk/', function (req, res, next) {
  * Return a list of static objects (countries, slums, etc)
  */
 router.get('/update/:id', function (req, res, next) {
+    var type = req.params.id;
+    if (type == 1) {                              //country
+        res.json('[{"country_id":1,"english_name":"Hong Kong","phone_country_code":852},{"country_id":2,"english_name":"China","phone_country_code":86},{"country_id":3,"english_name":"Macau","phone_country_code":853},{"country_id":4,"english_name":"Cambodia","phone_country_code":855}]');
+    } else if (type == 2) {                       //slum
+        res.send('pretend this is a JSONArray of slums');
+    } else {
+        res.status(404).send('I have no idea what you are talking about');
+    }
     /**
      * TODO s
      * 1.   id == 1 >> country json
      *      id == 2 >> slums json
      * 2. retrieve the whole country table from json
      */
-    res.json('[{"country_id":1,"english_name":"Hong Kong","phone_country_code":852},{"country_id":2,"english_name":"China","phone_country_code":86},{"country_id":3,"english_name":"Macau","phone_country_code":853},{"country_id":4,"english_name":"Cambodia","phone_country_code":855}]');
 });
 
 /**
