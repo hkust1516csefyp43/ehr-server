@@ -10,7 +10,7 @@ var routes = require('./routes/index');
 var v1Inventory = require('./routes/v1/inventory');
 var v1Patient = require('./routes/v1/patient');
 var v1User = require('./routes/v1/user');
-var v1Other = require('./routes/v1/other');
+var v1Static = require('./routes/v1/static');
 
 var app = express();
 
@@ -32,7 +32,7 @@ app.use('/', routes);
 app.use('/v1/inventory', v1Inventory);
 app.use('/v1/patient', v1Patient);
 app.use('/v1/user', v1User);
-app.use('/v1/other', v1Other);
+app.use('/v1/static', v1Static);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
