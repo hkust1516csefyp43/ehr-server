@@ -14,6 +14,11 @@ var v1Static = require('./routes/v1/static');
 
 var app = express();
 
+//startup script
+//app.on('listening', function() {
+//  //TODO how many tables will need to be reset?
+//});
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
