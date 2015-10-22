@@ -69,4 +69,9 @@ router.get('/image/:id', function (req, res) {
 
 //TODO APIs for add/update/delete slums/countries/etc
 
+//TODO test pgdb
+router.get('/test-pgdb/', function (req, res) {
+
+});
+
 module.exports = router;

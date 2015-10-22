@@ -21,3 +21,5 @@ module.exports = {
         }
     }
 };
+
+//1. Check if token is valid
