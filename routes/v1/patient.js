@@ -7,6 +7,12 @@ var ba = require('basic-auth');
 var mysql = require('mysql');
 var su = require('../../utils/string'); //FIXME I don't think this is the best practice
 
+/**
+ * TODO
+ * function 1: search patient
+ * function 2: monthly report (search query includes date time)
+ * response: JSONArray of patients
+ */
 router.get('/search/', function (req, res) {
     var gender = req.query.gender;
     res.send('searching stuff: ' + gender);

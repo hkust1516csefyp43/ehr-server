@@ -17,6 +17,20 @@ router.get('/search/', function(req, res) {
 });
 
 /**
+ * TODO return a list of currently online users
+ */
+router.get('/token/', function (req, res) {
+    res.send("In progress");
+});
+
+/**
+ * TODO revoke token
+ */
+router.delete('/token/:id', function (req, res) {
+    res.send("In progress");
+});
+
+/**
  * TODO basic auth
  * GET user with id
  * */
