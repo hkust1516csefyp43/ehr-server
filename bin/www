@@ -30,6 +30,7 @@ server.on('error', onError);
 server.on('listening', onListening);
 
 //TODO custom startup script
+console.log('http://localhost:' + port);
 //1. Connect to database
 //2. Reset some tables
 //- Token
