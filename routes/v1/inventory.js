@@ -4,6 +4,9 @@
 var express = require('express');
 var router = express.Router();
 var pg = require('pg');
+var sql = require('sql');
+sql.setDialect('postgres');
+var patients = sql.define({name: 'patients', columns: ['name', 'age']});
 var conString = "postgres://zepqdcvrvhsmgv:k4LI83mCEcXt3v1RFKv20AOjmr@ec2-54-83-29-15.compute-1.amazonaws.com:5432/d3n867p1e7dkp?ssl=true";
 //this initializes a connection pool
 //it will keep idle connections open for a (configurable) 30 seconds
@@ -17,13 +20,15 @@ router.get('/dbdata', function (req, res) {
 
         }
         //client.
-        client.query('select * from testing', function (err, result) {
+        var query = patients.select(patients.star()).from(patients).toQuery();
+        console.log(query.text);
+        client.query(query, function (err, result) {
             if (err) {
                 res.send('error running query');
                 return console.error('error running query', err);
             }
             //console.log(result.rows[0].theTime);
-            res.send(result.rows[0].gender);
+            res.send(result);
             //output: Tue Jan 15 2013 19:12:47 GMT-600 (CST)
             client.end();
         });
