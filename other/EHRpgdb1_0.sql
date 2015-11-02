@@ -1,41 +1,10 @@
 -- Created by Vertabelo (http://vertabelo.com)
--- Last modification date: 2015-10-20 10:53:04.114
+-- Last modification date: 2015-10-30 06:05:50.436
 
 
 
 
 -- tables
--- Table: Clearance
-CREATE TABLE Clearance (
-    clearance_id text  NOT NULL,
-    name text  NOT NULL,
-    read_patient_record boolean  NOT NULL,
-    add_to_inventory boolean  NOT NULL,
-    add_slum boolean  NOT NULL,
-    add_medication_method boolean  NOT NULL,
-    consulte_patient boolean  NOT NULL,
-    read_triage boolean  NOT NULL,
-    read_consultation boolean  NOT NULL,
-    read_pharmacy boolean  NOT NULL,
-    add_comment boolean  NOT NULL,
-    revoke_any_token boolean  NOT NULL,
-    read_inventory boolean  NOT NULL,
-    reset_any_password boolean  NOT NULL,
-    delete_patient boolean  NOT NULL,
-    add_patient boolean  NOT NULL,
-    add_visit boolean  NOT NULL,
-    add_diagnose boolean  NOT NULL,
-    add_relationship boolean  NOT NULL,
-    delete_relationship boolean  NOT NULL,
-    add_treatment boolean  NOT NULL,
-    modify_treatment boolean  NOT NULL,
-    modify_any_clearance boolean  NOT NULL,
-    add_clearance boolean  NOT NULL,
-    CONSTRAINT Clearance_pk PRIMARY KEY (clearance_id)
-);
-
-
-
 -- Table: Comment
 CREATE TABLE Comment (
     comment_id text  NOT NULL,
@@ -54,7 +23,7 @@ CREATE TABLE Consultation (
     user_id text  NOT NULL,
     time time  NOT NULL,
     medication_remark text  NULL,
-    diagnose_id text  NULL,
+    diagnosis_id text  NULL,
     treatment_id text  NULL,
     CONSTRAINT Consultation_pk PRIMARY KEY (consultation_id)
 );
@@ -73,22 +42,10 @@ CREATE TABLE Country (
 
 
 
--- Table: Diagnose
-CREATE TABLE Diagnose (
-    diagnose_id text  NOT NULL,
-    webbed_url text  NOT NULL,
-    name text  NOT NULL,
-    symptoms text  NOT NULL,
-    description text  NOT NULL,
-    CONSTRAINT Diagnose_pk PRIMARY KEY (diagnose_id)
-);
-
-
-
 -- Table: Diagnose_history
 CREATE TABLE Diagnose_history (
     diagnose_history_id text  NOT NULL,
-    diagnose_id text  NULL,
+    diagnosis_id text  NULL,
     triage_id text  NULL,
     consultation_id text  NULL,
     start_date timestamp  NULL,
@@ -97,6 +54,18 @@ CREATE TABLE Diagnose_history (
     remark text  NULL,
     patient_id text  NOT NULL,
     CONSTRAINT Diagnose_history_pk PRIMARY KEY (diagnose_history_id)
+);
+
+
+
+-- Table: Diagnosis
+CREATE TABLE Diagnosis (
+    diagnosis_id text  NOT NULL,
+    webbed_url text  NOT NULL,
+    name text  NOT NULL,
+    symptoms text  NOT NULL,
+    description text  NOT NULL,
+    CONSTRAINT Diagnosis_pk PRIMARY KEY (diagnosis_id)
 );
 
 
@@ -148,6 +117,7 @@ CREATE TABLE Patient (
     tag_number int  NULL,
     slum_id text  NULL,
     create_timestamp timestamp  NOT NULL,
+    blood_type text  NULL,
     CONSTRAINT Patient_pk PRIMARY KEY (patient_id)
 );
 
@@ -181,6 +151,37 @@ CREATE TABLE Relationship (
     patient_id_2 text  NOT NULL,
     relationship text  NULL,
     CONSTRAINT Relationship_pk PRIMARY KEY (relationship_id)
+);
+
+
+
+-- Table: Role
+CREATE TABLE Role (
+    clearance_id text  NOT NULL,
+    name text  NOT NULL,
+    read_patient_record boolean  NOT NULL,
+    add_to_inventory boolean  NOT NULL,
+    add_slum boolean  NOT NULL,
+    add_medication_method boolean  NOT NULL,
+    consulte_patient boolean  NOT NULL,
+    read_triage boolean  NOT NULL,
+    read_consultation boolean  NOT NULL,
+    read_pharmacy boolean  NOT NULL,
+    add_comment boolean  NOT NULL,
+    revoke_any_token boolean  NOT NULL,
+    read_inventory boolean  NOT NULL,
+    reset_any_password boolean  NOT NULL,
+    delete_patient boolean  NOT NULL,
+    add_patient boolean  NOT NULL,
+    add_visit boolean  NOT NULL,
+    add_diagnose boolean  NOT NULL,
+    add_relationship boolean  NOT NULL,
+    delete_relationship boolean  NOT NULL,
+    add_treatment boolean  NOT NULL,
+    modify_treatment boolean  NOT NULL,
+    modify_any_clearance boolean  NOT NULL,
+    add_clearance boolean  NOT NULL,
+    CONSTRAINT Role_pk PRIMARY KEY (clearance_id)
 );
 
 
@@ -261,7 +262,7 @@ CREATE TABLE "User" (
     birth_year int  NULL,
     birth_month int  NULL,
     birth_day int  NULL,
-    clearance_id text  NOT NULL,
+    role_id text  NOT NULL,
     email text  NULL,
     create_timestamp timestamp  NOT NULL,
     facebook_access_token text  NULL,
@@ -313,8 +314,8 @@ ALTER TABLE Comment ADD CONSTRAINT Comment_Visit
 
 
 ALTER TABLE Consultation ADD CONSTRAINT Consultation_Diagnose 
-    FOREIGN KEY (diagnose_id)
-    REFERENCES Diagnose (diagnose_id)
+    FOREIGN KEY (diagnosis_id)
+    REFERENCES Diagnosis (diagnosis_id)
     NOT DEFERRABLE 
     INITIALLY IMMEDIATE 
 ;
@@ -353,8 +354,8 @@ ALTER TABLE Diagnose_history ADD CONSTRAINT Diagnose_history_Consultation
 
 
 ALTER TABLE Diagnose_history ADD CONSTRAINT Diagnose_history_Diagnose 
-    FOREIGN KEY (diagnose_id)
-    REFERENCES Diagnose (diagnose_id)
+    FOREIGN KEY (diagnosis_id)
+    REFERENCES Diagnosis (diagnosis_id)
     NOT DEFERRABLE 
     INITIALLY IMMEDIATE 
 ;
@@ -494,7 +495,7 @@ ALTER TABLE Token ADD CONSTRAINT Token_User
 
 ALTER TABLE Treatment ADD CONSTRAINT Treatment_Diagnose 
     FOREIGN KEY (diagnose_id)
-    REFERENCES Diagnose (diagnose_id)
+    REFERENCES Diagnosis (diagnosis_id)
     NOT DEFERRABLE 
     INITIALLY IMMEDIATE 
 ;
@@ -509,22 +510,22 @@ ALTER TABLE Triage ADD CONSTRAINT Triage_User
     INITIALLY IMMEDIATE 
 ;
 
--- Reference:  User_Clearance (table: "User")
-
-
-ALTER TABLE "User" ADD CONSTRAINT User_Clearance 
-    FOREIGN KEY (clearance_id)
-    REFERENCES Clearance (clearance_id)
-    NOT DEFERRABLE 
-    INITIALLY IMMEDIATE 
-;
-
 -- Reference:  User_Country (table: "User")
 
 
 ALTER TABLE "User" ADD CONSTRAINT User_Country 
     FOREIGN KEY (phone_country_id)
     REFERENCES Country (counry_id)
+    NOT DEFERRABLE 
+    INITIALLY IMMEDIATE 
+;
+
+-- Reference:  User_Role (table: "User")
+
+
+ALTER TABLE "User" ADD CONSTRAINT User_Role 
+    FOREIGN KEY (role_id)
+    REFERENCES Role (clearance_id)
     NOT DEFERRABLE 
     INITIALLY IMMEDIATE 
 ;
@@ -575,3 +576,4 @@ ALTER TABLE Visit ADD CONSTRAINT Visit_Triage
 
 
 -- End of file.
+
