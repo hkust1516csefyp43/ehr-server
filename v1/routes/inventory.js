@@ -4,6 +4,7 @@
 var express = require('express');
 var router = express.Router();
 var pg = require('pg');
+var sql = require('sql-bricks-postgres');
 
 var conString = "postgres://zepqdcvrvhsmgv:k4LI83mCEcXt3v1RFKv20AOjmr@ec2-54-83-29-15.compute-1.amazonaws.com:5432/d3n867p1e7dkp?ssl=true";
 
@@ -50,12 +51,15 @@ router.get('/dbdata2', function (req, res) {
             res.send('error fetching client from pool');
             return console.error('error fetching client from pool', err);
         }
-        client.query('SELECT * FROM patients', function (err, result) {
+        var query = sql.select().from('patients').toString();
+        console.log(query);
+        client.query(query, function (err, result) {
             done();  //call `done()` to release the client back to the pool
             if (err) {
                 res.send('error running query');
                 return console.error('error running query', err);
             }
+            console.log(JSON.stringify(result));
             res.send(result.rows);
         });
     })

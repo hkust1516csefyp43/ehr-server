@@ -14,7 +14,8 @@
     "morgan": "~1.6.1",
     "serve-favicon": "~2.3.0",
     "basic-auth": "~1.0.3",
-    "mysql": "~2.9.0",
-    "pg": "~4.4.3"
+    "pg": "~4.4.3",
+    "underscore": "~1.8.3",
+    "sql-bricks-postgres": "~0.4.2"
   }
 }
