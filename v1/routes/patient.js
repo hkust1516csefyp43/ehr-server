@@ -41,52 +41,52 @@ router.post('/', function (req, res) {
     res.send(message);
 });
 
-router.get('/test-mysql/', function (req, res, next) {
-    if (req.param.test == 1) {
-        var connection1 = mysql.createConnection({
-            host: '127.7.36.130',
-            port: 3306,
-            user: 'louis993546',
-            password: '449017400023',
-            database: 'php'
-        });
-        connection1.connect(function (err) {
-            if (err)
-                console.log('connect error: ' + err);
-        });
-
-        connection1.query('SELECT * FROM Persons;', function (err, rows, fields) {
-            if (err) {
-                console.log('query error: ' + err);
-            } else if (rows.length > 0) {
-                console.log('getting sth');
-                console.log(JSON.stringify(rows));
-            }
-        });
-        connection1.end();
-    } else if (req.param.test == 2) {
-        var connection2 = mysql.createConnection({
-            //host     : 'localhost',
-            socketPath: '/Applications/MAMP/tmp/mysql/mysql.sock',
-            user: 'root',
-            password: 'root',
-            database: 'testing'
-        });
-        connection2.connect(function (err) {
-            if (err)
-                console.log('connect error: ' + err);
-        });
-        connection2.query('SELECT * FROM test;', function (err, rows, fields) {
-            if (err) {
-                console.log('query error: ' + err);
-            } else if (rows.length > 0) {
-                console.log('getting sth');
-                console.log(JSON.stringify(rows));
-            }
-        });
-        connection2.end();
-    }
-});
+//router.get('/test-mysql/', function (req, res, next) {
+//    if (req.param.test == 1) {
+//        var connection1 = mysql.createConnection({
+//            host: '127.7.36.130',
+//            port: 3306,
+//            user: 'louis993546',
+//            password: '449017400023',
+//            database: 'php'
+//        });
+//        connection1.connect(function (err) {
+//            if (err)
+//                console.log('connect error: ' + err);
+//        });
+//
+//        connection1.query('SELECT * FROM Persons;', function (err, rows, fields) {
+//            if (err) {
+//                console.log('query error: ' + err);
+//            } else if (rows.length > 0) {
+//                console.log('getting sth');
+//                console.log(JSON.stringify(rows));
+//            }
+//        });
+//        connection1.end();
+//    } else if (req.param.test == 2) {
+//        var connection2 = mysql.createConnection({
+//            //host     : 'localhost',
+//            socketPath: '/Applications/MAMP/tmp/mysql/mysql.sock',
+//            user: 'root',
+//            password: 'root',
+//            database: 'testing'
+//        });
+//        connection2.connect(function (err) {
+//            if (err)
+//                console.log('connect error: ' + err);
+//        });
+//        connection2.query('SELECT * FROM test;', function (err, rows, fields) {
+//            if (err) {
+//                console.log('query error: ' + err);
+//            } else if (rows.length > 0) {
+//                console.log('getting sth');
+//                console.log(JSON.stringify(rows));
+//            }
+//        });
+//        connection2.end();
+//    }
+//});
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
