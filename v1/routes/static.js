@@ -60,14 +60,17 @@ router.get('/image/:id', function (req, res) {
     res.send('In progress');
 });
 
-///**
-// * TODO Calculate closest slums
-// */
+/**
+ * TODO Calculate closest slums
+ */
 //router.get('/slums/closest/', function(req, res) {
 //   res.send('In progress');
 //});
 
 //TODO APIs for add/update/delete slums/countries/etc
-//TODO router.post('setTime' ... because the RPi will have no power for most of the time
+
+router.put('/time', function (req, res) {
+    //TODO save time as some sort of global variable
+});
 
 module.exports = router;

@@ -5,12 +5,12 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
-var routes = require('./routes/index');
+var routes = require('./v1/routes/index');
 
-var v1Inventory = require('./routes/v1/inventory');
-var v1Patient = require('./routes/v1/patient');
-var v1User = require('./routes/v1/user');
-var v1Static = require('./routes/v1/static');
+var v1Inventory = require('./v1/routes/inventory');
+var v1Patient = require('./v1/routes/patient');
+var v1User = require('./v1/routes/user');
+var v1Static = require('./v1/routes/static');
 
 var app = express();
 

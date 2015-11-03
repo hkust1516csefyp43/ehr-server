@@ -5,7 +5,7 @@ var express = require('express');
 var router = express.Router();
 var ba = require('basic-auth');
 var mysql = require('mysql');
-var su = require('../../utils/string'); //FIXME I don't think this is the best practice
+var su = require('../utils/string'); //FIXME I don't think this is the best practice
 
 /**
  * TODO
