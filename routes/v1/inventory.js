@@ -16,17 +16,13 @@ router.get('/dbdata', function (req, res) {
         if (err) {
             res.send('could not connect to postgres');
             return console.error('could not connect to postgres', err);
-
         }
-        //client.
-        client.query('select * from testing', function (err, result) {
+        client.query('SELECT * FROM testing', function (err, result) {
             if (err) {
                 res.send('error running query');
                 return console.error('error running query', err);
             }
-            //console.log(result.rows[0].theTime);
-            res.send(result.rows[0].gender);
-            //output: Tue Jan 15 2013 19:12:47 GMT-600 (CST)
+            res.send(result.rows[0]);
             client.end();
         });
     });
@@ -51,11 +47,13 @@ router.get('/dbdata', function (req, res) {
 router.get('/dbdata2', function (req, res) {
     pg.connect(conString, function (err, client, done) {
         if (err) {
+            res.send('error fetching client from pool');
             return console.error('error fetching client from pool', err);
         }
         client.query('SELECT * FROM patients', function (err, result) {
             done();  //call `done()` to release the client back to the pool
             if (err) {
+                res.send('error running query');
                 return console.error('error running query', err);
             }
             res.send(result.rows);

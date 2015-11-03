@@ -29,8 +29,11 @@ server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
 
-//TODO custom startup script
+var date = new Date();
+console.log('Server started at ' + date.getFullYear() + '/' + date.getMonth() + '/' + date.getDate() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds());
 console.log('http://localhost:' + port);
+
+//TODO custom startup script
 //1. Connect to database
 //2. Reset some tables
 //- Token

@@ -68,10 +68,6 @@ router.get('/image/:id', function (req, res) {
 //});
 
 //TODO APIs for add/update/delete slums/countries/etc
-
-//TODO test pgdb
-router.get('/test-pgdb/', function (req, res) {
-
-});
+//TODO router.post('setTime' ... because the RPi will have no power for most of the time
 
 module.exports = router;
