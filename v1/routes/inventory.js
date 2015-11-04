@@ -65,6 +65,79 @@ router.get('/dbdata2', function (req, res) {
     })
 });
 
+router.get('/dbdata3', function (req, res) {
+    pg.connect(conString, function (err, client, done) {
+        if (err) {
+            res.send('error fetching client from pool');
+            return console.error('error fetching client from pool', err);
+        }
+        var table = 'patients; DROP table patients;';
+        var query = sql.select().from(table).toString();
+        console.log(query);
+        client.query(query, function (err, result) {
+            done();  //call `done()` to release the client back to the pool
+            if (err) {
+                res.send('error running query');
+                return console.error('error running query', err);
+            }
+            console.log(JSON.stringify(result));
+            res.send(result.rows);
+        });
+    })
+});
+
+router.get('/dbdata4', function (req, res) {
+    pg.connect(conString, function (err, client, done) {
+        if (err) {
+            res.send('error fetching client from pool');
+            return console.error('error fetching client from pool', err);
+        }
+
+        var table = 'patients; DROP TABLE patients;';
+        client.query('SELECT * FROM patients WHERE name = $1', [table], function (err, result) {
+            done();  //call `done()` to release the client back to the pool
+            if (err) {
+                res.send('error running query');
+                return console.error('error running query', err);
+            }
+            console.log(JSON.stringify(result));
+            res.send(result.rows);
+        });
+    })
+});
+
+router.get('/dbdata5', function (req, res) {
+    pg.connect(conString, function (err, client, done) {
+        if (err) {
+            res.send('error fetching client from pool');
+            return console.error('error fetching client from pool', err);
+        }
+
+
+        var query = client.query({
+            text: 'SELECT * FROM patients WHERE name = $1',
+            values: ['brianc@example.com']
+        });
+
+        query.on('row', function (row) {
+            //do something w/ yer row data
+            assert.equal('brianc', row.name);
+        });
+
+
+        var table = 'patients; DROP TABLE patients;';
+        client.query('SELECT * FROM patients WHERE name = $1', [table], function (err, result) {
+            done();  //call `done()` to release the client back to the pool
+            if (err) {
+                res.send('error running query');
+                return console.error('error running query', err);
+            }
+            console.log(JSON.stringify(result));
+            res.send(result.rows);
+        });
+    })
+});
+
 /* GET with item id */
 router.get('/:id', function(req, res) {
     res.send('item id = ' + req.params.id);
