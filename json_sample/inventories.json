@@ -1,0 +1,26 @@
+[
+	{
+		"inventory_id":1,
+		"name":"drug A",
+		"batch_number":"D1111111",
+	  	"barcode_number":"B1111111",
+		"expiry_date":1444112549386,
+	  	"treatment_id":1
+	},
+	{
+		"inventory_id":2,
+		"name":"drug B",
+		"batch_number":"D2222222",
+		"barcode_number":"B2222222",
+		"expiry_date":1444112549386,
+		"treatment_id":2
+	},
+	{
+	  "inventory_id":3,
+	  "name":"drug C",
+	  "batch_number":"D3333333",
+	  "barcode_number":"B3333333",
+	  "expiry_date":1444112549386,
+	  "treatment_id":3
+	}
+]

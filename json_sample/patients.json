@@ -1,0 +1,53 @@
+[
+	{
+	  "patient_id":1,
+	  "honorific": "Mr.",
+	  "first_name": "Ricky",
+	  "middle_name": "Wai Ki",
+	  "last_name":"Lo",
+	  "phone_country_id":"1",
+	  "phone_number":"9999-9999",
+	  "address":"HKUST",
+	  "date_of_birth":"1994-01-01",
+	  "gender":"M",
+	  "photo":"/patient/photo/1.jpg",
+	  "slum_id":"1",
+	  "blood_type":"A",
+	  "create_timestamp":"1444112549386",
+	  "last_seen":"1444112549386"
+	},
+	{
+	  "patient_id":2,
+	  "honorific": "Mrs.",
+	  "first_name": "Rain",
+	  "middle_name": "Wai Wai",
+	  "last_name":"Lo",
+	  "phone_country_id":"1",
+	  "phone_number":"9999-9999",
+	  "address":"HKU",
+	  "date_of_birth":"1994-01-01",
+	  "gender":"F",
+	  "photo":"/patient/photo/2.jpg",
+	  "slum_id":"1",
+	  "blood_type":"B",
+	  "create_timestamp":"1444112549386",
+	  "last_seen":"1444112549386"
+	},
+  	{
+	  "patient_id":3,
+	  "honorific": "Miss",
+	  "first_name": "Randy",
+	  "middle_name": "Ki Ki",
+	  "last_name":"Lo",
+	  "phone_country_id":"1",
+	  "phone_number":"9999-9999",
+	  "address":"HK",
+	  "date_of_birth":"1994-01-01",
+	  "gender":"M",
+	  "photo":"/patient/photo/3.jpg",
+	  "slum_id":"2",
+	  "blood_type":"AB",
+	  "create_timestamp":"1444112549386",
+	  "last_seen":"1444112549386"
+	}
+]
