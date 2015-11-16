@@ -21,3 +21,4 @@ function basic_auth_data(req) {
 function get_user(req) {
     return ba(req);
 }
+
