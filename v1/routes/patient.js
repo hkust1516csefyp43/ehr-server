@@ -130,6 +130,14 @@ router.get('/', function (req, res) {
         sql_query.offset(offset);
     }
 
+    var sort_by = param_query.sort_by;
+    if (!sort_by) { //Default sort by
+        sql_query.orderBy(patient_id);
+    } else {    //custom sort by
+        //TODO check if custom sort by param is valid
+        sql_query.orderBy(sort_by);
+    }
+
     console.log(sql_query);
 
     if (!sent) {

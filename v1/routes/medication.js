@@ -1,8 +1,11 @@
 var express = require('express');
 var router = express.Router();
 var sql = require('sql-bricks-postgres');
-var table_medication = 'medication';
+var default_table = 'medication';
 
+/**
+ * get a list of medications
+ */
 router.get('/', function (req, res) {
     var sent = false;
     var params = {};
@@ -42,11 +45,9 @@ router.get('/', function (req, res) {
         params.concentration = concentration;
     }
 
-    //TODO sort by
-
     var sql_query = sql
         .select()
-        .from(table_medication)
+        .from(default_table)
         .where(params)
         .toString();
 
@@ -60,6 +61,14 @@ router.get('/', function (req, res) {
         sql_query.offset(offset);
     }
 
+    var sort_by = param_query.sort_by;
+    if (!sort_by) { //Default sort by
+        sql_query.orderBy(medication_id);
+    } else {    //custom sort by
+        //TODO check if custom sort by param is valid
+        sql_query.orderBy(sort_by);
+    }
+
     console.log(sql_query);
 
     if (!sent) {
@@ -68,6 +77,9 @@ router.get('/', function (req, res) {
 
 });
 
+/**
+ * get a medication by id
+ */
 router.get('/:id', function (req, res) {
     var sent = false;
     var params = {};
@@ -86,7 +98,7 @@ router.get('/:id', function (req, res) {
 
     var sql_query = sql
         .select()
-        .from(table_medication)
+        .from(default_table)
         .where(params)
         .toString();
 
