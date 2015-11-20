@@ -11,23 +11,23 @@ var conString = "postgres://zepqdcvrvhsmgv:k4LI83mCEcXt3v1RFKv20AOjmr@ec2-54-83-
 /**
  * Client instance
  */
-router.get('/dbdata', function (req, res) {
-    var client = new pg.Client(conString);
-    client.connect(function (err) {
-        if (err) {
-            res.send('could not connect to postgres');
-            return console.error('could not connect to postgres', err);
-        }
-        client.query('SELECT * FROM testing', function (err, result) {
-            if (err) {
-                res.send('error running query');
-                return console.error('error running query', err);
-            }
-            res.send(result.rows[0]);
-            client.end();
-        });
-    });
-});
+//router.get('/dbdata', function (req, res) {
+//    var client = new pg.Client(conString);
+//    client.connect(function (err) {
+//        if (err) {
+//            res.send('could not connect to postgres');
+//            return console.error('could not connect to postgres', err);
+//        }
+//        client.query('SELECT * FROM testing', function (err, result) {
+//            if (err) {
+//                res.send('error running query');
+//                return console.error('error running query', err);
+//            }
+//            res.send(result.rows[0]);
+//            client.end();
+//        });
+//    });
+//});
 
 /**
  * Client pooling - Much faster
@@ -52,15 +52,13 @@ router.get('/dbdata2', function (req, res) {
             return console.error('error fetching client from pool', err);
         }
         var query = sql.select().from('patients').toString();
-        console.log(query);
         client.query(query, function (err, result) {
             done();  //call `done()` to release the client back to the pool
             if (err) {
                 res.send('error running query');
                 return console.error('error running query', err);
             }
-            console.log(JSON.stringify(result));
-            res.send(result.rows);
+            res.send(result.rows[0].name);
         });
     })
 });
