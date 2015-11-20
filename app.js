@@ -11,6 +11,9 @@ var v1Inventory = require('./v1/routes/inventory');
 var v1Patient = require('./v1/routes/patient');
 var v1User = require('./v1/routes/user');
 var v1Static = require('./v1/routes/static');
+var v1ChiefComplain = require('./v1/routes/chief_complain');
+var v1Diagnosis = require('./v1/routes/diagnosis');
+var v1Medication = require('./v1/routes/medication');
 
 var app = express();
 
@@ -33,6 +36,9 @@ app.use('/v1/inventory', v1Inventory);
 app.use('/v1/patient', v1Patient);
 app.use('/v1/user', v1User);
 app.use('/v1/static', v1Static);
+app.use('/v1/chief_complain', v1ChiefComplain);
+app.use('/v1/diagnosis', v1Diagnosis);
+app.use('/v1/medication', v1Medication);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

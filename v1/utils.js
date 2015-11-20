@@ -59,5 +59,15 @@ module.exports = {
             dist = dist * 0.8684
         }
         return dist
+    },
+
+    mutually_exclusive: function () {
+        var exclusivity = 0;
+        for (var i = 0; i < arguments.length; i++) {
+            if (arguments[i]) {
+                exclusivity++;
+            }
+        }
+        return exclusivity;
     }
 };

@@ -5,7 +5,7 @@ var express = require('express');
 var router = express.Router();
 var ba = require('basic-auth');
 var mysql = require('mysql');
-var su = require('../utils'); //FIXME I don't think this is the best practice
+var util = require('../utils'); //FIXME I don't think this is the best practice
 var sql = require('sql-bricks-postgres');
 
 /**
@@ -33,21 +33,23 @@ router.get('/:id', function(req, res) {
 });
 
 router.get('/', function (req, res) {
+    var sent = false;
     //var body = req.body;
     //var message;
-    //message = su.extend_or_replace(message, 'race: ' + body.race + '\n');
-    //message = su.extend_or_replace(message, 'gender: ' + body.gender + '\n');
-    //message = su.extend_or_replace(message, 'name: ' + body.name + '\n');
-    //message = su.extend_or_replace(message, 'birthday: ' + body.birthday + '\n');
+    //message = util.extend_or_replace(message, 'race: ' + body.race + '\n');
+    //message = util.extend_or_replace(message, 'gender: ' + body.gender + '\n');
+    //message = util.extend_or_replace(message, 'name: ' + body.name + '\n');
+    //message = util.extend_or_replace(message, 'birthday: ' + body.birthday + '\n');
     //res.send(message);
 
-    var params = {};
+    2
     var param_query = req.query;
     console.log(JSON.stringify(param_query));
 
     var token = param_query.token;
     if (!token) {
         res.status(401).send('Token is missing');
+        sent = true;
     } else {
         params.token = token;
     }
@@ -61,6 +63,24 @@ router.get('/', function (req, res) {
     var age = param_query.age;
     var age_ot = param_query.age_ot;
     var age_yt = param_query.age_yt;
+
+    switch (util.mutually_exclusive(age, age_ot, age_yt)) {
+        case 0:
+            //Do nothing, LITERALLY
+            break;
+        case 1:
+            if (age) {
+                //TODO calculation
+            } else if (age_ot) {
+                //TODO calculation
+            } else if (age_yt) {
+                //TODO calculation
+            }
+            break;
+        default:
+            res.status(409).send('age, ago_ot and age_yt must be mutually exclusive');
+            sent = true;
+    }
 
     var slum_id = param_query.slum_id;
     if (slum_id) {
@@ -112,7 +132,9 @@ router.get('/', function (req, res) {
 
     console.log(sql_query);
 
-    res.send('testing stuff');
+    if (!sent) {
+        res.send('testing stuff');
+    }
 });
 
 //router.get('/test-mysql/', function (req, res, next) {
