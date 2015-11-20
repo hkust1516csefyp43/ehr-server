@@ -78,28 +78,30 @@ router.get('/log_in/', function (req, res) {
                 return console.error('Invalid password');
             }
             user_id = result.rows[0].user_id;
-
+            console.log(user_id);
+            res.send(user_id);
             //res.send(user_id);
             //res.send(result.rows[0]); //server RETURN data to frontend
             //output: 1
         });
-        res.send(user_id);
-        var token;
-        crypto.randomBytes(255, function (ex, buf) {
-            token = buf.toString('hex');
-            var tokenquery = sql.insertInto('token', 'user_id', 'token').values(user_id, token).toParams();
-            client.query(tokenquery, function (err, result) {
-                //call `done()` to release the client back to the pool
-                done();
 
-                if (err) {
-                    return console.error('error running query', err);
-                }
-                res.send('done');
-                //res.send(result.rows[0]); //server RETURN data to frontend
-                //output: 1
-            });
-        });
+
+        //var token;
+        //crypto.randomBytes(255, function (ex, buf) {
+        //    token = buf.toString('hex');
+        //    var tokenquery = sql.insertInto('token', 'user_id', 'token').values(user_id, token).toParams();
+        //    client.query(tokenquery, function (err, result) {
+        //        //call `done()` to release the client back to the pool
+        //        done();
+        //
+        //        if (err) {
+        //            return console.error('error running query', err);
+        //        }
+        //        res.send('done');
+        //        res.send(result.rows[0]); //server RETURN data to frontend
+        //        output: 1
+        //    });
+        //});
     });
 
 })

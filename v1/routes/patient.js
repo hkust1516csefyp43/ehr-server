@@ -4,7 +4,8 @@
 var express = require('express');
 var router = express.Router();
 var ba = require('basic-auth');
-var mysql = require('mysql');
+var pg = require('pg');
+var sql = require('sql-bricks-postgres');
 var su = require('../utils/string'); //FIXME I don't think this is the best practice
 
 /**
