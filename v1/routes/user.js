@@ -46,9 +46,12 @@ router.get('/token_create/', function (req, res) {
 });
 
 router.get('/log_in/', function (req, res) {
-    var user = req.query.user_email; // read user
+    var user = req.query.email; // read user
     var pwd = req.query.password; // read password
-    var query = sql.select().from('user').where({user_email: user}).toParams();
+    var user_id;
+    //TODO 1:process the password
+    var processed_pwd = pwd;
+    var query = sql.select().from('User').where({email: user}).toParams();
     //var tokenquery=sql.insertInto('token', 'user_email', 'token').values(user, );
     //var query=sql.select().from('user').toParams();
     pg.connect(conString, function (err, client, done) {
@@ -70,18 +73,21 @@ router.get('/log_in/', function (req, res) {
                 return console.error('Invalid username');
             }
             // CASE2:valid user+wrong pwd
-            else if (result.rows[0].password != pwd) {
+            else if (result.rows[0].processed_password != processed_pwd) {
                 res.send('Invalid password');
                 return console.error('Invalid password');
             }
+            user_id = result.rows[0].user_id;
 
+            //res.send(user_id);
             //res.send(result.rows[0]); //server RETURN data to frontend
             //output: 1
         });
+        res.send(user_id);
         var token;
         crypto.randomBytes(255, function (ex, buf) {
             token = buf.toString('hex');
-            var tokenquery = sql.insertInto('token', 'user_email', 'token').values(user, token).toParams();
+            var tokenquery = sql.insertInto('token', 'user_id', 'token').values(user_id, token).toParams();
             client.query(tokenquery, function (err, result) {
                 //call `done()` to release the client back to the pool
                 done();
@@ -97,6 +103,8 @@ router.get('/log_in/', function (req, res) {
     });
 
 })
+
+// Log out-> frontend send the token back, delete
 /* GET search */
 //router.get('/log_in/', function(req, res) {
 //    //Turn all these into MySQL command to do the searching
