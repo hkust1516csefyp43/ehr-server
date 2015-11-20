@@ -31,7 +31,7 @@ router.get('/', function (req, res) {
     //message = util.extend_or_replace(message, 'birthday: ' + body.birthday + '\n');
     //res.send(message);
 
-    2
+    var params = {};
     var param_query = req.query;
     console.log(JSON.stringify(param_query));
 
@@ -106,8 +106,7 @@ router.get('/', function (req, res) {
     var sql_query = sql
         .select()
         .from('patient')
-        .where(params)
-        .toString();
+        .where(params);
 
     var limit = param_query.limit;
     if (limit) {
@@ -120,14 +119,15 @@ router.get('/', function (req, res) {
     }
 
     var sort_by = param_query.sort_by;
-    if (!sort_by) { //Default sort by
-        sql_query.orderBy(patient_id);
-    } else {    //custom sort by
+    if (sort_by) {
         //TODO check if custom sort by param is valid
         sql_query.orderBy(sort_by);
+    } else {
+        sql_query.orderBy('patient_id');
     }
 
-    console.log(sql_query);
+    var sql_query_string = sql_query.toString();
+    console.log(sql_query_string);
 
     if (!sent) {
         res.send('testing stuff');
