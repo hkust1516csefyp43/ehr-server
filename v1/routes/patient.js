@@ -4,23 +4,9 @@
 var express = require('express');
 var router = express.Router();
 var ba = require('basic-auth');
-var mysql = require('mysql');
+var pg = require('pg');
 var util = require('../utils'); //FIXME I don't think this is the best practice
 var sql = require('sql-bricks-postgres');
-var pg = require('pg');
-var sql = require('sql-bricks-postgres');
-var su = require('../utils/string'); //FIXME I don't think this is the best practice
-
-/**
- * TODO
- * function 1: search patient
- * function 2: monthly report (search query includes date time)
- * response: JSONArray of patients
- */
-router.get('/search/', function (req, res) {
-    var gender = req.query.gender;
-    res.send('searching stuff: ' + gender);
-});
 
 /* GET with patient id + basic auth */
 router.get('/:id', function(req, res) {
@@ -148,56 +134,49 @@ router.get('/', function (req, res) {
     }
 });
 
-//router.get('/test-mysql/', function (req, res, next) {
-//    if (req.param.test == 1) {
-//        var connection1 = mysql.createConnection({
-//            host: '127.7.36.130',
-//            port: 3306,
-//            user: 'louis993546',
-//            password: '449017400023',
-//            database: 'php'
-//        });
-//        connection1.connect(function (err) {
-//            if (err)
-//                console.log('connect error: ' + err);
-//        });
-//
-//        connection1.query('SELECT * FROM Persons;', function (err, rows, fields) {
-//            if (err) {
-//                console.log('query error: ' + err);
-//            } else if (rows.length > 0) {
-//                console.log('getting sth');
-//                console.log(JSON.stringify(rows));
-//            }
-//        });
-//        connection1.end();
-//    } else if (req.param.test == 2) {
-//        var connection2 = mysql.createConnection({
-//            //host     : 'localhost',
-//            socketPath: '/Applications/MAMP/tmp/mysql/mysql.sock',
-//            user: 'root',
-//            password: 'root',
-//            database: 'testing'
-//        });
-//        connection2.connect(function (err) {
-//            if (err)
-//                console.log('connect error: ' + err);
-//        });
-//        connection2.query('SELECT * FROM test;', function (err, rows, fields) {
-//            if (err) {
-//                console.log('query error: ' + err);
-//            } else if (rows.length > 0) {
-//                console.log('getting sth');
-//                console.log(JSON.stringify(rows));
-//            }
-//        });
-//        connection2.end();
-//    }
-//});
+router.post('/', function (req, res) {
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-    res.render('index', { title: 'Patient' });
 });
+
+router.put('/', function (req, res) {
+
+});
+
+/**
+ * get all visits of a patient
+ * (unless you know all patient id, you won't be able to get all visits of everyone)
+ */
+router.get('/visit/:id', function (req, res) {
+
+});
+
+router.post('/visit/', function (req, res) {
+
+});
+
+router.get('/triage/', function (req, res) {
+
+});
+
+router.post('/triage/', function (req, res) {
+
+});
+
+router.get('/consultation/', function (req, res) {
+
+});
+
+router.post('/consultation/', function (req, res) {
+
+});
+
+router.get('/pharmacy/', function (req, res) {
+
+});
+
+router.post('/pharmacy/', function (req, res) {
+
+});
+
 
 module.exports = router;

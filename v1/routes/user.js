@@ -212,4 +212,10 @@ router.get('/', function (req, res) {
 //    res.render('index', { title: 'User' }); //index is index.jade
 //});
 
+//TODO add role
+
+//TODO get role
+
+//TODO update role
+
 module.exports = router;

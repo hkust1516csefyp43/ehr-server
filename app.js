@@ -14,6 +14,7 @@ var v1Static = require('./v1/routes/static');
 var v1ChiefComplain = require('./v1/routes/chief_complain');
 var v1Diagnosis = require('./v1/routes/diagnosis');
 var v1Medication = require('./v1/routes/medication');
+var v1Location = require('./v1/routes/location');
 
 var app = express();
 
@@ -39,6 +40,7 @@ app.use('/v1/static', v1Static);
 app.use('/v1/chief_complain', v1ChiefComplain);
 app.use('/v1/diagnosis', v1Diagnosis);
 app.use('/v1/medication', v1Medication);
+app.use('/v1/location', v1Location);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

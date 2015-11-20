@@ -1,3 +1,5 @@
 language: node_js
 node_js:
   - "4.1"
+notifications:
+  slack: hkust1516csefyp43:l1sEWBdYZmyF9K6vTDWXC4yV
