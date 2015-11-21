@@ -20,72 +20,81 @@ router.get('/', function (req, res) {
 
     //TODO check token validity first
     var token = param_query.token;
+
     if (!token) {
         res.status(401).send('Token is missing');
         sent = true;
     } else {
         //params.token = token;
-    }
-
-    var diagnosis_id = param_query.diagnosis_id;
-    if (diagnosis_id) {
-        params.diagnosis_id = diagnosis_id;
-    }
-
-    var name = param_query.name;
-    if (name) {
-        params.name = name;
-    }
-
-    var sql_query = sql
-        .select()
-        .from(default_table)
-        .where(params);
-
-    var limit = param_query.limit;
-    if (limit) {
-        sql_query.limit(limit);
-    } else {    //Default limit
-        sql_query.limit(100);
-    }
-
-    var offset = param_query.offset;
-    if (offset) {
-        sql_query.offset(offset);
-    }
-
-    var sort_by = param_query.sort_by;
-    if (!sort_by) { //Default sort by
-        sql_query.orderBy('chief_complain_id');
-    } else {    //custom sort by
-        //TODO check if custom sort by param is valid
-        sql_query.orderBy(sort_by);
-    }
-
-    console.log(sql_query.toString());
-
-    pg.connect(db.url(), function (err, client, done) {
-        if (err) {
-            res.send('error fetching client from pool');
+        var x = db.check_permission("reset_any_password", token);
+        console.log(x);
+        console.log(JSON.stringify(x));
+        if (!x) {
+            res.status(400).send("error");
             sent = true;
-            return console.error('error fetching client from pool', err);
         } else {
-            client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
-                done();
-                if (err) {
-                    res.send('error fetching client from pool');
-                    sent = true;
-                    return console.error('error fetching client from pool', err);
-                } else {
-                    res.json(result.rows);
+            if (x.reset_any_password == false) {
+                res.status(403).send('No permission');
+                sent = true;
+            } else {
+                var diagnosis_id = param_query.diagnosis_id;
+                if (diagnosis_id) {
+                    params.diagnosis_id = diagnosis_id;
                 }
-            })
-        }
-    });
 
-    //if (!sent) {
-    //    res.send('testing stuff');
-    //}
+                var name = param_query.name;
+                if (name) {
+                    params.name = name;
+                }
+
+                var sql_query = sql
+                    .select()
+                    .from(default_table)
+                    .where(params);
+
+                var limit = param_query.limit;
+                if (limit) {
+                    sql_query.limit(limit);
+                } else {    //Default limit
+                    sql_query.limit(100);
+                }
+
+                var offset = param_query.offset;
+                if (offset) {
+                    sql_query.offset(offset);
+                }
+
+                var sort_by = param_query.sort_by;
+                if (!sort_by) { //Default sort by
+                    sql_query.orderBy('chief_complain_id');
+                } else {    //custom sort by
+                    //TODO check if custom sort by param is valid
+                    sql_query.orderBy(sort_by);
+                }
+
+                console.log(sql_query.toString());
+
+                pg.connect(db.url(), function (err, client, done) {
+                    if (err) {
+                        res.send('error fetching client from pool 1');
+                        sent = true;
+                        return console.error('error fetching client from pool', err);
+                    } else {
+                        client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+                            done();
+                            if (err) {
+                                res.send('error fetching client from pool 2');
+                                sent = true;
+                                return console.error('error fetching client from pool', err);
+                            } else {
+                                res.json(result.rows);
+                            }
+                        })
+                    }
+                });
+            }
+        }
+    }
 });
 
 /**
