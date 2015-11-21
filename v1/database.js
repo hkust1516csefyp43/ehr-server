@@ -26,5 +26,8 @@ module.exports = {
                 return true;
             }
         });
+    },
+    url: function () {
+        return conString;
     }
 };

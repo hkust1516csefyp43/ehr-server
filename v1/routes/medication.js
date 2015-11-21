@@ -67,7 +67,7 @@ router.get('/', function (req, res) {
 
     var sort_by = param_query.sort_by;
     if (!sort_by) { //Default sort by
-        sql_query.orderBy(medication_id);
+        sql_query.orderBy('medication_id');
     } else {    //custom sort by
         //TODO check if custom sort by param is valid
         sql_query.orderBy(sort_by);
@@ -118,6 +118,18 @@ router.get('/:id', function (req, res) {
     if (!sent) {
         res.send('testing stuff');
     }
+
+});
+
+router.put('/:id', function (req, res) {
+
+});
+
+router.post('/', function (req, res) {
+
+});
+
+router.delete('/:id', function (req, res) {
 
 });
 

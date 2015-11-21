@@ -3,6 +3,7 @@ var router = express.Router();
 var pg = require('pg');
 var util = require('../utils');
 var valid = require('../valid');
+var db = require('../database');
 var sql = require('sql-bricks-postgres');
 
 
@@ -17,12 +18,13 @@ router.get('/', function (req, res) {
     var param_query = req.query;
     console.log(JSON.stringify(param_query));
 
+    //TODO check token validity first
     var token = param_query.token;
     if (!token) {
         res.status(401).send('Token is missing');
         sent = true;
     } else {
-        params.token = token;
+        //params.token = token;
     }
 
     var diagnosis_id = param_query.diagnosis_id;
@@ -43,6 +45,8 @@ router.get('/', function (req, res) {
     var limit = param_query.limit;
     if (limit) {
         sql_query.limit(limit);
+    } else {    //Default limit
+        sql_query.limit(100);
     }
 
     var offset = param_query.offset;
@@ -52,24 +56,36 @@ router.get('/', function (req, res) {
 
     var sort_by = param_query.sort_by;
     if (!sort_by) { //Default sort by
-        sql_query.orderBy('medication_id');
+        sql_query.orderBy('chief_complain_id');
     } else {    //custom sort by
         //TODO check if custom sort by param is valid
         sql_query.orderBy(sort_by);
     }
 
-    var limit = param_query.limit;
-    if (limit) {
-        sql_query.limit(limit);
-    } else {    //Default limit
-        sql_query.limit(100);
-    }
-
     console.log(sql_query.toString());
 
-    if (!sent) {
-        res.send('testing stuff');
-    }
+    pg.connect(db.url(), function (err, client, done) {
+        if (err) {
+            res.send('error fetching client from pool');
+            sent = true;
+            return console.error('error fetching client from pool', err);
+        } else {
+            client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+                done();
+                if (err) {
+                    res.send('error fetching client from pool');
+                    sent = true;
+                    return console.error('error fetching client from pool', err);
+                } else {
+                    res.json(result.rows);
+                }
+            })
+        }
+    });
+
+    //if (!sent) {
+    //    res.send('testing stuff');
+    //}
 });
 
 /**
