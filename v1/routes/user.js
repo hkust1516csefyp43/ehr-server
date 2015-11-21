@@ -5,6 +5,8 @@ var express = require('express');
 var crypto = require('crypto');
 var router = express.Router();
 var pg = require('pg');
+var util = require('../utils');
+var valid = require('../valid');
 var sql = require('sql-bricks-postgres');
 
 var conString = "postgres://zepqdcvrvhsmgv:k4LI83mCEcXt3v1RFKv20AOjmr@ec2-54-83-29-15.compute-1.amazonaws.com:5432/d3n867p1e7dkp?ssl=true";

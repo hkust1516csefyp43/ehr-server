@@ -1,11 +1,16 @@
 var express = require('express');
 var router = express.Router();
+var pg = require('pg');
+var util = require('../utils');
+var valid = require('../valid');
 var sql = require('sql-bricks-postgres');
 
 
 var default_table = 'chief_complain';
 
-//Get list of chief complains
+/**
+ * Get list of chief complains
+ */
 router.get('/', function (req, res) {
     var sent = false;
     var params = {};
@@ -53,6 +58,13 @@ router.get('/', function (req, res) {
         sql_query.orderBy(sort_by);
     }
 
+    var limit = param_query.limit;
+    if (limit) {
+        sql_query.limit(limit);
+    } else {    //Default limit
+        sql_query.limit(100);
+    }
+
     console.log(sql_query.toString());
 
     if (!sent) {
@@ -60,7 +72,9 @@ router.get('/', function (req, res) {
     }
 });
 
-//Get a chief complain by id
+/**
+ * Get a chief complain by id
+ */
 router.get('/:id', function (req, res) {
     //console.log(req);
     var sent = false;
@@ -89,18 +103,24 @@ router.get('/:id', function (req, res) {
     }
 });
 
-//Update chief complain with id
+/**
+ * Update chief complain with id
+ */
 router.put('/:id', function (req, res) {
     res.send('in progress');
 });
 
-//Add new chief complain
+/**
+ * Add new chief complain
+ */
 router.post('/', function (req, res) {
     //all content should be stored in body
     res.send('in progress');
 });
 
-//delete chief complain
+/**
+ * delete chief complain
+ */
 router.delete('/:id', function (req, res) {
     res.send('in progress');
 });

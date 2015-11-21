@@ -1,6 +1,10 @@
 var express = require('express');
 var router = express.Router();
+var pg = require('pg');
+var util = require('../utils');
+var valid = require('../valid');
 var sql = require('sql-bricks-postgres');
+
 var default_table = 'medication';
 
 /**
@@ -67,6 +71,13 @@ router.get('/', function (req, res) {
     } else {    //custom sort by
         //TODO check if custom sort by param is valid
         sql_query.orderBy(sort_by);
+    }
+
+    var limit = param_query.limit;
+    if (limit) {
+        sql_query.limit(limit);
+    } else {    //Default limit
+        sql_query.limit(100);
     }
 
     console.log(sql_query);

@@ -127,6 +127,13 @@ router.get('/', function (req, res) {
         sql_query.orderBy('patient_id');
     }
 
+    var limit = param_query.limit;
+    if (limit) {
+        sql_query.limit(limit);
+    } else {    //Default limit
+        sql_query.limit(100);
+    }
+
     var sql_query_string = sql_query.toString();
     console.log(sql_query_string);
 
