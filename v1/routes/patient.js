@@ -5,7 +5,8 @@ var express = require('express');
 var router = express.Router();
 var ba = require('basic-auth');
 var pg = require('pg');
-var util = require('../utils'); //FIXME I don't think this is the best practice
+var util = require('../utils');
+var valid = require('../valid');
 var sql = require('sql-bricks-postgres');
 
 /* GET with patient id + basic auth */

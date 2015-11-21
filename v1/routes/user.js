@@ -46,11 +46,12 @@ router.get('/token_create/', function (req, res) {
 });
 
 router.get('/log_in/', function (req, res) {
+    //TODO use basic auth
     var user = req.query.email; // read user
     var pwd = req.query.password; // read password
     var user_id;
-    //TODO 1:process the password
-    var processed_pwd = pwd;
+
+    var processed_pwd = pwd;    //TODO 1:process the password
     var query = sql.select().from('User').where({email: user}).toParams();
     //var tokenquery=sql.insertInto('token', 'user_email', 'token').values(user, );
     //var query=sql.select().from('user').toParams();
