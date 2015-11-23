@@ -20,13 +20,9 @@ var localConString = "postgres://localhost/sight";
 //});
 
 module.exports = {
-    check_db_connection: function (e) {
+    check_db_connection: function (callback) {
         pg.connect(conString, function(err, client, done) {
-            if (err) {
-                return false;
-            } else {
-                return true;
-            }
+            callback(err, client);
         });
     },
     url: function () {

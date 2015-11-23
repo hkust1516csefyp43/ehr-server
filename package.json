@@ -17,6 +17,7 @@
     "pg": "~4.4.3",
     "underscore": "~1.8.3",
     "sql-bricks-postgres": "~0.4.2",
-    "crypto": "~0.0.3"
+    "crypto": "~0.0.3",
+    "validator": "~4.3.0"
   }
 }
