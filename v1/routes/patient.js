@@ -58,6 +58,7 @@ router.get('/', function (req, res) {
                 var age_ot = param_query.age_ot;
                 var age_yt = param_query.age_yt;
 
+                //TODO age_ot and age_yt can exist together iff age_yt > age_ot
                 switch (util.mutually_exclusive(age, age_ot, age_yt)) {
                     case 0:
                         //Do nothing, LITERALLY
@@ -69,6 +70,15 @@ router.get('/', function (req, res) {
                             //TODO calculation
                         } else if (age_yt) {
                             //TODO calculation
+                        }
+                        break;
+                    case 2:
+                        if (!age) { //i.e. age_ot and age_yt exists
+                            if (age_yt - age_ot > 1) {
+                                //TODO ok, calculate
+                            } else {
+                                res.status(409).send('invalid age_ot and age_yt combination');
+                            }
                         }
                         break;
                     default:
@@ -98,7 +108,33 @@ router.get('/', function (req, res) {
 
                 var email = param_query.email;
                 if (email) {
-                    params.email = email;
+                    //params.email = email;
+                    if (valid.email(email) == false) {
+                        sent = true;
+                        res.status(400).send("invalid email");
+                    } else {
+                        params.email = email;
+                    }
+                }
+
+                var first_name = param_query.first_name;
+                if (first_name) {
+                    params.first_name = first_name;
+                }
+
+                var middle_name = param_query.middle_name;
+                if (middle_name) {
+                    params.middle_name = middle_name;
+                }
+
+                var last_name = param_query.last_name;
+                if (last_name) {
+                    params.last_name = last_name;
+                }
+
+                var name = param_query.name;
+                if (name) {
+                    //TODO search it at first_name OR middle_name OR last_name
                 }
 
                 //TODO get this from relationship table
@@ -139,15 +175,19 @@ router.get('/', function (req, res) {
                     sql_query.limit(100);
                 }
 
-                client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
-                    if (err) {
-                        res.send('error fetching client from pool 2');
-                        sent = true;
-                        return console.error('error fetching client from pool', err);
-                    } else {
-                        res.json(result.rows);
-                    }
-                });
+                console.log("The whole query in string: " + sql_query.toString());
+
+                if (sent == false) {
+                    client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+                        if (err) {
+                            res.send('error fetching client from pool 2');
+                            sent = true;
+                            return console.error('error fetching client from pool', err);
+                        } else {
+                            res.json(result.rows);
+                        }
+                    });
+                }
             }
         });
     }
