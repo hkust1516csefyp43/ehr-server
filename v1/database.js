@@ -32,7 +32,7 @@ module.exports = {
     url: function () {
         return conString;
     },
-    check_permission: function (permission, token) {
+    check_permission: function (permission, token, callback) {
         //TODO synchronize this task and remove return true
         /**
          * Possibility 1: token does not exist >> 497
@@ -47,7 +47,7 @@ module.exports = {
             //return true;
         pg.connect(this.url(), function (err, client, done) {
             if (err) {
-                sent = true;
+                callback(false);
                 return console.error('error fetching client from pool', err);
             } else {
                 var sql_query = sql
@@ -63,12 +63,11 @@ module.exports = {
                 client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
                     done();
                     if (err) {
-                        sent = true;
-                        return console.error('error fetching client from pool', err);
+                        callback(false);
                     } else {
-                        console.log("the result: " + JSON.stringify(result));
+                        console.log("the result: " + JSON.stringify(result.rows));
                         output = result.rows[0];
-                        return output;
+                        callback(output);
                     }
                 })
             }
