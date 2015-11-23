@@ -22,10 +22,9 @@ router.get('/', function (req, res) {
     var token = param_query.token;
 
     if (!token) {
-        res.status(401).send('Token is missing');
+        res.status(499).send('Token is missing');
         sent = true;
     } else {
-        //params.token = token;
         var x = db.check_permission("reset_any_password", token);
         console.log(x);
         console.log(JSON.stringify(x));
@@ -109,7 +108,7 @@ router.get('/:id', function (req, res) {
 
     var token = param_query.token;
     if (!token) {
-        res.status(401).send('Token is missing');
+        res.status(499).send('Token is missing');
         sent = true;
     } else {
         params.token = token;

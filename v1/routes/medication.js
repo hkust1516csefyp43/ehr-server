@@ -18,7 +18,7 @@ router.get('/', function (req, res) {
 
     var token = param_query.token;
     if (!token) {
-        res.status(401).send('Token is missing');
+        res.status(499).send('Token is missing');
         sent = true;
     } else {
         params.token = token;
@@ -101,7 +101,7 @@ router.get('/:id', function (req, res) {
     params.user_id = user_id;
     var token = param_query.token;
     if (!token) {
-        res.status(401).send('Token is missing');
+        res.status(499).send('Token is missing');
         sent = true;
     } else {
         params.token = token;

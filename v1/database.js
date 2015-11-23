@@ -30,32 +30,37 @@ module.exports = {
         });
     },
     url: function () {
-        return localConString;
+        return conString;
     },
     check_permission: function (permission, token) {
-        var output = {};
+        //TODO synchronize this task and remove return true
+        /**
+         * Possibility 1: token does not exist >> 497
+         * Possibility 2: user have no permission >> 403
+         * Possibility 3: no user (Bug) >> 400
+         * Possibility 4: no role (Bug) >> 400
+         * Possibility 5: no role column (Bug) >> 400
+         * Possibility 6: token expired >> 498
+         * Possibility 7: token (this variable) is null >> 499
+         * Possibility 8: You have permission >> 200 (default)
+         */
+            //return true;
         pg.connect(this.url(), function (err, client, done) {
             if (err) {
                 sent = true;
                 return console.error('error fetching client from pool', err);
             } else {
-                var params1 = {};
-                params1.token = token;
-                var sql_query1 = sql.select('user_id').from('token').where(params1);
+                var sql_query = sql
+                    .select('r.' + permission)
+                    .from('users AS u, token AS t, role AS r')
+                    .where(sql('t.token'), token)
+                    .where(sql('t.user_id'), sql('u.user_id'))
+                    .where(sql('u.role_id'), sql('r.role_id'));
 
-                var params2 = {};
-                params2.user_id = sql_query1;
-                var sql_query2 = sql.select('role_id').from('User').where(params2);
+                console.log("The whole query in string: " + sql_query.toString());
+                console.log(JSON.stringify(sql_query.toParams()));
 
-                var params3 = {};
-                params3.role_id = sql_query2;
-                var sql_query3 = sql.select(permission).from('role').where(params3);
-
-                console.log("The whole query in string: " + sql_query3.toString());
-                console.log(JSON.stringify(sql_query3.toParams()));
-                //return true;
-
-                client.query(sql_query3.toParams().text, sql_query3.toParams().values, function (err, result) {
+                client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
                     done();
                     if (err) {
                         sent = true;
@@ -67,6 +72,6 @@ module.exports = {
                     }
                 })
             }
-        });
+        })
     }
 };
