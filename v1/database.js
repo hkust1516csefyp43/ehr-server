@@ -58,7 +58,6 @@ module.exports = {
                     .where(sql('u.role_id'), sql('r.role_id'));
 
                 console.log("The whole query in string: " + sql_query.toString());
-                console.log(JSON.stringify(sql_query.toParams()));
 
                 client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
                     done();
@@ -67,7 +66,7 @@ module.exports = {
                     } else {
                         console.log("the result: " + JSON.stringify(result.rows));
                         output = result.rows[0];
-                        callback(output);
+                        callback(output, client);
                     }
                 })
             }

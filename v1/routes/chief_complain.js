@@ -16,7 +16,7 @@ router.get('/', function (req, res) {
     var sent = false;
     var params = {};
     var param_query = req.query;
-    console.log(JSON.stringify(param_query));
+    console.log("All input queries: " + JSON.stringify(param_query));
 
     //TODO check token validity first
     var token = param_query.token;
@@ -25,14 +25,13 @@ router.get('/', function (req, res) {
         res.status(499).send('Token is missing');
         sent = true;
     } else {
-        //var x = db.check_permission("reset_any_password", token);
-        db.check_permission("reset_any_password", token, function (return_value) {
+        db.check_permission("reset_any_password", token, function (return_value, client) {
             if (return_value.reset_any_password == false) {                 //false (no permission)
                 res.status(403).send('No permission');
             } else if (!return_value) {                                     //false (no token)
-                res.status(4).send('Token missing or invalid');
+                res.status(400).send('Token missing or invalid');
             } else if (return_value.reset_any_password == true) {           //true
-                console.log("qqq" + JSON.stringify(return_value));
+                console.log("return value: " + JSON.stringify(return_value));
                 var diagnosis_id = param_query.diagnosis_id;
                 if (diagnosis_id) {
                     params.diagnosis_id = diagnosis_id;
@@ -70,38 +69,17 @@ router.get('/', function (req, res) {
 
                 console.log(sql_query.toString());
 
-                pg.connect(db.url(), function (err, client, done) {
+                client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
                     if (err) {
-                        res.send('error fetching client from pool 1');
+                        res.send('error fetching client from pool 2');
                         sent = true;
                         return console.error('error fetching client from pool', err);
                     } else {
-                        client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
-                            done();
-                            if (err) {
-                                res.send('error fetching client from pool 2');
-                                sent = true;
-                                return console.error('error fetching client from pool', err);
-                            } else {
-                                res.json(result.rows);
-                            }
-                        })
+                        res.json(result.rows);
                     }
                 });
             }
         });
-        //console.log(x);
-        //console.log(JSON.stringify(x));
-        //if (!x) {
-        //    res.status(400).send("error");
-        //    sent = true;
-        //} else {
-        //    if (x.reset_any_password == false) {
-        //        res.status(403).send('No permission');
-        //        sent = true;
-        //    } else {
-        //    }
-        //}
     }
 });
 
