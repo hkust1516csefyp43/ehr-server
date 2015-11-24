@@ -75,6 +75,7 @@ router.get('/', function (req, res) {
                         sent = true;
                         return console.error('error fetching client from pool', err);
                     } else {
+                        util.save_sql_query(sql_query.toString());
                         res.json(result.rows);
                     }
                 });

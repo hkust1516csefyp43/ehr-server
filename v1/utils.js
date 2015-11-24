@@ -1,4 +1,6 @@
 var ba = require('basic-auth');
+var fs = require('fs');
+var endOfLine = require('os').EOL;
 var start_time = {};
 var port;
 var query_count = 0;
@@ -90,10 +92,26 @@ module.exports = {
         return port;
     },
     save_sql_query: function (sq) {
+        fs.appendFile('../query.txt', sq + endOfLine, function (err) {
+            if (err) {
+                console.log("error writting file");
+            } else {
+                console.log("no error writting file");
+            }
+        });
         //TODO save it
         query_count++;
     },
     get_query_count: function () {
         return query_count;
+    },
+    reset_sync_data: function () {
+        fs.unlink('../query.txt', function (err) {
+            if (err) {
+                console.log("error deleting file");
+            } else {
+                console.log("no error deleting file");
+            }
+        })
     }
 };
