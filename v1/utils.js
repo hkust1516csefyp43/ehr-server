@@ -1,4 +1,7 @@
 var ba = require('basic-auth');
+var start_time = {};
+var port;
+var query_count = 0;
 
 /**
  * a list of string related utilities
@@ -73,5 +76,24 @@ module.exports = {
     age_to_timestamp: function(age) {
         //TODO get current time
 
+    },
+    set_start_time: function (t) {
+        start_time = t;
+    },
+    get_start_time: function () {
+        return start_time;
+    },
+    set_port: function (p) {
+        port = p;
+    },
+    get_port: function () {
+        return port;
+    },
+    save_sql_query: function (sq) {
+        //TODO save it
+        query_count++;
+    },
+    get_query_count: function () {
+        return query_count;
     }
 };

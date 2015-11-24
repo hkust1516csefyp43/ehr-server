@@ -8,7 +8,7 @@ var pg = require('pg');
 var util = require('../utils');
 var valid = require('../valid');
 var sql = require('sql-bricks-postgres');
-
+var www = require('../../bin/www');
 
 /**
  * Send apk for installation
@@ -69,6 +69,18 @@ router.get('/image/:id', function (req, res) {
 
 router.put('/time', function (req, res) {
     //TODO save time as some sort of global variable
+});
+
+/**
+ * TODO create a small json report on the system status
+ */
+router.get('/status/', function (req, res) {
+    var ops = {};
+    var now = new Date();
+    ops.ms_since_start = now.getTime() - util.get_start_time().getTime();
+    ops.port = util.get_port();
+    ops.query_count = util.get_query_count();
+    res.json(ops);
 });
 
 module.exports = router;

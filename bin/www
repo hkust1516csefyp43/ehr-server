@@ -8,6 +8,7 @@ var app = require('../app');
 var debug = require('debug')('nodejs:server');
 var http = require('http');
 var db = require('../v1/database');
+var util = require('../v1/utils');
 
 /**
  * Get port from environment and store in Express.
@@ -33,6 +34,9 @@ server.on('listening', onListening);
 var date = new Date();
 console.log('Server started at ' + date.getFullYear() + '/' + date.getMonth() + '/' + date.getDate() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds());
 console.log('http://localhost:' + port);
+
+util.set_start_time(date);
+util.set_port(port);
 
 //TODO custom startup script
 //1. Connect to database
