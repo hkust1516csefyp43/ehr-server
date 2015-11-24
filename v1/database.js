@@ -28,8 +28,8 @@ module.exports = {
     url: function () {
         return conString;
     },
-    check_permission: function (permission, token, callback) {
-        //TODO synchronize this task and remove return true
+    check_token_permission: function (permission, token, callback) {
+        //TODO check expiry
         /**
          * Possibility 1: token does not exist >> 497
          * Possibility 2: user have no permission >> 403
@@ -48,6 +48,7 @@ module.exports = {
             } else {
                 var sql_query = sql
                     .select('r.' + permission)
+                    .select('t.expiry_timestamp')
                     .from('users AS u, token AS t, role AS r')
                     .where(sql('t.token'), token)
                     .where(sql('t.user_id'), sql('u.user_id'))

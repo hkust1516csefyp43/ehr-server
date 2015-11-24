@@ -42,12 +42,13 @@ router.get('/', function (req, res) {
         res.status(499).send('Token is missing');
         sent = true;
     } else {
-        db.check_permission("reset_any_password", token, function (return_value, client) {
-            if (!return_value) {                                            //false (no token)
+        db.check_token_permission("reset_any_password", token, function (return_value, client) {
+            if (!return_value) {                                            //return value == null >> sth wrong
                 res.status(400).send('Token missing or invalid');
             } else if (return_value.reset_any_password == false) {          //false (no permission)
                 res.status(403).send('No permission');
-            } else if (return_value.reset_any_password == true) {
+            } else if (return_value.reset_any_password == true) {           //w/ permission
+                //TODO check if token expired
                 var next_station = param_query.next_station;
                 if (next_station) {
                     params.next_station = next_station;
@@ -184,6 +185,7 @@ router.get('/', function (req, res) {
                             sent = true;
                             return console.error('error fetching client from pool', err);
                         } else {
+                            util.save_sql_query(sql_query.toString());
                             res.json(result.rows);
                         }
                     });
@@ -191,15 +193,6 @@ router.get('/', function (req, res) {
             }
         });
     }
-
-    //
-    //
-    //var sql_query_string = sql_query.toString();
-    //console.log(sql_query_string);
-    //
-    //if (!sent) {
-    //    res.send('testing stuff');
-    //}
 });
 
 router.post('/', function (req, res) {

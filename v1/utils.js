@@ -1,5 +1,6 @@
 var ba = require('basic-auth');
 var fs = require('fs');
+var rs = require('randomstring');
 var endOfLine = require('os').EOL;
 var start_time = {};
 var port;
@@ -113,5 +114,8 @@ module.exports = {
                 console.log("no error deleting file");
             }
         })
+    },
+    random_string: function (l) {
+        return rs.generate(l);
     }
 };

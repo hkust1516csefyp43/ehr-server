@@ -7,9 +7,8 @@ var router = express.Router();
 var pg = require('pg');
 var util = require('../utils');
 var valid = require('../valid');
+var db = require('../database');
 var sql = require('sql-bricks-postgres');
-
-var conString = "postgres://zepqdcvrvhsmgv:k4LI83mCEcXt3v1RFKv20AOjmr@ec2-54-83-29-15.compute-1.amazonaws.com:5432/d3n867p1e7dkp?ssl=true";
 
 /* GET search */
 router.get('/search/', function(req, res) {
@@ -29,7 +28,7 @@ router.get('/search/', function(req, res) {
 
 router.get('/token_create/', function (req, res) {
 
-    pg.connect(conString, function (err, client, done) {
+    pg.connect(db.url(), function (err, client, done) {
         if (err) {
             return console.error('error fetching client from pool', err);
         }
@@ -57,7 +56,7 @@ router.get('/log_in/', function (req, res) {
     var query = sql.select().from('User').where({email: user}).toParams();
     //var tokenquery=sql.insertInto('token', 'user_email', 'token').values(user, );
     //var query=sql.select().from('user').toParams();
-    pg.connect(conString, function (err, client, done) {
+    pg.connect(db.url(), function (err, client, done) {
         if (err) {
             return console.error('error fetching client from pool', err);
         }
@@ -165,7 +164,7 @@ router.get('/token/', function (req, res) {
         var token = buf.toString('hex');
         console.log(token);
         res.send(token);
-        pg.connect(conString, function (err, client, done) {
+        pg.connect(db.url(), function (err, client, done) {
             if (err) {
                 res.send('error fetching client from pool');
                 return console.error('error fetching client from pool', err);
