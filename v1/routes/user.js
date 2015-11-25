@@ -209,11 +209,6 @@ router.get('/', function (req, res) {
     res.send('Dummy login successful');
 });
 
-//router.get('/', function(req, res, next) {
-//    //var hash = crypto.createHash('sha256').update('testing').digest('hex'); //how to hash sth in sha256
-//    res.render('index', { title: 'User' }); //index is index.jade
-//});
-
 //TODO add role
 
 //TODO get role

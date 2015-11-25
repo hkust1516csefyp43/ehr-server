@@ -119,7 +119,49 @@ router.get('/:id', function (req, res) {
  * Update chief complain with id
  */
 router.put('/:id', function (req, res) {
-    res.send('in progress');
+    var sent = false;
+    var params = {};
+    var param_query = req.query;
+    var body = req.body;
+    console.log("All input queries: " + JSON.stringify(param_query));
+    console.log("The body: " + JSON.stringify(body));
+
+    //TODO check token validity first
+    var token = param_query.token;
+
+    if (!token) {
+        res.status(499).send('Token is missing');
+        sent = true;
+    } else {
+        db.check_token_permission("reset_any_password", token, function (return_value, client) {
+            if (!return_value) {                                            //false (no token)
+                res.status(400).send('Token missing or invalid');
+            } else if (return_value.reset_any_password == false) {          //false (no permission)
+                res.status(403).send('No permission');
+            } else if (return_value.reset_any_password == true) {           //true
+                //TODO check if token expired
+                console.log("return value: " + JSON.stringify(return_value));
+
+                var name = body.name;
+                if (body) {
+                    params.name = name;
+                }
+                var sql_query = sql.update(default_table, params).where(sql('chief_complain_id'), req.params.id);
+                console.log(sql_query.toString());
+
+                client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+                    if (err) {
+                        res.send('error fetching client from pool 3');
+                        sent = true;
+                        return console.error('error fetching client from pool', err);
+                    } else {
+                        util.save_sql_query(sql_query.toString());
+                        res.json(result.rows);
+                    }
+                });
+            }
+        });
+    }
 });
 
 /**
