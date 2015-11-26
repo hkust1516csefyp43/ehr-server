@@ -12,6 +12,9 @@ var db = require('../database');
 var sql = require('sql-bricks-postgres');
 var patient_table = 'patient';
 var visit_table = 'visit';
+var triage_table = 'triage';
+var consultation_table = 'consultation';
+var pharmacy_table = 'pharmacy';
 
 /* GET with patient id + basic auth */
 router.get('/:id', function(req, res) {
@@ -286,7 +289,6 @@ router.post('/', function (req, res) {
                         return console.error('error fetching client from pool', err);
                     } else {
                         //util.save_sql_query(sql_query.toString());
-                        console.log("here");
                         res.json(result.rows);
                     }
                 });
@@ -350,7 +352,6 @@ router.post('/visit/', function (req, res) {
                         return console.error('error fetching client from pool', err);
                     } else {
                         //util.save_sql_query(sql_query.toString());
-                        console.log("here");
                         res.json(result.rows);
                     }
                 });
@@ -386,24 +387,78 @@ router.post('/triage/', function (req, res) {
                 //TODO check if token expired
                 console.log("return value: " + JSON.stringify(return_value));
 
-                params.visit_id = util.random_string(10);
-                var patient_id = body.patient_id;
-                var date = body.date;
-                var next_station = body.next_station;
-                var tag_number = body.tag_number;
-                if (patient_id) {
-                    params.patient_id = patient_id;
+                params.triage_id = util.random_string(10);
+                params.start_time = moment();
+                params.end_time = moment();
+                var user_id = body.user_id;
+                var diastolic = body.diastolic;
+                var systolic = body.systolic;
+                var heart_rate = body.heart_rate;
+                var weight = body.weight;
+                var height = body.height;
+                var temperature_celsius = body.temperature_celsius;
+                var spo2 = body.spo2;
+                var marital_status = body.marital_status;
+                var respiratory_rate = body.respiratory_rate;
+                var last_deworming_date = body.last_deworming_date;
+                var currently_pregnant = body.currently_pregnant;
+                var currently_breast_feeding = body.currently_breast_feeding;
+                var amount_of_child = body.amount_of_child;
+                var amount_of_miscarrage = body.amount_of_miscarrage;
+                var amount_of_abortion = body.amount_of_abortion;
+                var last_menstrual_period = body.last_menstrual_period;
+                if (user_id) {
+                    params.user_id = user_id;
                 }
-                if (date) {
-                    params.date = date;
+                if diastolic) {
+                    params.diastolic = diastolic;
                 }
-                if (next_station) {
-                    params.next_station = next_station;
+                if (systolic) {
+                    params.systolic = systolic;
                 }
-                if (tag_number) {
-                    params.tag_number = tag_number;
+                if (heart_rate) {
+                    params.heart_rate = heart_rate;
                 }
-                var sql_query = sql.insert(visit_table, params);
+                if (weight) {
+                    params.weight = weight;
+                }
+                if (height) {
+                    params.height = height;
+                }
+                if (temperature_celsius) {
+                    params.temperature_celsius = temperature_celsius;
+                }
+                if (spo2) {
+                    params.spo2 = spo2;
+                }
+                if (marital_status) {
+                    params.marital_status = marital_status;
+                }
+                if (respiratory_rate) {
+                    params.respiratory_rate = respiratory_rate;
+                }
+                if (last_deworming_date) {
+                    params.last_deworming_date = last_deworming_date;
+                }
+                if (currently_pregnant) {
+                    params.currently_pregnant = currently_pregnant;
+                }
+                if (currently_breast_feeding) {
+                    params.currently_breast_feeding = currently_breast_feeding;
+                }
+                if (amount_of_child) {
+                    params.amount_of_child = amount_of_child;
+                }
+                if (amount_of_miscarrage) {
+                    params.amount_of_miscarrage = amount_of_miscarrage;
+                }
+                if (amount_of_abortion) {
+                    params.amount_of_abortion = amount_of_abortion;
+                }
+                if (last_menstrual_period) {
+                    params.last_menstrual_period = last_menstrual_period;
+                }
+                var sql_query = sql.insert(triage_table, params);
                 console.log(sql_query.toString());
                 client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
                     if (err) {
@@ -412,7 +467,6 @@ router.post('/triage/', function (req, res) {
                         return console.error('error fetching client from pool', err);
                     } else {
                         //util.save_sql_query(sql_query.toString());
-                        console.log("here");
                         res.json(result.rows);
                     }
                 });
