@@ -23,12 +23,15 @@ module.exports = {
     phone: function (p, c) {
 
     },
-    sort_by: function (request) {    //TODO check if this function works correctly
-        for (var i = 0; i < arguments.length; i++) {
-            if (request == arguments[i]) {
-                return true;
+    sort_by: function (request, array, callback) {
+        if (array.isArray) {
+            for (var i = 0; i < array.length; i++) {
+                if (request == array[i]) {
+                    callback(true);
+                }
             }
-        }
-        return false;
+            callback(false);
+        } else
+            callback(false);
     }
 };

@@ -42,7 +42,7 @@ router.get('/', function (req, res) {
         res.status(499).send('Token is missing');
         sent = true;
     } else {
-        db.check_token_permission("reset_any_password", token, function (return_value, client) {
+        db.check_token_and_permission("reset_any_password", token, function (return_value, client) {
             if (!return_value) {                                            //return value == null >> sth wrong
                 res.status(400).send('Token missing or invalid');
             } else if (return_value.reset_any_password == false) {          //false (no permission)
