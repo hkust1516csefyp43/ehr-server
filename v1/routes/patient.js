@@ -225,45 +225,48 @@ router.post('/', function (req, res) {
 
                 params.patient_id = util.random_string(10);
                 var honorific = body.honorific;
+                var first_name = body.first_name;
+                var middle_name = body.middle_name;
+                var last_name = body.last_name;
+                var phone_number = body.phone_number;
+                var address = body.address;
+                var date_of_birth = body.date_of_birth;
+                var gender = body.gender;
+                var photo = body.photo;
+                var blood_type = body.blood_type;
+                //thees two timestamp variables will be eliminated
+                var create_timestamp = body.create_timestamp;
+                var last_seen = body.last_seen;
                 if (honorific) {
                     params.honorific = honorific;
                 }
-                var first_name = body.first_name;
                 if (first_name) {
                     params.first_name = first_name;
                 }
-                var middle_name = body.middle_name
                 if (middle_name) {
                     params.middle_name = middle_name;
                 }
-                var last_name = body.last_name;
                 if (last_name) {
                     params.first_name = last_name;
                 }
 
                 //TODO select phone_country_id from the phone country input from the request body
 
-                var phone_number = body.phone_number;
                 if (phone_number) {
                     params.phone_number = phone_number;
                 }
-                var address = body.address;
                 if (address) {
                     params.address = address;
                 }
-                var date_of_birth = body.date_of_birth;
                 if (date_of_birth) {
                     params.date_of_birth = date_of_birth;
                 }
-                var gender = body.gender;
                 if (gender) {
                     params.gender = gender;
                 }
-                var photo = body.photo;
                 if (photo) {
                     params.photo = photo;
                 }
-                var blood_type = body.blood_type;
                 if (blood_type) {
                     params.blood_type = blood_type;
                 }
@@ -271,13 +274,10 @@ router.post('/', function (req, res) {
                 //TODO select slum_id from the slum input from the request body
                 //TODO create function to generate timestamps
 
-                var create_timestamp = body.create_timestamp;
-                //the following if should be replaced
+                //the following 2 ifs should be replaced by functions
                 if (create_timestamp) {
                     params.create_timestamp = create_timestamp;
                 }
-                var last_seen = body.last_seen;
-                //the following if should be replaced
                 if (last_seen) {
                     params.last_seen = last_seen;
                 }
@@ -312,7 +312,61 @@ router.get('/visit/:id', function (req, res) {
 });
 
 router.post('/visit/', function (req, res) {
+    var sent = false;
+    var params = {};
+    var param_query = req.query;
+    var body = req.body;
+    console.log("All input queries: " + JSON.stringify(param_query));
+    console.log("The input body: " + JSON.stringify(body));
+    //TODO check token validity first
+    var token = param_query.token;
 
+    if (!token) {
+        res.status(499).send('Token is missing');
+        sent = true;
+    }else {
+        db.check_token_and_permission("add_visit", token, function (return_value, client) {
+            if (!return_value) {                                            //false (no token)
+                res.status(400).send('Token missing or invalid');
+            } else if (return_value.add_visit == false) {          //false (no permission)
+                res.status(403).send('No permission');
+            } else if (return_value.add_visit == true) {           //true
+                //TODO check if token expired
+                console.log("return value: " + JSON.stringify(return_value));
+
+                params.visit_id = util.random_string(10);
+                var patient_id = body.patient_id;
+                var date = body.date;
+                var next_station = body.next_station;
+                var tag_number = body.tag_number;
+                if (patient_id) {
+                    params.patient_id = patient_id;
+                }
+                if (date) {
+                    params.date = date;
+                }
+                if (next_station) {
+                    params.next_station = next_station;
+                }
+                if (tag_number) {
+                    params.tag_number = tag_number;
+                }
+                var sql_query = sql.insert(visit_table, params);
+                console.log(sql_query.toString());
+                client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+                    if (err) {
+                        res.send('error fetching client from pool 3');
+                        sent = true;
+                        return console.error('error fetching client from pool', err);
+                    } else {
+                        //util.save_sql_query(sql_query.toString());
+                        console.log("here");
+                        res.json(result.rows);
+                    }
+                });
+            }
+        });
+    }
 });
 
 router.get('/triage/', function (req, res) {
