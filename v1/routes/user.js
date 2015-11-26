@@ -227,6 +227,119 @@ router.get('/token/', function (req, res) {
 
 });
 
+//[JOHN] TODO Login + renew access token
+router.get('/', function (req, res) {
+    var user = req.query.email;
+    var pwd = req.query.password;
+    var device_id = req.query.device_id;
+    var sent = false;
+
+    var sql_query = sql
+        .select('user_id')
+        .select('email')
+        .select('salt')
+        .select('processed_password')
+        .from('users')
+        .where(sql('email'), user);
+
+    console.log("The whole SQL query: " + sql_query.toString());
+
+    pg.connect(db.url(), function (err, client, done) {
+        if (err) {
+            sent = true;
+            res.status(400).send("error 1");
+        } else
+            client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+                if (err) {
+                    sent = true;
+                    res.status(400).send("error 2");
+                } else {
+                    switch (result.rows.length) {
+                        case 0:
+                            sent = true;
+                            res.status(400).send("Email does not exist");
+                            break;
+                        case 1:
+                            var user_id = result.rows[0].user_id;
+                            //combine pwd and salt
+                            //hash it
+                            //compare it with processed_password
+
+                            //Assume password is correct
+
+                            var sql_query2 = sql
+                                .select()
+                                .from('token')
+                                .where(sql('device_id'), device_id)
+                                .where(sql('access_token'), true);
+
+                            console.log("result: " + JSON.stringify(result.rows[0]));
+                            console.log("The whole SQL query 2: " + sql_query2.toString());
+
+                            client.query(sql_query2.toParams().text, sql_query2.toParams().values, function (err, result) {
+                                if (err) {
+                                    if (!sent) {
+                                        sent = true;
+                                        res.status(400).send("error 3");
+                                    }
+                                } else {
+                                    console.log("token result: " + JSON.stringify(result.rows));
+
+                                    var sql_query3 = sql;
+                                    var params = {};
+                                    params.token = util.random_string(255);
+                                    params.expiry_timestamp = '2015-11-26 03:53:30.216636+00';
+                                    params.access_token = true;
+                                    params.user_id = user_id;
+
+                                    switch (result.rows.length) {
+                                        case 0: //device_id does not exist yet
+                                            params.device_id = device_id;
+
+                                            sql_query3 = sql_query3.insert('token', params);
+                                            console.log("sql q3: " + sql_query3.toString());
+
+                                            client.query(sql_query3.toParams().text, sql_query3.toParams().values, function (err, result) {
+                                                if (err) {
+                                                    res.send("errorrrrr");
+                                                } else {
+                                                    res.send("token saved");
+                                                }
+                                            });
+                                            break;
+                                        case 1: //device_id already exist
+                                            //res.send("device_id already exist");
+
+                                            sql_query3 = sql_query3.update('token', params).where(sql('device_id'), device_id);
+
+                                            client.query(sql_query3.toParams().text, sql_query3.toParams().values, function (err, result) {
+                                                if (err) {
+                                                    res.send("errorrrrr");
+                                                } else {
+                                                    res.send("token updated");
+                                                }
+                                            });
+
+                                            break;
+                                        default:    //bugs
+
+                                    }
+
+                                }
+                            });
+
+                            //sent = true;
+                            //res.send("In progress");
+                            break;
+                        default:
+                            sent = true;
+                            res.status(400).send("Something wrong with the email (bug)");
+                    }
+                }
+            });
+    });
+});
+
 /**
  * TODO revoke token
  */
@@ -240,13 +353,6 @@ router.delete('/token/:id', function (req, res) {
  * */
 router.get('/:id', function(req, res) {
     res.send('user id = ' + req.params.id);
-});
-
-/**
- * TODO Login
- * */
-router.get('/', function (req, res) {
-    res.send('Dummy login successful');
 });
 
 //TODO add role
