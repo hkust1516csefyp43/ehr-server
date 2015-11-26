@@ -22,7 +22,7 @@ module.exports = {
          */
         pg.connect(this.url(), function (err, client, done) {
             if (err) {
-                callback(false);
+                callback(null, client);
                 return console.error('error fetching client from pool', err);
             } else {
                 var sql_query;
@@ -31,31 +31,24 @@ module.exports = {
                     for (var i = 0; i < permission.length; i++) {
                         sql_query = sql_query.select('r.' + permission[i]);
                     }
-                    sql_query = sql_query
-                        .select('t.expiry_timestamp')
-                        .from('users AS u, token AS t, role AS r')
-                        .where(sql('t.token'), token)
-                        .where(sql('t.user_id'), sql('u.user_id'))
-                        .where(sql('u.role_id'), sql('r.role_id'));
                 } else {
-                    sql_query = sql
-                        .select('r.' + permission)
-                        .select('t.expiry_timestamp')
-                        .from('users AS u, token AS t, role AS r')
-                        .where(sql('t.token'), token)
-                        .where(sql('t.user_id'), sql('u.user_id'))
-                        .where(sql('u.role_id'), sql('r.role_id'));
+                    sql_query = sql.select('r.' + permission);
                 }
+                sql_query = sql_query
+                    .select('t.expiry_timestamp')
+                    .from('users AS u, token AS t, role AS r')
+                    .where(sql('t.token'), token)
+                    .where(sql('t.user_id'), sql('u.user_id'))
+                    .where(sql('u.role_id'), sql('r.role_id'));
 
                 console.log("The whole query in string: " + sql_query.toString());
                 client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
                     done();
                     if (err) {
-                        callback(false);
+                        callback(false, client);
                     } else {
                         console.log("the result: " + JSON.stringify(result.rows));
-                        output = result.rows[0];
-                        callback(output, client);
+                        callback(result.rows[0], client);
                     }
                 })
             }

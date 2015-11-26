@@ -126,5 +126,33 @@ module.exports = {
     },
     english_character_ify: function (s) {
         //TODO remove all non a-z A-Z characters
+    },
+    millisecondTpString: function (ms) {
+        var numyears = Math.floor(ms / 31536000000);
+        var numdays = Math.floor((ms % 31536000000) / 86400000);
+        var numhours = Math.floor(((ms % 31536000000) % 86400000) / 3600000);
+        var numminutes = Math.floor((((ms % 31536000000) % 86400000) % 3600000) / 60000);
+        var numseconds = Math.floor((((ms % 31536000000) % 86400000) % 3600000) % 60000 / 1000);
+        var nummillisecond = Math.floor((((ms % 31536000000) % 86400000) % 3600000) % 60000 % 1000);
+        var ops = "";
+        if (numyears > 0) {
+            ops = ops + numyears + " years ";
+        }
+        if (numdays > 0) {
+            ops = ops + numdays + " days ";
+        }
+        if (numhours > 0) {
+            ops = ops + numhours + " hours ";
+        }
+        if (numminutes > 0) {
+            ops = ops + numminutes + " minutes ";
+        }
+        if (numseconds > 0) {
+            ops = ops + numseconds + " seconds ";
+        }
+        if (nummillisecond > 0) {
+            ops = ops + nummillisecond + " milliseconds";
+        }
+        return ops;
     }
 };

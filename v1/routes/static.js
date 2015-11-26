@@ -77,7 +77,7 @@ router.put('/time', function (req, res) {
 router.get('/status/', function (req, res) {
     var ops = {};
     var now = new Date();
-    ops.ms_since_start = now.getTime() - util.get_start_time().getTime();
+    ops.running_for = util.millisecondTpString(now.getTime() - util.get_start_time().getTime());
     ops.port = util.get_port();
     ops.query_count = util.get_query_count();
     res.json(ops);
