@@ -27,33 +27,47 @@ router.get('/search/', function(req, res) {
 // no->Backend return error to Frontend
 
 router.get('/token_create/', function (req, res) {
-
+//Todo Louis
     pg.connect(db.url(), function (err, client, done) {
+        var x = 3;
         if (err) {
             return console.error('error fetching client from pool', err);
         }
-        client.query('SELECT user_email from token', function (err, result) {
-            //call `done()` to release the client back to the pool
-            done();
+        var a = 2;
 
-            if (err) {
-                return console.error('error running query', err);
+        function do_a(b, callback) {
+
+            console.log(b);
+            if (b == 2) {
+                client.query('SELECT * from token', function (err, result) {
+                    //call `done()` to release the client back to the pool
+                    done();
+
+                    if (err) {
+                        return console.error('error running query', err);
+                    }
+                    res.send('result1');
+                });
             }
-            res.send(result);
-            //output: 1
-        });
-    });
+            callback();
+        }
 
+        do_a(a, function () {
+            res.send('result2');
+        });
+
+    });
 });
 
 router.get('/log_in/', function (req, res) {
     //TODO use basic auth
     var user = req.query.email; // read user
     var pwd = req.query.password; // read password
-    var user_id;
+    var userid;
 
     var processed_pwd = pwd;    //TODO 1:process the password
-    var query = sql.select().from('User').where({email: user}).toParams();
+    var query = sql.select().from('users').where({email: user}).toParams();
+
     //var tokenquery=sql.insertInto('token', 'user_email', 'token').values(user, );
     //var query=sql.select().from('user').toParams();
     pg.connect(db.url(), function (err, client, done) {
@@ -79,9 +93,35 @@ router.get('/log_in/', function (req, res) {
                 res.send('Invalid password');
                 return console.error('Invalid password');
             }
-            user_id = result.rows[0].user_id;
-            console.log(user_id);
-            res.send(user_id);
+            userid = result.rows[0].user_id;
+            //Todo: Check user id at token table or not, if yes, delete the record
+            var query = sql.select().from('token').where({user_id: userid}).toParams();
+            client.query(query, function (err, result) {
+                //call `done()` to release the client back to the pool
+                done();
+
+                if (err) {
+                    return console.error('error running query', err);
+                }
+
+                if (result)
+                    var query = sql.delete().from('token').where('user_id', userid).toParams();
+                client.query(query, function (err, result) {
+                    done();
+
+                    if (err) {
+                        return console.error('error running query', err);
+                    }
+                    //Todo: gen token
+                    //Todo: gen device id
+                    //Todo: gen expiry timestamp
+                    //Todo: save into db
+                    res.send('delete');
+                });
+
+
+                //output: 1
+            });
             //res.send(user_id);
             //res.send(result.rows[0]); //server RETURN data to frontend
             //output: 1
@@ -106,7 +146,7 @@ router.get('/log_in/', function (req, res) {
         //});
     });
 
-})
+});
 
 // Log out-> frontend send the token back, delete
 /* GET search */
