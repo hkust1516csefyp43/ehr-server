@@ -5,6 +5,7 @@ var express = require('express');
 var router = express.Router();
 var ba = require('basic-auth');
 var pg = require('pg');
+var moment = require('moment')
 var util = require('../utils');
 var valid = require('../valid');
 var db = require('../database');
@@ -224,6 +225,8 @@ router.post('/', function (req, res) {
                 console.log("return value: " + JSON.stringify(return_value));
 
                 params.patient_id = util.random_string(10);
+                params.create_timestamp = moment();
+                params.last_seen = moment();
                 var honorific = body.honorific;
                 var first_name = body.first_name;
                 var middle_name = body.middle_name;
@@ -234,14 +237,13 @@ router.post('/', function (req, res) {
                 var gender = body.gender;
                 var photo = body.photo;
                 var blood_type = body.blood_type;
-                //thees two timestamp variables will be eliminated
-                var create_timestamp = body.create_timestamp;
-                var last_seen = body.last_seen;
                 if (honorific) {
                     params.honorific = honorific;
                 }
                 if (first_name) {
                     params.first_name = first_name;
+                }else{
+                    res.status(400).send('first_name should be not null');
                 }
                 if (middle_name) {
                     params.middle_name = middle_name;
@@ -257,6 +259,8 @@ router.post('/', function (req, res) {
                 }
                 if (address) {
                     params.address = address;
+                }else{
+                    res.status(400).send('address should be not null');
                 }
                 if (date_of_birth) {
                     params.date_of_birth = date_of_birth;
@@ -273,14 +277,6 @@ router.post('/', function (req, res) {
 
                 //TODO select slum_id from the slum input from the request body
                 //TODO create function to generate timestamps
-
-                //the following 2 ifs should be replaced by functions
-                if (create_timestamp) {
-                    params.create_timestamp = create_timestamp;
-                }
-                if (last_seen) {
-                    params.last_seen = last_seen;
-                }
                 var sql_query = sql.insert(patient_table, params);
                 console.log(sql_query.toString());
                 client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
@@ -335,6 +331,62 @@ router.post('/visit/', function (req, res) {
                 console.log("return value: " + JSON.stringify(return_value));
 
                 params.visit_id = util.random_string(10);
+                params.date = moment(Date.now()).format('YYYY-MM-DD');
+                params.next_station = "1";
+                var patient_id = body.patient_id;
+                var tag_number = body.tag_number;
+                if (patient_id) {
+                    params.patient_id = patient_id;
+                }
+                if (tag_number) {
+                    params.tag_number = tag_number;
+                }
+                var sql_query = sql.insert(visit_table, params);
+                console.log(sql_query.toString());
+                client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+                    if (err) {
+                        res.send('error fetching client from pool 3');
+                        sent = true;
+                        return console.error('error fetching client from pool', err);
+                    } else {
+                        //util.save_sql_query(sql_query.toString());
+                        console.log("here");
+                        res.json(result.rows);
+                    }
+                });
+            }
+        });
+    }
+});
+
+router.get('/triage/', function (req, res) {
+
+});
+
+router.post('/triage/', function (req, res) {
+    var sent = false;
+    var params = {};
+    var param_query = req.query;
+    var body = req.body;
+    console.log("All input queries: " + JSON.stringify(param_query));
+    console.log("The input body: " + JSON.stringify(body));
+    //TODO check token validity first
+    var token = param_query.token;
+
+    if (!token) {
+        res.status(499).send('Token is missing');
+        sent = true;
+    }else {
+        db.check_token_and_permission("add_triage", token, function (return_value, client) {
+            if (!return_value) {                                            //false (no token)
+                res.status(400).send('Token missing or invalid');
+            } else if (return_value.add_triage == false) {          //false (no permission)
+                res.status(403).send('No permission');
+            } else if (return_value.add_triage == true) {           //true
+                //TODO check if token expired
+                console.log("return value: " + JSON.stringify(return_value));
+
+                params.visit_id = util.random_string(10);
                 var patient_id = body.patient_id;
                 var date = body.date;
                 var next_station = body.next_station;
@@ -367,14 +419,6 @@ router.post('/visit/', function (req, res) {
             }
         });
     }
-});
-
-router.get('/triage/', function (req, res) {
-
-});
-
-router.post('/triage/', function (req, res) {
-
 });
 
 router.get('/consultation/', function (req, res) {
