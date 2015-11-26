@@ -243,6 +243,8 @@ router.get('/', function (req, res) {
         .where(sql('email'), user);
 
     console.log("The whole SQL query: " + sql_query.toString());
+    console.log("The whole SQL query: " + sql_query.toParams().text);
+    console.log("The whole SQL query: " + sql_query.toParams().values);
 
     pg.connect(db.url(), function (err, client, done) {
         if (err) {
@@ -308,8 +310,6 @@ router.get('/', function (req, res) {
                                             });
                                             break;
                                         case 1: //device_id already exist
-                                            //res.send("device_id already exist");
-
                                             sql_query3 = sql_query3.update('token', params).where(sql('device_id'), device_id);
 
                                             client.query(sql_query3.toParams().text, sql_query3.toParams().values, function (err, result) {
@@ -327,9 +327,6 @@ router.get('/', function (req, res) {
 
                                 }
                             });
-
-                            //sent = true;
-                            //res.send("In progress");
                             break;
                         default:
                             sent = true;
