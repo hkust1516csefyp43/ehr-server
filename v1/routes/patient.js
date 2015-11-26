@@ -252,7 +252,7 @@ router.post('/', function (req, res) {
                     params.middle_name = middle_name;
                 }
                 if (last_name) {
-                    params.first_name = last_name;
+                    params.last_name = last_name;
                 }
 
                 //TODO select phone_country_id from the phone country input from the request body
@@ -410,7 +410,7 @@ router.post('/triage/', function (req, res) {
                 if (user_id) {
                     params.user_id = user_id;
                 }
-                if diastolic) {
+                if (diastolic) {
                     params.diastolic = diastolic;
                 }
                 if (systolic) {

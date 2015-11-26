@@ -35,6 +35,7 @@ module.exports = {
                     sql_query = sql.select('r.' + permission);
                 }
                 sql_query = sql_query
+                    .select('t.user_id')
                     .select('t.expiry_timestamp')
                     .from('users AS u, token AS t, role AS r')
                     .where(sql('t.token'), token)
