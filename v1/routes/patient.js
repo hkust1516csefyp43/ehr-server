@@ -458,16 +458,40 @@ router.post('/triage/', function (req, res) {
                 if (last_menstrual_period) {
                     params.last_menstrual_period = last_menstrual_period;
                 }
-                var sql_query = sql.insert(triage_table, params);
-                console.log(sql_query.toString());
-                client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+                var sql_query1 = sql.insert(triage_table, params);
+                console.log(sql_query1.toString());
+                client.query(sql_query1.toParams().text, sql_query1.toParams().values, function (err, result) {
                     if (err) {
                         res.send('error fetching client from pool 3');
                         sent = true;
                         return console.error('error fetching client from pool', err);
                     } else {
-                        //util.save_sql_query(sql_query.toString());
-                        res.json(result.rows);
+                        //util.save_sql_query(sql_query1.toString());
+
+                        var visit_id = body.visit_id;
+                        if (visit_id) {
+                            params.visit_id = visit_id;
+                        }
+                        var triage_id =  params.triage_id;
+                        var sql_query2 = sql
+                            .update(visit_table, {triage_id: triage_id, next_station: '2'})
+                            .where(sql('visit_id'), visit_id)
+
+                        console.log("result: " + JSON.stringify(result.rows[0]));
+                        console.log("The whole SQL query 2: " + sql_query2.toString());
+
+                        client.query(sql_query2.toParams().text, sql_query2.toParams().values, function (err, result) {
+                            if (err) {
+                                if (!sent) {
+                                    sent = true;
+                                    res.status(400).send("error 3");
+                                }
+                            } else {
+                                //util.save_sql_query(sql_query2.toString());
+                                
+                                res.json(result.rows);
+                            }
+                        });
                     }
                 });
             }
