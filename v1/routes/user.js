@@ -68,8 +68,6 @@ router.get('/log_in/', function (req, res) {
     var processed_pwd = pwd;    //TODO 1:process the password
     var query = sql.select().from('users').where({email: user}).toParams();
 
-    //var tokenquery=sql.insertInto('token', 'user_email', 'token').values(user, );
-    //var query=sql.select().from('user').toParams();
     pg.connect(db.url(), function (err, client, done) {
         if (err) {
             return console.error('error fetching client from pool', err);
@@ -118,84 +116,12 @@ router.get('/log_in/', function (req, res) {
                     //Todo: save into db
                     res.send('delete');
                 });
-
-
-                //output: 1
             });
-            //res.send(user_id);
-            //res.send(result.rows[0]); //server RETURN data to frontend
-            //output: 1
         });
-
-
-        //var token;
-        //crypto.randomBytes(255, function (ex, buf) {
-        //    token = buf.toString('hex');
-        //    var tokenquery = sql.insertInto('token', 'user_id', 'token').values(user_id, token).toParams();
-        //    client.query(tokenquery, function (err, result) {
-        //        //call `done()` to release the client back to the pool
-        //        done();
-        //
-        //        if (err) {
-        //            return console.error('error running query', err);
-        //        }
-        //        res.send('done');
-        //        res.send(result.rows[0]); //server RETURN data to frontend
-        //        output: 1
-        //    });
-        //});
     });
 
 });
 
-// Log out-> frontend send the token back, delete
-/* GET search */
-//router.get('/log_in/', function(req, res) {
-//    //Turn all these into MySQL command to do the searching
-//    var user_email = req.query.user_email;
-//    var password = req.query.password
-//    //TODO transform the password into processed password
-//
-//        pg.connect(conString, function (err, client, done) {
-//            if (err) {
-//                res.send('error fetching client from pool');
-//                return console.error('error fetching client from pool', err);
-//            }
-//
-//            var query = sql.select().from('user').where({user_email: user_email}).toString();
-//            client.query(query, function (err, result) {
-//                done();  //call `done()` to release the client back to the pool
-//                if (err) {
-//                    res.send('error running query');
-//                    return console.error('error running query', err);
-//                }
-//                if(result.rows[0].password!=password)
-//                {res.send("wrong password");}
-//
-//                require('crypto').randomBytes(255, function(ex, buf) {
-//                    var token = buf.toString('hex');
-//                    pg.connect(conString, function (err, client, done) {
-//                        if (err) {
-//                            res.send('error fetching client from pool');
-//                            return console.error('error fetching client from pool', err);
-//                        }
-//
-//                        var query = sql.insert('token', {'token': token, 'user_email': user_email});
-//                        client.query(query, function (err, result) {
-//                            done();  //call `done()` to release the client back to the pool
-//                            if (err) {
-//                                res.send('error running query');
-//                                return console.error('error running query', err);
-//                            }
-//
-//                            res.send("return token successfully");
-//
-//                        });
-//                    });
-//                });
-//            });
-//    });
-//});
 /**
  * TODO return a list of currently online users
  */
@@ -227,7 +153,7 @@ router.get('/token/', function (req, res) {
 
 });
 
-//[JOHN] TODO Login + renew access token
+//TODO Login + renew access token
 router.get('/', function (req, res) {
     var user = req.query.email;
     var pwd = req.query.password;
@@ -295,6 +221,7 @@ router.get('/', function (req, res) {
                                     params.user_id = user_id;
 
                                     switch (result.rows.length) {
+                                        //update last seen
                                         case 0: //device_id does not exist yet
                                             params.device_id = device_id;
 
@@ -339,9 +266,14 @@ router.get('/', function (req, res) {
 
 /**
  * TODO revoke token
+ * i.e. logout
  */
 router.delete('/token/:id', function (req, res) {
     res.send("In progress");
+    //Get id
+    //get token
+    //get device id
+    //
 });
 
 /**
