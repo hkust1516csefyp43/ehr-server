@@ -12,7 +12,7 @@ module.exports = {
   url: function () {
     return conString;
   },
-  //TODO permission can be an array of permissions
+  //TODO cache key should be user_id instead of token???
   check_token_and_permission: function (permission, token, callback) {
     /**
      * Possibility 1: token does not exist >> 497
