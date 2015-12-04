@@ -1,7 +1,37 @@
 {
   "name": "nodejs",
-  "version": "4.1.0",
+  "version": "0.4.0",
   "private": true,
+  "author": "HKUST 2015-2016 CSE FYP Group 43 <hkust1516csefyp43@gmail.com",
+  "contributors": [
+    {
+      "name": "Louis Tsai",
+      "email": "tsaitszho@gmail.com"
+    },
+    {
+      "name": "John Choi",
+      "email": ""
+    },
+    {
+      "name": "Ricky Lo",
+      "email": ""
+    },
+    {
+      "name": "Ron Ip",
+      "email": ""
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hkust1516csefyp43/ehr-server"
+  },
+  "keywords": [
+    "hkust",
+    "ehr",
+    "mrs",
+    "sight",
+    "one-2-one"
+  ],
   "scripts": {
     "start": "node ./bin/www"
   },

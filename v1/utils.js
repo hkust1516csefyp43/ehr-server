@@ -128,7 +128,7 @@ module.exports = {
   english_character_ify: function (s) {
     //TODO remove all non a-z A-Z characters
   },
-  millisecondTpString: function (ms) {
+  millisecondToString: function (ms) {
     var numyears = Math.floor(ms / 31536000000);
     var numdays = Math.floor((ms % 31536000000) / 86400000);
     var numhours = Math.floor(((ms % 31536000000) % 86400000) / 3600000);
@@ -156,7 +156,28 @@ module.exports = {
     }
     return ops;
   },
+  millisecondToJson: function (ms) {
+    var numyears = Math.floor(ms / 31536000000);
+    var numweeks = Math.floor((ms % 31536000000) / 604800000);
+    var numdays = Math.floor(((ms % 31536000000) % 604800000) / 86400000);
+    var numhours = Math.floor((((ms % 31536000000) % 604800000) % 86400000) / 3600000);
+    var numminutes = Math.floor(((((ms % 31536000000) % 604800000) % 86400000) % 3600000) / 60000);
+    var numseconds = Math.floor(((((ms % 31536000000) % 604800000) % 86400000) % 3600000) % 60000 / 1000);
+    var nummillisecond = Math.floor(((((ms % 31536000000) % 604800000) % 86400000) % 3600000) % 60000 % 1000);
+    var ops = {};
+    ops.year = numyears;
+    ops.week = numweeks;
+    ops.day = numdays;
+    ops.hour = numhours;
+    ops.minute = numminutes;
+    ops.second = numseconds;
+    ops.millisecond = nummillisecond;
+    return ops;
+  },
   remove_line_breaker: function (s) {
     return s.replace(/(\r\n|\n|\r)/gm, "");
+  },
+  to_version_number: function (s) {
+    return s.replace(/(\r\n|\n|\r|v)/gm, "");
   }
 };
