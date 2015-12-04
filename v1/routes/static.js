@@ -9,6 +9,7 @@ var util = require('../utils');
 var valid = require('../valid');
 var sql = require('sql-bricks-postgres');
 var www = require('../../bin/www');
+var shell = require('shelljs');
 
 /**
  * Send apk for installation
@@ -74,10 +75,15 @@ router.put('/time', function (req, res) {
 
 /**
  * TODO create a small json report on the system status
+ * https://www.raspberrypi.org/forums/viewtopic.php?f=91&t=34994
  */
 router.get('/status/', function (req, res) {
   var ops = {};
   var now = new Date();
+  var node_version = shell.exec('node --version', {silent: true}).output;
+  var npm_version = shell.exec('npm --version', {silent: true}).output;
+  ops.node = util.remove_line_breaker(node_version);
+  ops.npm = util.remove_line_breaker(npm_version);
   ops.running_for = util.millisecondTpString(now.getTime() - util.get_start_time().getTime());
   ops.port = util.get_port();
   ops.query_count = util.get_query_count();

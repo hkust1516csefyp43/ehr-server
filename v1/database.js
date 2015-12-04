@@ -25,7 +25,7 @@ module.exports = {
      * Possibility 8: You have (all) permission(s) >> 200 (default)
      */
     permissionCache.get(token, function (err, value) {
-      if (err || value == undefined) {
+      if (err || value === undefined) {
         pg.connect(module.exports.url(), function (err, client, done) {
             if (err) {
               callback(null, client);
@@ -60,9 +60,9 @@ module.exports = {
                   permissionCache.set(token, result.rows[0], 0); //Cache
                   callback(result.rows[0], client);
                 }
-              })
+              });
             }
-        })
+        });
       } else if (aClient) {
         callback(value, aClient);
       } else {

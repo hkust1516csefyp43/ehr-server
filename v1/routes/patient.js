@@ -5,7 +5,7 @@ var express = require('express');
 var router = express.Router();
 var ba = require('basic-auth');
 var pg = require('pg');
-var moment = require('moment')
+var moment = require('moment');
 var util = require('../utils');
 var valid = require('../valid');
 var db = require('../database');
@@ -51,9 +51,9 @@ router.get('/', function (req, res) {
         db.check_token_and_permission("reset_any_password", token, function (return_value, client) {
             if (!return_value) {                                            //return value == null >> sth wrong
                 res.status(400).send('Token missing or invalid');
-            } else if (return_value.reset_any_password == false) {          //false (no permission)
+            } else if (return_value.reset_any_password === false) {          //false (no permission)
                 res.status(403).send('No permission');
-            } else if (return_value.reset_any_password == true) {           //w/ permission
+            } else if (return_value.reset_any_password === true) {           //w/ permission
                 //TODO check if token expired
                 var next_station = param_query.next_station;
                 if (next_station) {
@@ -116,7 +116,7 @@ router.get('/', function (req, res) {
                 var email = param_query.email;
                 if (email) {
                     //params.email = email;
-                    if (valid.email(email) == false) {
+                    if (valid.email(email) === false) {
                         sent = true;
                         res.status(400).send("invalid email");
                     } else {
@@ -157,11 +157,6 @@ router.get('/', function (req, res) {
                     .from('patient')
                     .where(params);
 
-                var limit = param_query.limit;
-                if (limit) {
-                    sql_query.limit(limit);
-                }
-
                 var offset = param_query.offset;
                 if (offset) {
                     sql_query.offset(offset);
@@ -184,7 +179,7 @@ router.get('/', function (req, res) {
 
                 console.log("The whole query in string: " + sql_query.toString());
 
-                if (sent == false) {
+                if (sent === false) {
                     client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
                         if (err) {
                             res.send('error fetching client from pool 2');
@@ -221,9 +216,9 @@ router.post('/', function (req, res) {
         db.check_token_and_permission("add_patient", token, function (return_value, client) {
             if (!return_value) {                                            //false (no token)
                 res.status(400).send('Token missing or invalid');
-            } else if (return_value.add_patient == false) {          //false (no permission)
+            } else if (return_value.add_patient === false) {          //false (no permission)
                 res.status(403).send('No permission');
-            } else if (return_value.add_patient == true) {           //true
+            } else if (return_value.add_patient === true) {           //true
                 //TODO check if token expired
                 console.log("return value: " + JSON.stringify(return_value));
 
@@ -326,9 +321,9 @@ router.post('/visit/', function (req, res) {
         db.check_token_and_permission("add_visit", token, function (return_value, client) {
             if (!return_value) {                                            //false (no token)
                 res.status(400).send('Token missing or invalid');
-            } else if (return_value.add_visit == false) {          //false (no permission)
+            } else if (return_value.add_visit === false) {          //false (no permission)
                 res.status(403).send('No permission');
-            } else if (return_value.add_visit == true) {           //true
+            } else if (return_value.add_visit === true) {           //true
                 //TODO check if token expired
                 console.log("return value: " + JSON.stringify(return_value));
 
@@ -381,9 +376,9 @@ router.post('/triage/', function (req, res) {
         db.check_token_and_permission("add_triage", token, function (return_value, client) {
             if (!return_value) {                                            //false (no token)
                 res.status(400).send('Token missing or invalid');
-            } else if (return_value.add_triage == false) {          //false (no permission)
+            } else if (return_value.add_triage === false) {          //false (no permission)
                 res.status(403).send('No permission');
-            } else if (return_value.add_triage == true) {           //true
+            } else if (return_value.add_triage === true) {           //true
                 //TODO check if token expired
                 console.log("return value: " + JSON.stringify(return_value));
 
@@ -475,7 +470,7 @@ router.post('/triage/', function (req, res) {
                         var triage_id =  params.triage_id;
                         var sql_query2 = sql
                             .update(visit_table, {triage_id: triage_id, next_station: '2'})
-                            .where(sql('visit_id'), visit_id)
+                          .where(sql('visit_id'), visit_id);
 
                         console.log("result: " + JSON.stringify(result.rows[0]));
                         console.log("The whole SQL query 2: " + sql_query2.toString());
@@ -504,9 +499,9 @@ router.post('/triage/', function (req, res) {
         db.check_token_and_permission("add_triage", token, function (return_value, client) {
             if (!return_value) {                                            //false (no token)
                 res.status(400).send('Token missing or invalid');
-            } else if (return_value.add_triage == false) {          //false (no permission)
+            } else if (return_value.add_triage === false) {          //false (no permission)
                 res.status(403).send('No permission');
-            } else if (return_value.add_triage == true) {           //true
+            } else if (return_value.add_triage === true) {           //true
                 //TODO check if token expired
                 console.log("return value: " + JSON.stringify(return_value));
 
@@ -598,7 +593,7 @@ router.post('/triage/', function (req, res) {
                         var triage_id =  params.triage_id;
                         var sql_query2 = sql
                             .update(visit_table, {triage_id: triage_id, next_station: '2'})
-                            .where(sql('visit_id'), visit_id)
+                          .where(sql('visit_id'), visit_id);
 
                         console.log("result: " + JSON.stringify(result.rows[0]));
                         console.log("The whole SQL query 2: " + sql_query2.toString());

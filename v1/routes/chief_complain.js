@@ -27,9 +27,9 @@ router.get('/', function (req, res) {
         db.check_token_and_permission("reset_any_password", token, function (return_value, client) {
             if (!return_value) {                                            //false (no token)
                 res.status(400).send('Token missing or invalid');
-            } else if (return_value.reset_any_password == false) {          //false (no permission)
+            } else if (return_value.reset_any_password === false) {          //false (no permission)
                 res.status(403).send('No permission');
-            } else if (return_value.reset_any_password == true) {           //true
+            } else if (return_value.reset_any_password === true) {           //true
                 //TODO check if token expired
                 console.log("return value: " + JSON.stringify(return_value));
                 var diagnosis_id = param_query.diagnosis_id;
@@ -136,9 +136,9 @@ router.put('/:id', function (req, res) {
         db.check_token_and_permission("reset_any_password", token, function (return_value, client) {
             if (!return_value) {                                            //false (no token)
                 res.status(400).send('Token missing or invalid');
-            } else if (return_value.reset_any_password == false) {          //false (no permission)
+            } else if (return_value.reset_any_password === false) {          //false (no permission)
                 res.status(403).send('No permission');
-            } else if (return_value.reset_any_password == true) {           //true
+            } else if (return_value.reset_any_password === true) {           //true
                 //TODO check if token expired
                 console.log("return value: " + JSON.stringify(return_value));
 
@@ -184,9 +184,9 @@ router.post('/', function (req, res) {
         db.check_token_and_permission("reset_any_password", token, function (return_value, client) {
             if (!return_value) {                                            //false (no token)
                 res.status(400).send('Token missing or invalid');
-            } else if (return_value.reset_any_password == false) {          //false (no permission)
+            } else if (return_value.reset_any_password === false) {          //false (no permission)
                 res.status(403).send('No permission');
-            } else if (return_value.reset_any_password == true) {           //true
+            } else if (return_value.reset_any_password === true) {           //true
                 //TODO check if token expired
                 console.log("return value: " + JSON.stringify(return_value));
 
@@ -233,9 +233,9 @@ router.delete('/:id', function (req, res) {
         db.check_token_and_permission("reset_any_password", token, function (return_value, client) {
             if (!return_value) {                                            //false (no token)
                 res.status(400).send('Token missing or invalid');
-            } else if (return_value.reset_any_password == false) {          //false (no permission)
+            } else if (return_value.reset_any_password === false) {          //false (no permission)
                 res.status(403).send('No permission');
-            } else if (return_value.reset_any_password == true) {           //true
+            } else if (return_value.reset_any_password === true) {           //true
                 //TODO check if token expired
                 console.log("return value: " + JSON.stringify(return_value));
 

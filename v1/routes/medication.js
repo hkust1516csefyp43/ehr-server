@@ -55,11 +55,6 @@ router.get('/', function (req, res) {
         .where(params)
         .toString();
 
-    var limit = param_query.limit;
-    if (limit) {
-        sql_query.limit(limit);
-    }
-
     var offset = param_query.offset;
     if (offset) {
         sql_query.offset(offset);

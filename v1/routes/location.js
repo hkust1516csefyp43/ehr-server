@@ -16,7 +16,7 @@ router.get('/slum/', function (req, res) {
   //TODO return cache if no extra input param (i.e. not searching)
   locationCache.get( "allSlums", function( err, value ){
     if( !err ){
-      if(value == undefined){
+      if(value === undefined){
         // key not found
         //TODO create cache if cache does not exist yet
         obj = { my: "Special", variable: 42 };

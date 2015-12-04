@@ -62,7 +62,7 @@ router.get('/dbdata2', function (req, res) {
             }
             res.send(result.rows[0].name);
         });
-    })
+    });
 });
 
 router.get('/dbdata3', function (req, res) {
@@ -83,7 +83,7 @@ router.get('/dbdata3', function (req, res) {
             console.log(JSON.stringify(result));
             res.send(result.rows);
         });
-    })
+    });
 });
 
 router.get('/dbdata4', function (req, res) {
@@ -103,7 +103,7 @@ router.get('/dbdata4', function (req, res) {
             console.log(JSON.stringify(result));
             res.send(result.rows);
         });
-    })
+    });
 });
 
 router.get('/dbdata5', function (req, res) {
@@ -135,7 +135,7 @@ router.get('/dbdata5', function (req, res) {
             console.log(JSON.stringify(result));
             res.send(result.rows);
         });
-    })
+    });
 });
 
 /* GET with item id */
@@ -172,11 +172,6 @@ router.get('/', function (req, res) {
     var batch_number = param_query.batch_number;
     if (batch_number) {
         params.batch_number = batch_number;
-    }
-
-    var name = param_query.name;
-    if (name) {
-        params.name = name;
     }
 
     //TODO receipt_id in Inventory_update table

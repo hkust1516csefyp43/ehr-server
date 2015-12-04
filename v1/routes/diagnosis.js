@@ -31,9 +31,9 @@ router.get('/', function (req, res) {
         db.check_token_and_permission(permissions, token, function (return_value, client) {
             if (!return_value) {                                            //false (no token)
                 res.status(400).send('Token missing or invalid');
-            } else if (return_value.read_patient == false || return_value.add_to_inventory == false) {          //false (no permission)
+            } else if (return_value.read_patient === false || return_value.add_to_inventory === false) {          //false (no permission)
                 res.status(403).send('No permission');
-            } else if (return_value.read_patient == true && return_value.add_to_inventory == true) {           //true
+            } else if (return_value.read_patient === true && return_value.add_to_inventory === true) {           //true
                 //TODO check if token expired
                 console.log("return value: " + JSON.stringify(return_value));
 

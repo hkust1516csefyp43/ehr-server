@@ -114,7 +114,7 @@ module.exports = {
       } else {
         console.log("no error deleting file");
       }
-    })
+    });
   },
   random_string: function (length) {
     return rs.generate(length);
@@ -155,5 +155,8 @@ module.exports = {
       ops = ops + nummillisecond + " milliseconds";
     }
     return ops;
+  },
+  remove_line_breaker: function (s) {
+    return s.replace(/(\r\n|\n|\r)/gm, "");
   }
 };
