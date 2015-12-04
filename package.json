@@ -33,7 +33,7 @@
     "one-2-one"
   ],
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "forever start ./bin/www"
   },
   "dependencies": {
     "body-parser": "~1.14.1",
