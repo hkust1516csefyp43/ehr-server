@@ -7,6 +7,7 @@ var fs = require('fs');
 var pg = require('pg');
 var util = require('../utils');
 var valid = require('../valid');
+var db = require('../database');
 var sql = require('sql-bricks-postgres');
 var www = require('../../bin/www');
 var shell = require('shelljs');
@@ -71,6 +72,37 @@ router.get('/image/:id', function (req, res) {
 
 router.put('/time', function (req, res) {
   //TODO save time as some sort of global variable
+});
+
+/**
+ * From RPi to heroku: POST queries to the cloud
+ * TODO turn txt into a JSON array (in body)
+ */
+router.post('/query/', function (req, res) {
+  res.send("In progress");
+});
+
+/**
+ * At heroku: someone is PUTing a query to me
+ */
+router.put('/query/', function (req, res) {
+  res.send("In progress");
+  pg.connect(db.url(), function (err, client, done) {
+    //TODO for loop until the whole json array ends
+  });
+});
+
+/**
+ * http://stackoverflow.com/a/14845917/2384934
+ * From * to local: GET query
+ *   backup
+ *   restore
+ *   manual transfer
+ *   etc
+ *   whatever
+ */
+router.get('/query/', function (req, res) {
+  res.send("In progress");
 });
 
 /**
