@@ -9,5 +9,7 @@
 ###Raspberry Pi
 
 ##Mobile apps
-###iOS
 ###Android
+[Website for the server side](https://github.com/hkust1516csefyp43/ehr-android)
+(Download from play store)
+###iOS

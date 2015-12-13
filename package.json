@@ -2,11 +2,12 @@
   "name": "nodejs",
   "version": "0.4.0",
   "private": true,
-  "author": "HKUST 2015-2016 CSE FYP Group 43 <hkust1516csefyp43@gmail.com",
+  "author": "HKUST 2015-2016 CSE FYP Group 43 <hkust1516csefyp43@gmail.com> (http://hkust1516csefyp43.github.io)",
   "contributors": [
     {
       "name": "Louis Tsai",
-      "email": "tsaitszho@gmail.com"
+      "email": "tsaitszho@gmail.com",
+      "url": "http://louistsaitszho.github.io"
     },
     {
       "name": "John Choi",
