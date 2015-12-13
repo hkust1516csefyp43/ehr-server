@@ -11,6 +11,7 @@ var db = require('../database');
 var sql = require('sql-bricks-postgres');
 var www = require('../../bin/www');
 var shell = require('shelljs');
+var path = require('path');
 
 /**
  * Send apk for installation
@@ -126,7 +127,13 @@ router.get('/status/', function (req, res) {
  * id >> filename
  */
 router.get('/sync/:id', function (req, res) {
-
+  fs.stat('../query/' + req.params.id, function (err, stats) {
+    if (err) {
+      res.status(400).send("Error finding file: " + err);
+    } else {
+      res.sendFile(path.join(__dirname, '../../query', req.params.id));
+    }
+  });
 });
 
 /**
@@ -158,14 +165,21 @@ router.get('/sync/', function (req, res) {
  * 2. sendFile() to remoteUrl() (how?)
  */
 router.post('/sync/:id', function (req, res) {
-
+  res.send("in progress");
 });
 
 /**
  * Receiving data and putting them into the db
  */
 router.put('/sync/', function (req, res) {
+  res.send("in progress");
+});
 
+/**
+ * delete sync file
+ */
+router.delete('/sync/:id', function (req, res) {
+  res.send("in progress");
 });
 
 module.exports = router;
