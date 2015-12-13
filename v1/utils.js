@@ -1,11 +1,13 @@
 var ba = require('basic-auth');
 var fs = require('fs');
 var rs = require('randomstring');
+var moment = require('moment');
 
 var endOfLine = require('os').EOL;
 var start_time = {};
 var port;
 var query_count = 0;
+var query_path;
 
 /**
  * a list of string related utilities
@@ -94,27 +96,18 @@ module.exports = {
     return port;
   },
   save_sql_query: function (sq) {
-    fs.appendFile('../query.txt', sq + endOfLine, function (err) {
+    fs.appendFile(query_path, sq + ';' + endOfLine, function (err) {
       if (err) {
         console.log("error witting file");
-      } else {
-        console.log("no error witting file");
       }
     });
-    //TODO save it
     query_count++;
   },
   get_query_count: function () {
     return query_count;
   },
-  reset_sync_data: function () {
-    fs.unlink('../query.txt', function (err) {
-      if (err) {
-        console.log("error deleting file");
-      } else {
-        console.log("no error deleting file");
-      }
-    });
+  update_query_path: function () {
+    query_path = "../query/" + moment().year() + moment().month() + moment().date() + "_" + module.exports.random_string(8) + ".txt";
   },
   random_string: function (length) {
     return rs.generate(length);

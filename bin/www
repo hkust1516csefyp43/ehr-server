@@ -9,6 +9,7 @@ var debug = require('debug')('nodejs:server');
 var http = require('http');
 var db = require('../v1/database');
 var util = require('../v1/utils');
+var mt = require('moment-timezone');
 
 /**
  * Get port from environment and store in Express.
@@ -42,7 +43,10 @@ util.set_port(port);
 //1. Connect to database
 //2. Reset some tables
 //- Token
-util.reset_sync_data();   //Delete query.txt TODO maybe make a dynamic name?
+util.update_query_path();   //Delete query.txt
+
+//Use this to get the whole list of moment-timezone string
+//console.log("qqq" + JSON.stringify(mt.tz.names()));
 
 /**
  * Normalize a port into a number, string, or false.

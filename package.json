@@ -37,23 +37,24 @@
     "start": "forever start ./bin/www"
   },
   "dependencies": {
+    "basic-auth": "~1.0.3",
     "body-parser": "~1.14.1",
     "cookie-parser": "~1.4.0",
+    "crypto": "~0.0.3",
     "debug": "~2.2.0",
     "express": "~4.13.3",
     "jade": "~1.11.0",
-    "morgan": "~1.6.1",
-    "serve-favicon": "~2.3.0",
-    "basic-auth": "~1.0.3",
-    "pg": "~4.4.3",
-    "underscore": "~1.8.3",
-    "sql-bricks-postgres": "~0.4.2",
-    "crypto": "~0.0.3",
-    "validator": "~4.3.0",
-    "randomstring": "~1.1.3",
-    "node-cache": "~3.0.0",
     "moment": "~2.10.6",
+    "moment-timezone": "^0.4.1",
+    "morgan": "~1.6.1",
+    "node-cache": "~3.0.0",
     "onoff": "~1.0.3",
-    "shelljs": "~0.5.3"
+    "pg": "~4.4.3",
+    "randomstring": "~1.1.3",
+    "serve-favicon": "~2.3.0",
+    "shelljs": "~0.5.3",
+    "sql-bricks-postgres": "~0.4.2",
+    "underscore": "~1.8.3",
+    "validator": "~4.3.0"
   }
 }

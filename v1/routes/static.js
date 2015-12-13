@@ -121,4 +121,51 @@ router.get('/status/', function (req, res) {
   res.json(ops);
 });
 
+/**
+ * TODO return the whole txt
+ * id >> filename
+ */
+router.get('/sync/:id', function (req, res) {
+
+});
+
+/**
+ * TODO get a json array of file (names, last update, etc)
+ */
+router.get('/sync/', function (req, res) {
+  fs.readdir('../query/', function (err, files) {
+    if (err) {
+      res.send("error");
+    } else {
+      var op = [];
+      for (var i in files) {
+        var f = files[i];
+        var stat = fs.statSync('../query/' + f);
+        var file = {};
+        file.filename = f;
+        file.mtime = stat.mtime;
+        op.push(file);
+      }
+      res.json(op);
+    }
+  });
+});
+
+/**
+ * RPi posting to Heroku
+ * Logic:
+ * 1. find the right file by id(i.e. file name)
+ * 2. sendFile() to remoteUrl() (how?)
+ */
+router.post('/sync/:id', function (req, res) {
+
+});
+
+/**
+ * Receiving data and putting them into the db
+ */
+router.put('/sync/', function (req, res) {
+
+});
+
 module.exports = router;

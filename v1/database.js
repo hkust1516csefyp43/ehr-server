@@ -12,6 +12,12 @@ module.exports = {
   url: function () {
     return conString;
   },
+  localUrl: function () {
+    return localConString;
+  },
+  remoteUrl: function () {
+    return conString;
+  },
   //TODO cache key should be user_id instead of token???
   check_token_and_permission: function (permission, token, callback) {
     /**
