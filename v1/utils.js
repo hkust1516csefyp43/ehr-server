@@ -95,31 +95,8 @@ module.exports = {
   get_port: function () {
     return port;
   },
-  save_sql_query: function (sq) {
-    fs.appendFile(query_path, sq + ';' + endOfLine, function (err) {
-      if (err) {
-        console.log("error witting file");
-      }
-    });
-    query_count++;
-  },
-  get_query_count: function () {
-    return query_count;
-  },
-  update_query_path: function () {
-    query_path = "../query/" + moment().year() + moment().month() + moment().date() + "_" + module.exports.random_string(8) + ".txt";
-  },
   random_string: function (length) {
     return rs.generate(length);
-  },
-  lower_case_ify: function (s) {
-    //TODO change all letters to lower case
-  },
-  upper_case_ify: function (S) {
-    //TODO change all letters to upper case
-  },
-  english_character_ify: function (s) {
-    //TODO remove all non a-z A-Z characters
   },
   millisecondToString: function (ms) {
     var numyears = Math.floor(ms / 31536000000);

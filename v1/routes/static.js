@@ -8,6 +8,7 @@ var pg = require('pg');
 var util = require('../utils');
 var valid = require('../valid');
 var db = require('../database');
+var q = require('../query');
 var sql = require('sql-bricks-postgres');
 var www = require('../../bin/www');
 var shell = require('shelljs');
@@ -48,8 +49,9 @@ router.get('/status/', function (req, res) {
   ops.node = util.to_version_number(shell.exec('node --version', {silent: true}).output);
   ops.npm = util.to_version_number(shell.exec('npm --version', {silent: true}).output);
   ops.port = util.get_port();
-  ops.query_count = util.get_query_count();
+  ops.query_count = q.get_query_count();
   ops.running_for = util.millisecondToJson(new Date().getTime() - util.get_start_time().getTime());
+  ops.query_file = q.get_query_file_name();
 
   res.json(ops);
 });

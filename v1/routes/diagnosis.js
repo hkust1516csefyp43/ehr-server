@@ -4,6 +4,7 @@ var pg = require('pg');
 var util = require('../utils');
 var db = require('../database');
 var valid = require('../valid');
+var q = require('../query');
 var sql = require('sql-bricks-postgres');
 
 var default_table = 'diagnosis';
@@ -85,7 +86,7 @@ router.get('/', function (req, res) {
             sent = true;
             return console.error('error fetching client from pool', err);
           } else {
-            util.save_sql_query(sql_query.toString());
+            q.save_sql_query(sql_query.toString());
             res.json(result.rows);
           }
         });

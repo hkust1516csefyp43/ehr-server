@@ -9,6 +9,8 @@ var debug = require('debug')('nodejs:server');
 var http = require('http');
 var db = require('../v1/database');
 var util = require('../v1/utils');
+var valid = require('../v1/valid');
+var q = require('../v1/query');
 var mt = require('moment-timezone');
 
 /**
@@ -43,7 +45,7 @@ util.set_port(port);
 //1. Connect to database
 //2. Reset some tables
 //- Token
-util.update_query_path();   //Delete query.txt
+q.update_query_path();
 
 //Use this to get the whole list of moment-timezone string
 //console.log("qqq" + JSON.stringify(mt.tz.names()));

@@ -9,6 +9,7 @@ var moment = require('moment');
 var util = require('../utils');
 var valid = require('../valid');
 var db = require('../database');
+var q = require('../query');
 var sql = require('sql-bricks-postgres');
 var patient_table = 'patient';
 var visit_table = 'visit';
@@ -178,7 +179,7 @@ router.get('/', function (req, res) {
               sent = true;
               return console.error('error fetching client from pool', err);
             } else {
-              util.save_sql_query(sql_query.toString());
+              q.save_sql_query(sql_query.toString());
               res.json(result.rows);
             }
           });

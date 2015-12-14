@@ -4,6 +4,7 @@ var pg = require('pg');
 var util = require('../utils');
 var valid = require('../valid');
 var db = require('../database');
+var q = require('../query');
 var sql = require('sql-bricks-postgres');
 
 /**
@@ -87,7 +88,7 @@ router.get('/slum/', function (req, res) {
             res.status(400).send('error');
             sent = true;
           } else {
-            util.save_sql_query(sql_query.toString());
+            q.save_sql_query(sql_query.toString());
             res.json(result.rows);
           }
         });

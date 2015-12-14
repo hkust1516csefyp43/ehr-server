@@ -2,7 +2,6 @@ var validator = require('validator');
 
 /**
  * TODO a list of methods to do type validation (e.g. is that a valid email)
- * @type {{email: module.exports.email, token: module.exports.token, password: module.exports.password, timestamp: module.exports.timestamp, date: module.exports.date, phone: module.exports.phone, sort_by: module.exports.sort_by}}
  */
 module.exports = {
   email: function (e) {
@@ -11,8 +10,17 @@ module.exports = {
   token: function (t) {
     return validator.isByteLength(t, 255, 255);
   },
-  password: function (p) {
-
+  password: function (p, callback) {
+    if (validator.isLength(p, 6, 64)) {
+      var letters = /^[0-9a-zA-Z!()+_.,`@#-]+$/;
+      if (letters.test(p)) {  //A-OK
+        callback(null, true);
+      } else {
+        callback('invalid password', false);
+      }
+    } else {
+      callback('too long', false);
+    }
   },
   timestamp: function (t) {
 

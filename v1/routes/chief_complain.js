@@ -4,6 +4,7 @@ var pg = require('pg');
 var util = require('../utils');
 var valid = require('../valid');
 var db = require('../database');
+var q = require('../query');
 var sql = require('sql-bricks-postgres');
 
 var default_table = 'chief_complain';
@@ -76,7 +77,7 @@ router.get('/', function (req, res) {
             sent = true;
             return console.error('error fetching client from pool', err);
           } else {
-            util.save_sql_query(sql_query.toString());
+            q.save_sql_query(sql_query.toString());
             res.json(result.rows);
           }
         });
@@ -156,7 +157,7 @@ router.put('/:id', function (req, res) {
             sent = true;
             return console.error('error fetching client from pool', err);
           } else {
-            util.save_sql_query(sql_query.toString());
+            q.save_sql_query(sql_query.toString());
             res.json(result.rows);
           }
         });
@@ -204,7 +205,7 @@ router.post('/', function (req, res) {
             sent = true;
             return console.error('error fetching client from pool', err);
           } else {
-            util.save_sql_query(sql_query.toString());
+            q.save_sql_query(sql_query.toString());
             res.json(result.rows);
           }
         });
@@ -249,7 +250,7 @@ router.delete('/:id', function (req, res) {
             sent = true;
             return console.error('error fetching client from pool', err);
           } else {
-            util.save_sql_query(sql_query.toString());
+            q.save_sql_query(sql_query.toString());
             res.json(result.rows);
           }
         });
