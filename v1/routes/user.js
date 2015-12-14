@@ -130,7 +130,6 @@ router.get('/:id', function (req, res) {
 });
 
 
-
 /**
  * TODO return a list of currently online users
  */
@@ -181,7 +180,6 @@ router.delete('/token/:id', function (req, res) {
   //get device id
   //Destroy token permission cache
 });
-
 
 
 //TODO add role
