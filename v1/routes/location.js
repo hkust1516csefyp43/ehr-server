@@ -3,35 +3,97 @@ var router = express.Router();
 var pg = require('pg');
 var util = require('../utils');
 var valid = require('../valid');
+var db = require('../database');
 var sql = require('sql-bricks-postgres');
-var NodeCache = require("node-cache");
-var locationCache = new NodeCache();
 
 /**
  * Get list of slums
  */
 router.get('/slum/', function (req, res) {
-  //TODO all other basic get data from db stuff
+  var sent = false;
+  var params = {};
+  var param_query = req.query;
+  console.log('All input queries: ' + JSON.stringify(param_query));
 
-  //TODO return cache if no extra input param (i.e. not searching)
-  locationCache.get("allSlums", function (err, value) {
-    if (!err) {
-      if (value === undefined) {
-        // key not found
-        //TODO create cache if cache does not exist yet
-        obj = {my: "Special", variable: 42};
-        locationCache.set("myKey", obj, function (err, success) {
-          if (!err && success) {
-            res.send(obj);
+  //TODO check token validity first
+  var token = param_query.token;
+
+  if (!token) {
+    res.status(499).send('Token is missing');
+    sent = true;
+  } else {
+    db.check_token_and_permission("reset_any_password", token, function (return_value, client) {
+      if (!return_value) {
+        res.status(400).send('Token missing or invalid');
+      } else if (return_value.reset_any_password == false) {
+        res.status(403).send('No permission');
+      } else if (return_value.reset_any_password == true) {
+        console.log("return value: " + JSON.stringify(return_value));
+
+        var name = param_query.name;
+        //if (name) {
+        //  params.name = name;
+        //}
+
+        var english_name = param_query.english_name;
+        if (english_name) {
+          params.english_name = english_name;
+        }
+
+        var native_name = param_query.native_name;
+        if (native_name) {
+          params.native_name = native_name;
+        }
+
+        var location_near = param_query.location_near;
+        //if (location_near) {
+        //  params.location_near = location_near;
+        //}
+
+        var country_id = param_query.country_id;
+        if (country_id) {
+          params.country_id = country_id;
+        }
+
+        var sql_query = sql
+          .select()
+          .from('slum')
+          .where(params);
+
+        var limit = param_query.limit;
+        if (limit) {
+          sql_query.limit(limit);
+        } else {    //Default limit
+          sql_query.limit(100);
+        }
+
+        var offset = param_query.offset;
+        if (offset) {
+          sql_query.offset(offset);
+        }
+
+        var sort_by = param_query.sort_by;
+        if (!sort_by) { //Default sort by
+          sql_query.orderBy('slum_id');
+        } else {    //custom sort by
+          //TODO check if custom sort by param is valid
+          sql_query.orderBy(sort_by);
+        }
+
+        console.log(sql_query.toString());
+
+        client.query(sql_query.toParams().text, sql_query.toParams.values, function (err, result) {
+          if (err) {
+            res.status(400).send('error');
+            sent = true;
+          } else {
+            util.save_sql_query(sql_query.toString());
+            res.json(result.rows);
           }
         });
-
-      } else {
-        // value extracted in value
-        // TODO return it
       }
-    }
-  });
+    });
+  }
 });
 
 /**

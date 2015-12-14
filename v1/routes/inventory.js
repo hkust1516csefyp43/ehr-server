@@ -79,5 +79,16 @@ router.get('/:id', function (req, res) {
   res.send('item id = ' + req.params.id);
 });
 
+router.post('/', function (req, res) {
+  res.send("In progress");
+});
+
+router.put('/:id', function (req, res) {
+  res.send("In progress");
+});
+
+router.delete('/:id', function (req, res) {
+  res.send("In progress");
+});
 
 module.exports = router;

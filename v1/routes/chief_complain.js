@@ -32,6 +32,7 @@ router.get('/', function (req, res) {
       } else if (return_value.reset_any_password === true) {           //true
         //TODO check if token expired
         console.log("return value: " + JSON.stringify(return_value));
+
         var diagnosis_id = param_query.diagnosis_id;
         if (diagnosis_id) {
           params.diagnosis_id = diagnosis_id;
@@ -71,7 +72,7 @@ router.get('/', function (req, res) {
 
         client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
           if (err) {
-            res.send('error fetching client from pool 2');
+            res.status(400).send('error fetching client from pool 2');
             sent = true;
             return console.error('error fetching client from pool', err);
           } else {
