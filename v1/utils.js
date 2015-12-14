@@ -83,18 +83,6 @@ module.exports = {
     //TODO get current time
 
   },
-  set_start_time: function (t) {
-    start_time = t;
-  },
-  get_start_time: function () {
-    return start_time;
-  },
-  set_port: function (p) {
-    port = p;
-  },
-  get_port: function () {
-    return port;
-  },
   random_string: function (length) {
     return rs.generate(length);
   },
@@ -126,6 +114,11 @@ module.exports = {
     }
     return ops;
   },
+  /**
+   * return an object of duration
+   * @param ms is the duration is integer
+   * @returns {{}}
+   */
   millisecondToJson: function (ms) {
     var numyears = Math.floor(ms / 31536000000);
     var numweeks = Math.floor((ms % 31536000000) / 604800000);
@@ -149,5 +142,20 @@ module.exports = {
   },
   to_version_number: function (s) {
     return s.replace(/(\r\n|\n|\r|v)/gm, "");
+  },
+
+  //Getters and setters
+
+  set_start_time: function (t) {
+    start_time = t;
+  },
+  get_start_time: function () {
+    return start_time;
+  },
+  set_port: function (p) {
+    port = p;
+  },
+  get_port: function () {
+    return port;
   }
 };

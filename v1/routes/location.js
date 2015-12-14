@@ -26,9 +26,9 @@ router.get('/slum/', function (req, res) {
     db.check_token_and_permission("reset_any_password", token, function (return_value, client) {
       if (!return_value) {
         res.status(400).send('Token missing or invalid');
-      } else if (return_value.reset_any_password == false) {
+      } else if (return_value.reset_any_password === false) {
         res.status(403).send('No permission');
-      } else if (return_value.reset_any_password == true) {
+      } else if (return_value.reset_any_password === true) {
         console.log("return value: " + JSON.stringify(return_value));
 
         var name = param_query.name;
