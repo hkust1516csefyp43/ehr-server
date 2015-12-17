@@ -1,0 +1,6 @@
+{
+  "cloud_pgsql_connection_string": "postgres://zepqdcvrvhsmgv:k4LI83mCEcXt3v1RFKv20AOjmr@ec2-54-83-29-15.compute-1.amazonaws.com:5432/d3n867p1e7dkp?ssl=true",
+  "local_pgsql_connection_string": "postgres://localhost/sight",
+  "cloud_api_host": "ehr-api.herokuapp.com",
+  "on_the_cloud": true
+}

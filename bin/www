@@ -47,9 +47,6 @@ util.set_port(port);
 //- Token
 q.update_query_path();
 
-//Use this to get the whole list of moment-timezone string
-//console.log("qqq" + JSON.stringify(mt.tz.names()));
-
 /**
  * Normalize a port into a number, string, or false.
  */

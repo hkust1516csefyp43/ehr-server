@@ -3,11 +3,12 @@ var fs = require('fs');
 var rs = require('randomstring');
 var moment = require('moment');
 
-var endOfLine = require('os').EOL;
 var start_time = {};
 var port;
-var query_count = 0;
-var query_path;
+var cloud_options = {
+  host: 'ehr-api.herokuapp.com',
+  path: '/v1/static/status'
+};
 
 /**
  * a list of string related utilities
@@ -157,5 +158,8 @@ module.exports = {
   },
   get_port: function () {
     return port;
+  },
+  get_cloud_options: function() {
+    return cloud_options;
   }
 };

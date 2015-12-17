@@ -13,6 +13,8 @@ var sql = require('sql-bricks-postgres');
 var www = require('../../bin/www');
 var shell = require('shelljs');
 var path = require('path');
+var http = require('http');
+var mt = require('moment-timezone');
 
 /**
  * Send apk for installation
@@ -39,12 +41,14 @@ router.get('/image/:id', function (req, res) {
   res.send('In progress');
 });
 
+//DO NOT implement delete API
+
 /**
+ * Temperature(RPi only):
  * https://www.raspberrypi.org/forums/viewtopic.php?f=91&t=34994
  */
 router.get('/status/', function (req, res) {
   var ops = {};         //outputs
-
   ops.app = require('../../package.json').version;
   ops.node = util.to_version_number(shell.exec('node --version', {silent: true}).output);
   ops.npm = util.to_version_number(shell.exec('npm --version', {silent: true}).output);
@@ -52,7 +56,6 @@ router.get('/status/', function (req, res) {
   ops.query_count = q.get_query_count();
   ops.running_for = util.millisecondToJson(new Date().getTime() - util.get_start_time().getTime());
   ops.query_file = q.get_query_file_name();
-
   res.json(ops);
 });
 
@@ -96,9 +99,20 @@ router.get('/sync/', function (req, res) {
  * RPi posting to Heroku
  * Logic:
  * 1. find the right file by id(i.e. file name)
- * 2. sendFile() to remoteUrl() (how?)
+ * 2. sendFile() to remoteUrl()
+ * https://docs.nodejitsu.com/articles/HTTP/clients/how-to-create-a-HTTP-request
  */
 router.post('/sync/:id', function (req, res) {
+  http.request(util.get_cloud_options(), function (response) {
+    var str = '';
+    response.on('data', function (chunk) {
+      str += chunk;
+    });
+    response.on('end', function () {
+      console.log(str);
+    });
+  }).end();
+
   res.send("in progress");
 });
 
@@ -106,6 +120,7 @@ router.post('/sync/:id', function (req, res) {
  * Receiving data and putting them into the db
  */
 router.put('/sync/', function (req, res) {
+  console.log(JSON.stringify(req));
   res.send("in progress");
 });
 
@@ -114,6 +129,25 @@ router.put('/sync/', function (req, res) {
  */
 router.delete('/sync/:id', function (req, res) {
   res.send("in progress");
+});
+
+router.get('/timezones/', function (req, res) {
+  var a = mt.tz.names();
+  var op = [];
+  a.forEach(function (entry) {
+    var zone = mt.tz.zone(entry);
+    var os = zone.offsets;
+
+    var name = zone.name;
+    var offset = os[os.length - 1];
+
+    var oj = {};
+    oj.name = name;
+    oj.offset = offset;
+
+    op.push(oj);
+  });
+  res.json(op);
 });
 
 module.exports = router;

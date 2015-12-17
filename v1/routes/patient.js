@@ -24,13 +24,6 @@ router.get('/:id', function (req, res) {
 
 router.get('/', function (req, res) {
   var sent = false;
-  //var body = req.body;
-  //var message;
-  //message = util.extend_or_replace(message, 'race: ' + body.race + '\n');
-  //message = util.extend_or_replace(message, 'gender: ' + body.gender + '\n');
-  //message = util.extend_or_replace(message, 'name: ' + body.name + '\n');
-  //message = util.extend_or_replace(message, 'birthday: ' + body.birthday + '\n');
-  //res.send(message);
 
   var params = {};
   var param_query = req.query;
@@ -392,7 +385,7 @@ router.post('/triage/', function (req, res) {
         var currently_pregnant = body.currently_pregnant;
         var currently_breast_feeding = body.currently_breast_feeding;
         var amount_of_child = body.amount_of_child;
-        var amount_of_miscarrage = body.amount_of_miscarrage;
+        var amount_of_miscarriage = body.amount_of_miscarriage;
         var amount_of_abortion = body.amount_of_abortion;
         var last_menstrual_period = body.last_menstrual_period;
         if (user_id) {
@@ -437,8 +430,8 @@ router.post('/triage/', function (req, res) {
         if (amount_of_child) {
           params.amount_of_child = amount_of_child;
         }
-        if (amount_of_miscarrage) {
-          params.amount_of_miscarrage = amount_of_miscarrage;
+        if (amount_of_miscarriage) {
+          params.amount_of_miscarrage = amount_of_miscarriage;
         }
         if (amount_of_abortion) {
           params.amount_of_abortion = amount_of_abortion;
@@ -515,7 +508,7 @@ router.post('/triage/', function (req, res) {
         var currently_pregnant = body.currently_pregnant;
         var currently_breast_feeding = body.currently_breast_feeding;
         var amount_of_child = body.amount_of_child;
-        var amount_of_miscarrage = body.amount_of_miscarrage;
+        var amount_of_miscarriage = body.amount_of_miscarriage;
         var amount_of_abortion = body.amount_of_abortion;
         var last_menstrual_period = body.last_menstrual_period;
         if (user_id) {
