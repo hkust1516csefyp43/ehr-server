@@ -138,10 +138,12 @@ router.get('/timezones/', function (req, res) {
     var zone = mt.tz.zone(entry);
     var os = zone.offsets;
 
-    var name = zone.name;
+    var id = zone.name;
+    var name = util.normalize_country_string(id);
     var offset = os[os.length - 1];
 
     var oj = {};
+    oj.id = id;
     oj.name = name;
     oj.offset = offset;
 

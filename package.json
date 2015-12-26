@@ -34,7 +34,7 @@
     "one-2-one"
   ],
   "scripts": {
-    "test": "node ./bin/www",
+    "devStart": "node ./bin/www",
     "start": "forever start ./bin/www"
   },
   "dependencies": {
@@ -45,6 +45,7 @@
     "debug": "~2.2.0",
     "express": "~4.13.3",
     "jade": "~1.11.0",
+    "microtime": "~2.0.0",
     "moment": "~2.10.6",
     "moment-timezone": "^0.4.1",
     "morgan": "~1.6.1",

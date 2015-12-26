@@ -46,6 +46,7 @@ util.set_port(port);
 //2. Reset some tables
 //- Token
 q.update_query_path();
+//if raspberry pi >> turn on/off leds
 
 /**
  * Normalize a port into a number, string, or false.

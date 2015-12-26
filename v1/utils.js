@@ -144,6 +144,14 @@ module.exports = {
   to_version_number: function (s) {
     return s.replace(/(\r\n|\n|\r|v)/gm, "");
   },
+  normalize_country_string: function(s) {
+    var slash = s.indexOf("/");
+    var op = s.substring(slash+1, s.length);
+    while (op.indexOf("_") >= 0) {
+      op = op.replace("_", " ");
+    }
+    return op;
+  },
 
   //Getters and setters
 
