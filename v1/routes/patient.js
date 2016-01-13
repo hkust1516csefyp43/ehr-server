@@ -211,50 +211,54 @@ router.post('/', function (req, res) {
         params.patient_id = util.random_string(10);
         params.create_timestamp = moment();
         params.last_seen = moment();
+
         var honorific = body.honorific;
-        var first_name = body.first_name;
-        var middle_name = body.middle_name;
-        var last_name = body.last_name;
-        var phone_number = body.phone_number;
-        var address = body.address;
-        var date_of_birth = body.date_of_birth;
-        var gender = body.gender;
-        var photo = body.photo;
-        var blood_type = body.blood_type;
-        if (honorific) {
+        if (honorific)
           params.honorific = honorific;
-        }
-        if (first_name) {
+
+        var first_name = body.first_name;
+        if (first_name)
           params.first_name = first_name;
-        } else {
+        else
           res.status(400).send('first_name should be not null');
-        }
-        if (middle_name) {
+
+        var middle_name = body.middle_name;
+        if (middle_name)
           params.middle_name = middle_name;
-        }
-        if (last_name) {
+
+        var last_name = body.last_name;
+        if (last_name)
           params.last_name = last_name;
-        }
 
         //TODO select phone_country_id from the phone country input from the request body
-
+        var phone_number = body.phone_number;
         if (phone_number) {
           params.phone_number = phone_number;
         }
+
+        var address = body.address;
         if (address) {
           params.address = address;
         } else {
           res.status(400).send('address should be not null');
         }
+
+        var date_of_birth = body.date_of_birth;
         if (date_of_birth) {
           params.date_of_birth = date_of_birth;
         }
+
+        var gender = body.gender;
         if (gender) {
           params.gender = gender;
         }
+
+        var photo = body.photo;
         if (photo) {
           params.photo = photo;
         }
+
+        var blood_type = body.blood_type;
         if (blood_type) {
           params.blood_type = blood_type;
         }

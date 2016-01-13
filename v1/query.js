@@ -9,7 +9,6 @@ var query_path;
 
 /**
  * A bunch of utilities related to the db synchronization
- * @type {{save_sql_query: module.exports.save_sql_query, get_query_count: module.exports.get_query_count, update_query_path: module.exports.update_query_path, get_query_file_name: module.exports.get_query_file_name}}
  */
 module.exports = {
   /**
@@ -23,6 +22,13 @@ module.exports = {
       }
     });
     query_count++;
+  },
+  save_sql_query_2: function (sq) {
+    //TODO save to db
+    //1. connect to db
+    //2. generate sql query
+    //3. run that query
+    //4. output successful or not
   },
   get_query_count: function () {
     return query_count;
