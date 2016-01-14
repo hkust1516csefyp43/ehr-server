@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var pg = require('pg');
 var util = require('../utils');
+var consts = require('../consts');
 var db = require('../database');
 var valid = require('../valid');
 var q = require('../query');
@@ -22,7 +23,7 @@ router.get('/', function (req, res) {
   var token = param_query.token;
 
   if (!token) {
-    res.status(499).send('Token is missing');
+    res.status(consts.token_missing()).send('Token is missing');
     sent = true;
   } else {
     //TODO check what permission it actually needs
@@ -31,9 +32,9 @@ router.get('/', function (req, res) {
     permissions.push("add_to_inventory");
     db.check_token_and_permission(permissions, token, function (return_value, client) {
       if (!return_value) {                                            //false (no token)
-        res.status(400).send('Token missing or invalid');
+        res.status(consts.just_error()).send('Token missing or invalid');
       } else if (return_value.read_patient === false || return_value.add_to_inventory === false) {          //false (no permission)
-        res.status(403).send('No permission');
+        res.status(consts.no_permission).send('No permission');
       } else if (return_value.read_patient === true && return_value.add_to_inventory === true) {           //true
         //TODO check if token expired
         console.log("return value: " + JSON.stringify(return_value));

@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var pg = require('pg');
 var util = require('../utils');
+var consts = require('../consts');
 var valid = require('../valid');
 var db = require('../database');
 var q = require('../query');
@@ -25,12 +26,12 @@ router.get('/slum/', function (req, res) {
     sql_query = sql.select('name').from('slum');
     pg.connect(db.url(), function (err, client, done) {
       if (err) {
-        res.status(400).send('somethings wrong');
+        res.status(consts.just_error()).send('somethings wrong');
       } else {
         client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
           done();
           if (err) {
-            res.status(400).send('somethings wrong');
+            res.status(consts.just_error()).send('somethings wrong');
           } else {
             var output = [];
             for (var i = 0; i < result.rows.length; i++)
@@ -44,10 +45,10 @@ router.get('/slum/', function (req, res) {
   } else {
     db.check_token_and_permission("reset_any_password", token, function (return_value, client) {
       if (!return_value) {
-        res.status(400).send('Token missing or invalid');
-      } else if (return_value.reset_any_password === false) {
-        res.status(403).send('No permission');
-      } else if (return_value.reset_any_password === true) {
+        res.status(consts.just_error()).send('Token missing or invalid');
+      } else if (false === return_value.reset_any_password) {
+        res.status(consts.no_permission()).send('No permission');
+      } else if (true === return_value.reset_any_password) {
         console.log("return value: " + JSON.stringify(return_value));
 
         //TODO search both english and native
@@ -105,7 +106,7 @@ router.get('/slum/', function (req, res) {
 
         client.query(sql_query.toParams().text, sql_query.toParams.values, function (err, result) {
           if (err) {
-            res.status(400).send('error');
+            res.status(consts.just_error()).send('error');
             sent = true;
           } else {
             q.save_sql_query(sql_query.toString());

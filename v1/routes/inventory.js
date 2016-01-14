@@ -5,6 +5,7 @@ var express = require('express');
 var router = express.Router();
 var pg = require('pg');
 var util = require('../utils');
+var consts = require('../consts');
 var valid = require('../valid');
 var sql = require('sql-bricks-postgres');
 
@@ -18,7 +19,7 @@ router.get('/', function (req, res) {
 
   var token = param_query.token;
   if (!token) {
-    res.status(499).send('Token is missing');
+    res.status(consts.token_missing()).send('Token is missing');
     sent = true;
   } else {
     params.token = token;

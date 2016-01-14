@@ -6,6 +6,7 @@ var router = express.Router();
 var fs = require('fs');
 var pg = require('pg');
 var util = require('../utils');
+var consts = require('../consts');
 var valid = require('../valid');
 var db = require('../database');
 var q = require('../query');
@@ -32,6 +33,8 @@ router.post('/image/', function (req, res) {
   res.send('In progress');
 });
 
+//DO NOT implement delete API
+
 /**
  * TODO return image
  * cache image for 3 minutes?
@@ -40,8 +43,6 @@ router.get('/image/:id', function (req, res) {
   //http://stackoverflow.com/questions/4482686/check-synchronously-if-file-directory-exists-in-node-js
   res.send('In progress');
 });
-
-//DO NOT implement delete API
 
 /**
  * Temperature(RPi only):
@@ -56,6 +57,9 @@ router.get('/status/', function (req, res) {
   ops.query_count = q.get_query_count();
   ops.running_for = util.millisecondToJson(new Date().getTime() - util.get_start_time().getTime());
   ops.query_file = q.get_query_file_name();
+  var where = require('../../config.json').on_the_cloud;
+  if (where === false)
+    console.log('pretend rpi is doing sth');
   res.json(ops);
 });
 
@@ -66,7 +70,7 @@ router.get('/status/', function (req, res) {
 router.get('/sync/:id', function (req, res) {
   fs.stat('../query/' + req.params.id, function (err, stats) {
     if (err) {
-      res.status(400).send("Error finding file: " + err);
+      res.status(consts.just_error()).send("Error finding file: " + err);
     } else {
       res.sendFile(path.join(__dirname, '../../query', req.params.id));
     }

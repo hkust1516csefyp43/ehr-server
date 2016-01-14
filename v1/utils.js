@@ -1,5 +1,6 @@
 var ba = require('basic-auth');
 var fs = require('fs');
+//noinspection SpellCheckingInspection
 var rs = require('randomstring');
 var moment = require('moment');
 
@@ -38,7 +39,8 @@ module.exports = {
    * @param req
    * @returns {*|Object}
    */
-  get_user: function (req) {
+  get_user_from_req: function (req) {
+    "use strict";
     return ba(req);
   },
 
@@ -86,34 +88,6 @@ module.exports = {
   },
   random_string: function (length) {
     return rs.generate(length);
-  },
-  millisecondToString: function (ms) {
-    var numyears = Math.floor(ms / 31536000000);
-    var numdays = Math.floor((ms % 31536000000) / 86400000);
-    var numhours = Math.floor(((ms % 31536000000) % 86400000) / 3600000);
-    var numminutes = Math.floor((((ms % 31536000000) % 86400000) % 3600000) / 60000);
-    var numseconds = Math.floor((((ms % 31536000000) % 86400000) % 3600000) % 60000 / 1000);
-    var nummillisecond = Math.floor((((ms % 31536000000) % 86400000) % 3600000) % 60000 % 1000);
-    var ops = "";
-    if (numyears > 0) {
-      ops = ops + numyears + " years ";
-    }
-    if (numdays > 0) {
-      ops = ops + numdays + " days ";
-    }
-    if (numhours > 0) {
-      ops = ops + numhours + " hours ";
-    }
-    if (numminutes > 0) {
-      ops = ops + numminutes + " minutes ";
-    }
-    if (numseconds > 0) {
-      ops = ops + numseconds + " seconds ";
-    }
-    if (nummillisecond > 0) {
-      ops = ops + nummillisecond + " milliseconds";
-    }
-    return ops;
   },
   /**
    * return an object of duration
