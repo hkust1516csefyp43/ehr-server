@@ -26,7 +26,7 @@ router.get('/', function (req, res) {
     res.status(consts.token_missing()).send('Token is missing');
     sent = true;
   } else {
-    db.check_token_and_permission("reset_any_password", token, function (return_value, client) {
+    db.check_token_and_permission("reset_any_password", token, function (err, return_value, client) {
       if (!return_value) {                                            //false (no token)
         res.status(consts.just_error()).send('Token missing or invalid');
       } else if (return_value.reset_any_password === false) {          //false (no permission)
@@ -136,7 +136,7 @@ router.put('/:id', function (req, res) {
     res.status(consts.token_missing()).send('Token is missing');
     sent = true;
   } else {
-    db.check_token_and_permission("reset_any_password", token, function (return_value, client) {
+    db.check_token_and_permission("reset_any_password", token, function (err, return_value, client) {
       if (!return_value) {                                            //false (no token)
         res.status(consts.just_error()).send('Token missing or invalid');
       } else if (return_value.reset_any_password === false) {          //false (no permission)
@@ -184,7 +184,7 @@ router.post('/', function (req, res) {
     res.status(consts.token_missing()).send('Token is missing');
     sent = true;
   } else {
-    db.check_token_and_permission("reset_any_password", token, function (return_value, client) {
+    db.check_token_and_permission("reset_any_password", token, function (err, return_value, client) {
       if (!return_value) {                                            //false (no token)
         res.status(consts.just_error()).send('Token missing or invalid');
       } else if (return_value.reset_any_password === false) {          //false (no permission)
@@ -233,7 +233,7 @@ router.delete('/:id', function (req, res) {
     res.status(consts.token_missing()).send('Token is missing');
     sent = true;
   } else {
-    db.check_token_and_permission("reset_any_password", token, function (return_value, client) {
+    db.check_token_and_permission("reset_any_password", token, function (err, return_value, client) {
       if (!return_value) {                                            //false (no token)
         res.status(consts.just_error()).send('Token missing or invalid');
       } else if (return_value.reset_any_password === false) {          //false (no permission)

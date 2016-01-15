@@ -43,7 +43,7 @@ router.get('/slum/', function (req, res) {
     });
     sent = true;
   } else {
-    db.check_token_and_permission("reset_any_password", token, function (return_value, client) {
+    db.check_token_and_permission("reset_any_password", token, function (err, return_value, client) {
       if (!return_value) {
         res.status(consts.just_error()).send('Token missing or invalid');
       } else if (false === return_value.reset_any_password) {

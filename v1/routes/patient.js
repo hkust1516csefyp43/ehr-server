@@ -6,6 +6,8 @@ var router = express.Router();
 var ba = require('basic-auth');
 var pg = require('pg');
 var moment = require('moment');
+var wait = require('wait.for');
+
 var util = require('../utils');
 var consts = require('../consts');
 var valid = require('../valid');
@@ -35,7 +37,7 @@ router.get('/', function (req, res) {
     res.status(consts.token_missing()).send('Token is missing');
     sent = true;
   } else {
-    db.check_token_and_permission("reset_any_password", token, function (return_value, client) {
+    db.check_token_and_permission("reset_any_password", token, function (err, return_value, client) {
       if (!return_value) {                                            //return value == null >> sth wrong
         res.status(consts.just_error()).send('Token missing or invalid');
       } else if (return_value.reset_any_password === false) {          //false (no permission)
@@ -200,7 +202,7 @@ router.post('/', function (req, res) {
     res.status(consts.token_missing()).send('Token is missing');
     sent = true;
   } else {
-    db.check_token_and_permission("add_patient", token, function (return_value, client) {
+    db.check_token_and_permission("add_patient", token, function (err, return_value, client) {
       if (!return_value) {                                            //false (no token)
         res.status(consts.just_error()).send('Token missing or invalid');
       } else if (return_value.add_patient === false) {          //false (no permission)
@@ -306,11 +308,12 @@ router.get('/visit/:id', function (req, res) {
   var sent = false;
   var param_query = req.query;
   var token = param_query.token;
+  var id = req.params.id;
   if (!token) {
     res.status(consts.token_missing()).send('Token is missing');
     sent = true;
   } else {
-    db.check_token_and_permission("add_visit", token, function (return_value, client) {
+    db.check_token_and_permission("add_visit", token, function (err, return_value, client) {
       if (!return_value) {
         res.status(consts.just_error()).send('Token missing or invalid');
         sent = true;
@@ -320,6 +323,44 @@ router.get('/visit/:id', function (req, res) {
       } else if (true === return_value.add_visit) {
         console.log("return value: " + JSON.stringify(return_value));
 
+        //client.query('select * from triage where visit_id = (select visit_id from visit where patient_id = \'1\');select * from consultation where visit_id = (select visit_id from visit where patient_id = \'1\');select * from pharmacy where visit_id = (select visit_id from visit where patient_id = \'1\');select * from visit where patient_id = \'1\';', function(err, result) {
+        //  if (!err)
+        //    console.log("the result q: " + JSON.stringify(result.rows));
+        //  else
+        //    console.log("err: " + JSON.stringify(err));
+        //  res.send('in progress again');
+        //});
+
+        var visits = [];
+        var test = "testing";
+        var sql_query1 = sql.select().from('visit').where(sql('patient_id'), '1');
+        client.query(sql_query1.toParams().text, sql_query1.toParams().values, function (err, result) {
+          if (!err) {
+            visits = result.rows;
+            test = "testing2";
+            console.log("getting visits: " + JSON.stringify(visits));
+
+
+            for (var i = 0; i < visits.length; i++) {
+              var sql_query2 = sql.select().from('triage').where(sql('visit_id'), visits[i].visit_id);
+              console.log(sql_query2.toString());
+              wait.for()
+              client.query(sql_query2.toParams().text, sql_query2.toParams().values, function (err, result) {
+                if (!err) {
+                  console.log("does this work: " + test);
+                  console.log("getting triages: " + JSON.stringify(result.rows));
+                  console.log("does this visit " + i + " exist: " + JSON.stringify(visits[i]));
+                  visits[i].triage = result.rows[0];
+                }
+              });
+            }
+
+
+            setTimeout(function () {
+              res.send("in progress ar");
+            }, 5000);
+          }
+        });
 
       }
     });
@@ -340,7 +381,7 @@ router.post('/visit/', function (req, res) {
     res.status(consts.token_missing()).send('Token is missing');
     sent = true;
   } else {
-    db.check_token_and_permission("add_visit", token, function (return_value, client) {
+    db.check_token_and_permission("add_visit", token, function (err, return_value, client) {
       if (!return_value) {                                            //false (no token)
         res.status(consts.just_error()).send('Token missing or invalid');
       } else if (return_value.add_visit === false) {          //false (no permission)
@@ -395,7 +436,7 @@ router.post('/triage/', function (req, res) {
     res.status(consts.token_missing()).send('Token is missing');
     sent = true;
   } else {
-    db.check_token_and_permission("add_triage", token, function (return_value, client) {
+    db.check_token_and_permission("add_triage", token, function (err, return_value, client) {
       if (!return_value) {                                            //false (no token)
         res.status(consts.just_error()).send('Token missing or invalid');
       } else if (return_value.add_triage === false) {          //false (no permission)
@@ -518,7 +559,7 @@ router.post('/triage/', function (req, res) {
     res.status(consts.token_missing()).send('Token is missing');
     sent = true;
   } else {
-    db.check_token_and_permission("add_triage", token, function (return_value, client) {
+    db.check_token_and_permission("add_triage", token, function (err, return_value, client) {
       if (!return_value) {                                            //false (no token)
         res.status(consts.just_error()).send('Token missing or invalid');
       } else if (return_value.add_triage === false) {          //false (no permission)

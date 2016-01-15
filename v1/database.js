@@ -17,20 +17,16 @@ module.exports = {
     return conString;
   },
   //TODO cache key should be user_id instead of token???
+  /**
+   * The callback returns a specific err object
+   * @param permission
+   * @param token
+   * @param callback
+   */
   check_token_and_permission: function (permission, token, callback) {
-    /**
-     * Possibility 1: token does not exist >> 497
-     * Possibility 2: user does not have (all) permission(s) >> 403
-     * Possibility 3: no user (Bug) >> 400
-     * Possibility 4: no role (Bug) >> 400
-     * Possibility 5: no role column (Bug) >> 400
-     * Possibility 6: token expired >> 498
-     * Possibility 7: token (this variable) is null >> 499
-     * Possibility 8: You have (all) permission(s) >> 200 (default)
-     */
     pg.connect(module.exports.url(), function (err, client, done) {
       if (err) {
-        callback(null, client);
+        callback(err, null, client);
         return console.error('error fetching client from pool', err);
       } else {
         aClient = client;
@@ -56,10 +52,10 @@ module.exports = {
         client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
           done();
           if (err) {
-            callback(false, client);
+            callback(err, false, client);
           } else {
             console.log("the result: " + JSON.stringify(result.rows));
-            callback(result.rows[0], client);
+            callback(null, result.rows[0], client);
           }
         });
       }
