@@ -1,21 +1,29 @@
 /**
  * Created by Louis on 15/8/2015.
  */
+//Libraries
 var express = require('express');
 var router = express.Router();
 var fs = require('fs');
 var pg = require('pg');
-var util = require('../utils');
-var consts = require('../consts');
-var valid = require('../valid');
-var db = require('../database');
-var q = require('../query');
-var sql = require('sql-bricks-postgres');
-var www = require('../../bin/www');
 var shell = require('shelljs');
 var path = require('path');
 var http = require('http');
+var multer = require('multer');
+var sql = require('sql-bricks-postgres');
 var mt = require('moment-timezone');
+//files and other js
+var util = require('../utils');
+var consts = require('../consts');
+var valid = require('../valid');
+var q = require('../query');
+//variables
+//noinspection SpellCheckingInspection
+var maxImageSize = 10000000;
+var path = multer({
+  dest: '../images/',                        //everything will be store in the images folder
+  limits: {fileSize: maxImageSize, files: 1}    //there can only be 1 file per upload and it must be smaller than 10MB
+});
 
 /**
  * Send apk for installation
@@ -27,9 +35,9 @@ router.get('/apk/', function (req, res) {
 });
 
 /**
- * TODO Upload image and return name/path/???
+ * TODO someone upload image to the server, and then server returns return name/path
  */
-router.post('/image/', function (req, res) {
+router.post('/image/', path.single('image'), function (req, res) {
   res.send('In progress');
 });
 
