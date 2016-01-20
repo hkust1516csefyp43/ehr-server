@@ -5,14 +5,18 @@
 [![Dependency Status](https://david-dm.org/hkust1516csefyp43/ehr-server.svg)](https://david-dm.org/hkust1516csefyp43/ehr-server.svg)
 
 ##Goal
+A system suitable for offline patient record access
 
 ##Deployment
 ###Local
+if you are just trying to run everything locally (on the computer you are staring at right now), you can click [here]() to learn more.
 ###Heroku
 ###Raspberry Pi
 
 ##Mobile apps
 ###Android
-[Website for the server side](https://github.com/hkust1516csefyp43/ehr-android)
+[Click here to our Andorid App repo](https://github.com/hkust1516csefyp43/ehr-android)
 (Download from play store)
 ###iOS
+[Click here to our Andorid App repo](https://github.com/hkust1516csefyp43/ehr-ios)
+(Download from App Store)

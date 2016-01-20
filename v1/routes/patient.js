@@ -340,20 +340,19 @@ router.get('/visit/:id', function (req, res) {
             test = "testing2";
             console.log("getting visits: " + JSON.stringify(visits));
 
-
-            for (var i = 0; i < visits.length; i++) {
-              var sql_query2 = sql.select().from('triage').where(sql('visit_id'), visits[i].visit_id);
-              console.log(sql_query2.toString());
-              wait.for()
-              client.query(sql_query2.toParams().text, sql_query2.toParams().values, function (err, result) {
-                if (!err) {
-                  console.log("does this work: " + test);
-                  console.log("getting triages: " + JSON.stringify(result.rows));
-                  console.log("does this visit " + i + " exist: " + JSON.stringify(visits[i]));
-                  visits[i].triage = result.rows[0];
-                }
-              });
-            }
+            //This does not work because i can figure out how to make the for loop wait for the callback
+            //for (var i = 0; i < visits.length; i++) {
+            //  var sql_query2 = sql.select().from('triage').where(sql('visit_id'), visits[i].visit_id);
+            //  console.log(sql_query2.toString());
+            //  client.query(sql_query2.toParams().text, sql_query2.toParams().values, function (err, result) {
+            //    if (!err) {
+            //      console.log("does this work: " + test);
+            //      console.log("getting triages: " + JSON.stringify(result.rows));
+            //      console.log("does this visit " + i + " exist: " + JSON.stringify(visits[i]));
+            //      visits[i].triage = result.rows[0];
+            //    }
+            //  });
+            //}
 
 
             setTimeout(function () {
