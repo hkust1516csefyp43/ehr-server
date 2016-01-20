@@ -5,15 +5,12 @@
 var express = require('express');
 var router = express.Router();
 var fs = require('fs');
-var pg = require('pg');
 var shell = require('shelljs');
 var path = require('path');
 var http = require('http');
 var multer = require('multer');
-var sql = require('sql-bricks-postgres');
 var mt = require('moment-timezone');
 var mime = require('mime');
-var path = require('path');
 //files and other js
 var util = require('../utils');
 var consts = require('../consts');
@@ -45,8 +42,8 @@ router.get('/apk/', function (req, res) {
 /**
  * DONE someone upload image to the server
  * TODO and then server returns return name/path
- * call this from terminal: google httpie first
- * > http -f POST http://localhost:3000/v1/static/image/ image@~/Downloads/logos/hdpi.png
+ * TODO check permission
+ * httpie: http -f POST http://localhost:3000/v1/static/image/ image@~/Downloads/logos/hdpi.png
  */
 router.post('/image/', function (req, res) {
   upload(req, res, function (err) {
@@ -59,33 +56,27 @@ router.post('/image/', function (req, res) {
   });
 });
 
-//DO NOT implement delete API
-
 /**
- * TODO return image
- * cache image for 3 minutes?
+ * return image
+ * TODO check permission
+ * httpie:  http localhost:3000/v1/static/image/oNA3vGiv2Zv061ar1453266052788.png
  */
 router.get('/image/:id', function (req, res) {
-  //http://stackoverflow.com/questions/4482686/check-synchronously-if-file-directory-exists-in-node-js
   var filename = req.params.id;
   var p = '../images/' + filename;
   fs.access(p, fs.F_OK, function (err) {
     if (err) {
-      console.log("file not found");
       res.status(consts.just_error()).send("Are you sure the file name is correct?");
     } else {
       // It is accessible
-      console.log("its working");
       p = '../' + p;
-      console.log(path.join(__dirname, p));
       res.sendFile(path.join(__dirname, p));
     }
   });
 });
 
 /**
- * Temperature(RPi only):
- * https://www.raspberrypi.org/forums/viewtopic.php?f=91&t=34994
+ * get system status
  */
 router.get('/status/', function (req, res) {
   var ops = {};         //outputs
@@ -96,9 +87,11 @@ router.get('/status/', function (req, res) {
   ops.query_count = q.get_query_count();
   ops.running_for = util.millisecondToJson(new Date().getTime() - util.get_start_time().getTime());
   ops.query_file = q.get_query_file_name();
-  var where = require('../../config.json').on_the_cloud;
-  if (where === false)
+  var cloud = require('../../config.json').on_the_cloud;
+  if (cloud === false) {
     console.log('pretend rpi is doing sth');
+    ops.temperature = shell.exec('/opt/vc/bin/vcgencmd measure_temp', {silent: true});
+  }
   res.json(ops);
 });
 
