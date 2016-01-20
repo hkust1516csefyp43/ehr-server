@@ -12,18 +12,23 @@ var http = require('http');
 var multer = require('multer');
 var sql = require('sql-bricks-postgres');
 var mt = require('moment-timezone');
+var mime = require('mime');
 //files and other js
 var util = require('../utils');
 var consts = require('../consts');
 var valid = require('../valid');
 var q = require('../query');
 //variables
-//noinspection SpellCheckingInspection
-var maxImageSize = 10000000;
-var path = multer({
-  dest: '../images/',                        //everything will be store in the images folder
-  limits: {fileSize: maxImageSize, files: 1}    //there can only be 1 file per upload and it must be smaller than 10MB
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, '../images/');
+  },
+  filename: function (req, file, cb) {
+    var id = util.random_string(16) + Date.now() + path.extname(file.originalname);
+    cb(null, id);
+  }
 });
+var upload = multer({storage: storage}).single('image');
 
 /**
  * Send apk for installation
@@ -35,10 +40,20 @@ router.get('/apk/', function (req, res) {
 });
 
 /**
- * TODO someone upload image to the server, and then server returns return name/path
+ * DONE someone upload image to the server
+ * TODO and then server returns return name/path
+ * call this from terminal: google httpie first
+ * > http -f POST http://localhost:3000/v1/static/image/ image@~/Downloads/logos/hdpi.png
  */
-router.post('/image/', path.single('image'), function (req, res) {
-  res.send('In progress');
+router.post('/image/', function (req, res) {
+  upload(req, res, function (err) {
+    if (err) {
+      console.log(JSON.stringify(err));
+      res.status(consts.just_error()).send("fail saving image");
+    } else {
+      res.send('how can I return the file name?');
+    }
+  });
 });
 
 //DO NOT implement delete API
