@@ -27,8 +27,8 @@ router.get('/', function (req, res) {
     .where(sql('email'), user);
 
   console.log("The whole SQL query: " + sql_query.toString());
-  console.log("The whole SQL query: " + sql_query.toParams().text);
-  console.log("The whole SQL query: " + sql_query.toParams().values);
+  console.log("The sql text: " + sql_query.toParams().text);
+  console.log("The sql vars: " + sql_query.toParams().values);
 
   pg.connect(db.url(), function (err, client, done) {
     if (err) {

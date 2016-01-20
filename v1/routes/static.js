@@ -34,9 +34,9 @@ var upload = multer({storage: storage}).single('image');
  * Send apk for installation
  * No auth, no checking, no instruction, just the apk
  */
-router.get('/apk/', function (req, res) {
-  //http://stackoverflow.com/questions/9321027/how-to-send-files-with-node-js
-  res.send('apk');
+router.get('/android.apk/', function (req, res) {
+  var p = '../../other/app.apk';
+  res.sendFile(path.join(__dirname, p));
 });
 
 /**
@@ -66,7 +66,7 @@ router.get('/image/:id', function (req, res) {
   var p = '../images/' + filename;
   fs.access(p, fs.F_OK, function (err) {
     if (err) {
-      res.status(consts.just_error()).send("Are you sure the file name is correct?");
+      res.status(consts.not_found()).send("Are you sure the file name is correct?");
     } else {
       // It is accessible
       p = '../' + p;
