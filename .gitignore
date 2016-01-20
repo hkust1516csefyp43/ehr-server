@@ -2,4 +2,5 @@
 /query
 /npm-debug.log
 /images
+/.travis.yml
 /.idea/

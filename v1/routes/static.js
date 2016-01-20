@@ -24,6 +24,8 @@ var storage = multer.diskStorage({
     cb(null, '../images/');
   },
   filename: function (req, file, cb) {
+    console.log(path.extname(file.originalname));
+    //TODO save iff it's image (png/PNG/jpg/JPG/JPEG/jpeg/etc)
     var id = util.random_string(16) + Date.now() + path.extname(file.originalname);
     cb(null, id);
   }
