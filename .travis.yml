@@ -11,3 +11,7 @@ addons:
       - g++-4.8
 notifications:
   slack: hkust1516csefyp43:l1sEWBdYZmyF9K6vTDWXC4yV
+deploy:
+  provider: heroku
+  api_key:
+    secure: "e575aca0-de53-4d47-b5cb-eeb6c91c6e0a"
