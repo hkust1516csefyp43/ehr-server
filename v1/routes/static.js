@@ -13,6 +13,7 @@ var multer = require('multer');
 var sql = require('sql-bricks-postgres');
 var mt = require('moment-timezone');
 var mime = require('mime');
+var path = require('path');
 //files and other js
 var util = require('../utils');
 var consts = require('../consts');
@@ -66,7 +67,20 @@ router.post('/image/', function (req, res) {
  */
 router.get('/image/:id', function (req, res) {
   //http://stackoverflow.com/questions/4482686/check-synchronously-if-file-directory-exists-in-node-js
-  res.send('In progress');
+  var filename = req.params.id;
+  var p = '../images/' + filename;
+  fs.access(p, fs.F_OK, function (err) {
+    if (err) {
+      console.log("file not found");
+      res.status(consts.just_error()).send("Are you sure the file name is correct?");
+    } else {
+      // It is accessible
+      console.log("its working");
+      p = '../' + p;
+      console.log(path.join(__dirname, p));
+      res.sendFile(path.join(__dirname, p));
+    }
+  });
 });
 
 /**
