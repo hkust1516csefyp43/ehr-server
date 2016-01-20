@@ -1,14 +1,17 @@
 var pg = require('pg');
 var sql = require('sql-bricks-postgres');
-
-var conString = "postgres://zepqdcvrvhsmgv:k4LI83mCEcXt3v1RFKv20AOjmr@ec2-54-83-29-15.compute-1.amazonaws.com:5432/d3n867p1e7dkp?ssl=true";
-var localConString = "postgres://localhost/sight";
-
+var config = require('../config');
+var conString = config.cloud_pgsql_connection_string;
+var localConString = config.local_pgsql_connection_string;
+var onTheCloud = config.on_the_cloud;
 var aClient;
 
 module.exports = {
   url: function () {
-    return conString;
+    if (onTheCloud === false)
+      return localConString;
+    else
+      return conString;
   },
   localUrl: function () {
     return localConString;
@@ -16,12 +19,15 @@ module.exports = {
   remoteUrl: function () {
     return conString;
   },
-  //TODO cache key should be user_id instead of token???
   /**
    * The callback returns a specific err object
-   * @param permission
-   * @param token
-   * @param callback
+   * @param permission that it needs
+   * @param token of the user
+   * @param callback(err, return_value, client):
+   * err: dah;
+   * return value: an object of all permissions and expiry timestamp of token;
+   * client: a client object (reduce time of getting another client)
+   * TODO get all permissions instead just those have been specified from db (and then cache the whole thing)
    */
   check_token_and_permission: function (permission, token, callback) {
     pg.connect(module.exports.url(), function (err, client, done) {
@@ -31,7 +37,6 @@ module.exports = {
       } else {
         aClient = client;
         var sql_query;
-        //TODO get all permissions instead just those have been specified from db (and then cache the whole thing)
         if (permission.isArray) {
           sql_query = sql;
           for (var i = 0; i < permission.length; i++) {
@@ -49,9 +54,11 @@ module.exports = {
           .where(sql('u.role_id'), sql('r.role_id'));
 
         console.log("The whole query in string: " + sql_query.toString());
-        client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+        var sqp = sql_query.toParams();
+        client.query(sqp.text, sqp.values, function (err, result) {
           done();
           if (err) {
+            console.log("some error: " + err);
             callback(err, false, client);
           } else {
             console.log("the result: " + JSON.stringify(result.rows));
