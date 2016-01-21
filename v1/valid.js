@@ -34,7 +34,7 @@ module.exports = {
   sort_by: function (request, array, callback) {
     if (array.isArray) {
       for (var i = 0; i < array.length; i++) {
-        if (request == array[i]) {
+        if (request === array[i]) {
           callback(true);
         }
       }

@@ -32,7 +32,7 @@ router.get('/', function (req, res) {
     permissions.push("add_to_inventory");
     db.check_token_and_permission(permissions, token, function (err, return_value, client) {
       if (!return_value) {                                            //false (no token)
-        res.status(consts.just_error()).send('Token missing or invalid');
+        res.status(consts.bad_request()).send('Token missing or invalid');
       } else if (return_value.read_patient === false || return_value.add_to_inventory === false) {          //false (no permission)
         res.status(consts.no_permission).send('No permission');
       } else if (return_value.read_patient === true && return_value.add_to_inventory === true) {           //true

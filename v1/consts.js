@@ -1,5 +1,5 @@
 module.exports = {
-  just_error: function () {
+  bad_request: function () {
     return 400;
   },
   no_permission: function () {
@@ -8,19 +8,25 @@ module.exports = {
   not_found: function () {
     return 404;
   },
+  refresh_token_expired: function () {
+    return 440;
+  },
   token_does_not_exist: function() {
     return 497;
   },
-  token_expired: function() {
+  access_token_expired: function () {
     return 498;
   },
   token_missing: function () {
     return 499;
   },
+  server_error: function () {
+    return 500;
+  },
   server_unavailable: function () {
     return 503;
   },
-  access_token_expired: function() {
+  refresh_token_expired: function () {
     return 419;
   }
 };

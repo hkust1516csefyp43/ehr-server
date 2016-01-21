@@ -39,7 +39,7 @@ router.get('/', function (req, res) {
   } else {
     db.check_token_and_permission("reset_any_password", token, function (err, return_value, client) {
       if (!return_value) {                                            //return value == null >> sth wrong
-        res.status(consts.just_error()).send('Token missing or invalid');
+        res.status(consts.bad_request()).send('Token missing or invalid');
       } else if (return_value.reset_any_password === false) {          //false (no permission)
         res.status(consts.no_permission).send('No permission');
       } else if (return_value.reset_any_password === true) {           //w/ permission
@@ -107,7 +107,7 @@ router.get('/', function (req, res) {
           //params.email = email;
           if (valid.email(email) === false) {
             sent = true;
-            res.status(consts.just_error()).send("invalid email");
+            res.status(consts.bad_request()).send("invalid email");
           } else {
             params.email = email;
           }
@@ -204,7 +204,7 @@ router.post('/', function (req, res) {
   } else {
     db.check_token_and_permission("add_patient", token, function (err, return_value, client) {
       if (!return_value) {                                            //false (no token)
-        res.status(consts.just_error()).send('Token missing or invalid');
+        res.status(consts.bad_request()).send('Token missing or invalid');
       } else if (return_value.add_patient === false) {          //false (no permission)
         res.status(consts.no_permission).send('No permission');
       } else if (return_value.add_patient === true) {           //true
@@ -223,7 +223,7 @@ router.post('/', function (req, res) {
         if (first_name)
           params.first_name = first_name;
         else
-          res.status(consts.just_error()).send('first_name should be not null');
+          res.status(consts.bad_request()).send('first_name should be not null');
 
         var middle_name = body.middle_name;
         if (middle_name)
@@ -243,7 +243,7 @@ router.post('/', function (req, res) {
         if (address) {
           params.address = address;
         } else {
-          res.status(consts.just_error()).send('address should be not null');
+          res.status(consts.bad_request()).send('address should be not null');
         }
 
         var date_of_birth = body.date_of_birth;
@@ -315,12 +315,12 @@ router.get('/visit/:id', function (req, res) {
   } else {
     db.check_token_and_permission("add_visit", token, function (err, return_value, client) {
       if (!return_value) {
-        res.status(consts.just_error()).send('Token missing or invalid');
+        res.status(consts.bad_request()).send('Token missing or invalid');
         sent = true;
-      } else if (false === return_value.add_visit) {
+      } else if (return_value.add_visit === false) {
         res.status(consts.no_permission).send('No permission');
         sent = true;
-      } else if (true === return_value.add_visit) {
+      } else if (return_value.add_visit === true) {
         console.log("return value: " + JSON.stringify(return_value));
 
         //client.query('select * from triage where visit_id = (select visit_id from visit where patient_id = \'1\');select * from consultation where visit_id = (select visit_id from visit where patient_id = \'1\');select * from pharmacy where visit_id = (select visit_id from visit where patient_id = \'1\');select * from visit where patient_id = \'1\';', function(err, result) {
@@ -382,7 +382,7 @@ router.post('/visit/', function (req, res) {
   } else {
     db.check_token_and_permission("add_visit", token, function (err, return_value, client) {
       if (!return_value) {                                            //false (no token)
-        res.status(consts.just_error()).send('Token missing or invalid');
+        res.status(consts.bad_request()).send('Token missing or invalid');
       } else if (return_value.add_visit === false) {          //false (no permission)
         res.status(consts.no_permission).send('No permission');
       } else if (return_value.add_visit === true) {           //true
@@ -437,7 +437,7 @@ router.post('/triage/', function (req, res) {
   } else {
     db.check_token_and_permission("add_triage", token, function (err, return_value, client) {
       if (!return_value) {                                            //false (no token)
-        res.status(consts.just_error()).send('Token missing or invalid');
+        res.status(consts.bad_request()).send('Token missing or invalid');
       } else if (return_value.add_triage === false) {          //false (no permission)
         res.status(consts.no_permission).send('No permission');
       } else if (return_value.add_triage === true) {           //true
@@ -541,7 +541,7 @@ router.post('/triage/', function (req, res) {
               if (err) {
                 if (!sent) {
                   sent = true;
-                  res.status(consts.just_error()).send("error 3");
+                  res.status(consts.bad_request()).send("error 3");
                 }
               } else {
                 //util.save_sql_query(sql_query2.toString());
@@ -560,7 +560,7 @@ router.post('/triage/', function (req, res) {
   } else {
     db.check_token_and_permission("add_triage", token, function (err, return_value, client) {
       if (!return_value) {                                            //false (no token)
-        res.status(consts.just_error()).send('Token missing or invalid');
+        res.status(consts.bad_request()).send('Token missing or invalid');
       } else if (return_value.add_triage === false) {          //false (no permission)
         res.status(consts.no_permission).send('No permission');
       } else if (return_value.add_triage === true) {           //true
@@ -664,7 +664,7 @@ router.post('/triage/', function (req, res) {
               if (err) {
                 if (!sent) {
                   sent = true;
-                  res.status(consts.just_error()).send("error 3");
+                  res.status(consts.bad_request()).send("error 3");
                 }
               } else {
                 //util.save_sql_query(sql_query2.toString());

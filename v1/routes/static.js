@@ -16,6 +16,7 @@ var util = require('../utils');
 var consts = require('../consts');
 var valid = require('../valid');
 var q = require('../query');
+var db = require('../database');
 //variables
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -40,20 +41,37 @@ router.get('/android.apk/', function (req, res) {
 });
 
 /**
- * DONE someone upload image to the server
- * TODO and then server returns return name/path
- * TODO check permission
- * httpie: http -f POST http://localhost:3000/v1/static/image/ image@~/Downloads/logos/hdpi.png
+ * someone upload image to the server, and then server returns return name/path
+ * httpie: http -f POST http://localhost:3000/v1/static/image/ image@~/Downloads/logos/hdpi.png token:hihi
  */
 router.post('/image/', function (req, res) {
-  upload(req, res, function (err) {
-    if (err) {
-      console.log(JSON.stringify(err));
-      res.status(consts.just_error()).send("fail saving image");
-    } else {
-      res.send('how can I return the file name?');
-    }
-  });
+  var token = req.get('token');   //Get token from header
+  if (!token) {
+    res.status(consts.token_missing()).send('Token is missing');
+  } else {
+    db.check_token_and_permission("reset_any_password", token, function (err, return_value, client) {
+      if (err) {
+        res.status(consts.server_error()).send('some kind of error: ' + err);
+      } else {
+        if (!return_value) {
+          res.status(consts.token_does_not_exist()).send('Token is not valid');
+        } else if (return_value.reset_any_password === false) {
+          res.status(consts.no_permission()).send('No permission');
+        } else if (return_value.reset_any_password === true) {
+          //TODO check if token expired
+          console.log("return value: " + JSON.stringify(return_value));
+          upload(req, res, function (err) {
+            if (err) {
+              console.log(JSON.stringify(err));
+              res.status(consts.bad_request()).send("fail saving image");
+            } else {
+              res.send(req.file.filename);
+            }
+          });
+        }
+      }
+    });
+  }
 });
 
 /**
@@ -63,16 +81,34 @@ router.post('/image/', function (req, res) {
  */
 router.get('/image/:id', function (req, res) {
   var filename = req.params.id;
+  var token = req.get('token');   //Get token from header
   var p = '../images/' + filename;
-  fs.access(p, fs.F_OK, function (err) {
-    if (err) {
-      res.status(consts.not_found()).send("Are you sure the file name is correct?");
-    } else {
-      // It is accessible
-      p = '../' + p;
-      res.sendFile(path.join(__dirname, p));
-    }
-  });
+  if (!token) {
+    res.status(consts.token_missing()).send('Token is missing');
+  } else {
+    db.check_token_and_permission("reset_any_password", token, function (err, return_value, client) {
+      if (err) {
+        res.status(consts.server_error()).send('some kind of error: ' + err);
+      } else {
+        if (!return_value) {
+          res.status(consts.token_does_not_exist()).send('Token is not valid');
+        } else if (return_value.reset_any_password === false) {
+          res.status(consts.no_permission()).send('No permission');
+        } else if (return_value.reset_any_password === true) {
+          //TODO check if token expired
+          console.log("return value: " + JSON.stringify(return_value));
+          fs.access(p, fs.F_OK, function (err) {
+            if (err) {
+              res.status(consts.not_found()).send("Are you sure the file name is correct?");
+            } else {
+              p = '../' + p;
+              res.sendFile(path.join(__dirname, p));
+            }
+          });
+        }
+      }
+    });
+  }
 });
 
 /**
@@ -102,7 +138,7 @@ router.get('/status/', function (req, res) {
 router.get('/sync/:id', function (req, res) {
   fs.stat('../query/' + req.params.id, function (err, stats) {
     if (err) {
-      res.status(consts.just_error()).send("Error finding file: " + err);
+      res.status(consts.bad_request()).send("Error finding file: " + err);
     } else {
       res.sendFile(path.join(__dirname, '../../query', req.params.id));
     }

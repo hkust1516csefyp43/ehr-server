@@ -28,7 +28,7 @@ router.get('/', function (req, res) {
   } else {
     db.check_token_and_permission("reset_any_password", token, function (err, return_value, client) {
       if (!return_value) {                                            //false (no token)
-        res.status(consts.just_error()).send('Token missing or invalid');
+        res.status(consts.bad_request()).send('Token missing or invalid');
       } else if (return_value.reset_any_password === false) {          //false (no permission)
         res.status(consts.no_permission).send('No permission');
       } else if (return_value.reset_any_password === true) {           //true
@@ -74,7 +74,7 @@ router.get('/', function (req, res) {
 
         client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
           if (err) {
-            res.status(consts.just_error()).send('error fetching client from pool 2');
+            res.status(consts.bad_request()).send('error fetching client from pool 2');
             sent = true;
             return console.error('error fetching client from pool', err);
           } else {
@@ -138,7 +138,7 @@ router.put('/:id', function (req, res) {
   } else {
     db.check_token_and_permission("reset_any_password", token, function (err, return_value, client) {
       if (!return_value) {                                            //false (no token)
-        res.status(consts.just_error()).send('Token missing or invalid');
+        res.status(consts.bad_request()).send('Token missing or invalid');
       } else if (return_value.reset_any_password === false) {          //false (no permission)
         res.status(consts.no_permission).send('No permission');
       } else if (return_value.reset_any_password === true) {           //true
@@ -186,7 +186,7 @@ router.post('/', function (req, res) {
   } else {
     db.check_token_and_permission("reset_any_password", token, function (err, return_value, client) {
       if (!return_value) {                                            //false (no token)
-        res.status(consts.just_error()).send('Token missing or invalid');
+        res.status(consts.bad_request()).send('Token missing or invalid');
       } else if (return_value.reset_any_password === false) {          //false (no permission)
         res.status(consts.no_permission).send('No permission');
       } else if (return_value.reset_any_password === true) {           //true
@@ -235,7 +235,7 @@ router.delete('/:id', function (req, res) {
   } else {
     db.check_token_and_permission("reset_any_password", token, function (err, return_value, client) {
       if (!return_value) {                                            //false (no token)
-        res.status(consts.just_error()).send('Token missing or invalid');
+        res.status(consts.bad_request()).send('Token missing or invalid');
       } else if (return_value.reset_any_password === false) {          //false (no permission)
         res.status(consts.no_permission).send('No permission');
       } else if (return_value.reset_any_password === true) {           //true

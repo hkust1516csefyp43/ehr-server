@@ -22,7 +22,7 @@ module.exports = {
   /**
    * The callback returns a specific err object
    * @param permission that it needs
-   * @param token of the user
+   * @param access token of the user
    * @param callback(err, return_value, client):
    * err: dah;
    * return value: an object of all permissions and expiry timestamp of token;
@@ -51,7 +51,8 @@ module.exports = {
           .from('users AS u, token AS t, role AS r')
           .where(sql('t.token'), token)
           .where(sql('t.user_id'), sql('u.user_id'))
-          .where(sql('u.role_id'), sql('r.role_id'));
+          .where(sql('u.role_id'), sql('r.role_id'))
+          .where(sql('t.access_token'), sql('true'));
 
         console.log("The whole query in string: " + sql_query.toString());
         var sqp = sql_query.toParams();

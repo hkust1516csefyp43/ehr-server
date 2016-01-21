@@ -11,7 +11,10 @@ var valid = require('../valid');
 var db = require('../database');
 var sql = require('sql-bricks-postgres');
 
-//TODO Login + renew access token
+/**
+ * DONE? Login + renew access token
+ * TODO check if device id is blocked
+ */
 router.get('/', function (req, res) {
   var user = req.query.email;
   var pwd = req.query.password;
@@ -33,17 +36,17 @@ router.get('/', function (req, res) {
   pg.connect(db.url(), function (err, client, done) {
     if (err) {
       sent = true;
-      res.status(consts.just_error()).send("error 1");
+      res.status(consts.bad_request()).send("error 1");
     } else
       client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
         if (err) {
           sent = true;
-          res.status(consts.just_error()).send("error 2");
+          res.status(consts.bad_request()).send("error 2");
         } else {
           switch (result.rows.length) {
             case 0:
               sent = true;
-              res.status(consts.just_error()).send("Email does not exist");
+              res.status(consts.bad_request()).send("Email does not exist");
               break;
             case 1:
               var user_id = result.rows[0].user_id;
@@ -66,7 +69,7 @@ router.get('/', function (req, res) {
                 if (err) {
                   if (!sent) {
                     sent = true;
-                    res.status(consts.just_error()).send("error 3");
+                    res.status(consts.bad_request()).send("error 3");
                   }
                 } else {
                   console.log("token result: " + JSON.stringify(result.rows));
@@ -115,7 +118,7 @@ router.get('/', function (req, res) {
               break;
             default:
               sent = true;
-              res.status(consts.just_error()).send("Something wrong with the email (bug)");
+              res.status(consts.bad_request()).send("Something wrong with the email (bug)");
           }
         }
       });
@@ -185,7 +188,14 @@ router.delete('/token/:id', function (req, res) {
 
 //TODO add role
 
-//TODO get role
+//TODO get roles
+router.get('/roles/', function (req, res) {
+  var param_query = req.query;
+  //get token from header
+
+});
+
+//TODO get a role
 
 //TODO update role
 //Destroy token permission cache
