@@ -93,7 +93,6 @@ router.get('/', function (req, res) {
  * Get a chief complain by id
  */
 router.get('/:id', function (req, res) {
-  //console.log(req);
   var sent = false;
   var params = {};
   var param_query = req.query;
@@ -144,26 +143,28 @@ router.put('/:id', function (req, res) {
       } else if (return_value.reset_any_password === false) {          //false (no permission)
         res.status(errors.no_permission).send('No permission');
       } else if (return_value.reset_any_password === true) {           //true
-        //TODO check if token expired
         console.log("return value: " + JSON.stringify(return_value));
-
-        var name = body.name;
-        if (body) {
-          params.name = name;
-        }
-        var sql_query = sql.update(default_table, params).where(sql('chief_complain_id'), req.params.id);
-        console.log(sql_query.toString());
-
-        client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
-          if (err) {
-            res.send('error fetching client from pool 3');
-            sent = true;
-            return console.error('error fetching client from pool', err);
-          } else {
-            q.save_sql_query(sql_query.toString());
-            res.json(result.rows);
+        if (return_value.expiry_timestamp < Date.now()) {
+          res.status(errors.access_token_expired()).send('Access token expired');
+        } else {
+          var name = body.name;
+          if (body) {
+            params.name = name;
           }
-        });
+          var sql_query = sql.update(default_table, params).where(sql('chief_complain_id'), req.params.id);
+          console.log(sql_query.toString());
+
+          client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+            if (err) {
+              res.send('error fetching client from pool 3');
+              sent = true;
+              return console.error('error fetching client from pool', err);
+            } else {
+              q.save_sql_query(sql_query.toString());
+              res.json(result.rows);
+            }
+          });
+        }
       }
     });
   }
@@ -192,26 +193,28 @@ router.post('/', function (req, res) {
       } else if (return_value.reset_any_password === false) {          //false (no permission)
         res.status(errors.no_permission).send('No permission');
       } else if (return_value.reset_any_password === true) {           //true
-        //TODO check if token expired
         console.log("return value: " + JSON.stringify(return_value));
-
-        params.chief_complain_id = util.random_string(10);
-        var name = body.name;
-        if (body) {
-          params.name = name;
-        }
-        var sql_query = sql.insert(default_table, params);
-        console.log(sql_query.toString());
-        client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
-          if (err) {
-            res.send('error fetching client from pool 3');
-            sent = true;
-            return console.error('error fetching client from pool', err);
-          } else {
-            q.save_sql_query(sql_query.toString());
-            res.json(result.rows);
+        if (return_value.expiry_timestamp < Date.now()) {
+          res.status(errors.access_token_expired()).send('Access token expired');
+        } else {
+          params.chief_complain_id = util.random_string(10);
+          var name = body.name;
+          if (body) {
+            params.name = name;
           }
-        });
+          var sql_query = sql.insert(default_table, params);
+          console.log(sql_query.toString());
+          client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+            if (err) {
+              res.send('error fetching client from pool 3');
+              sent = true;
+              return console.error('error fetching client from pool', err);
+            } else {
+              q.save_sql_query(sql_query.toString());
+              res.json(result.rows);
+            }
+          });
+        }
       }
     });
   }
@@ -241,22 +244,24 @@ router.delete('/:id', function (req, res) {
       } else if (return_value.reset_any_password === false) {          //false (no permission)
         res.status(errors.no_permission).send('No permission');
       } else if (return_value.reset_any_password === true) {           //true
-        //TODO check if token expired
         console.log("return value: " + JSON.stringify(return_value));
+        if (return_value.expiry_timestamp < Date.now()) {
+          res.status(errors.access_token_expired()).send('Access token expired');
+        } else {
+          var sql_query = sql.delete().from(default_table).where(sql('chief_complain_id'), req.params.id);
+          console.log(sql_query.toString());
 
-        var sql_query = sql.delete().from(default_table).where(sql('chief_complain_id'), req.params.id);
-        console.log(sql_query.toString());
-
-        client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
-          if (err) {
-            res.send('error fetching client from pool 3');
-            sent = true;
-            return console.error('error fetching client from pool', err);
-          } else {
-            q.save_sql_query(sql_query.toString());
-            res.json(result.rows);
-          }
-        });
+          client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+            if (err) {
+              res.send('error fetching client from pool 3');
+              sent = true;
+              return console.error('error fetching client from pool', err);
+            } else {
+              q.save_sql_query(sql_query.toString());
+              res.json(result.rows);
+            }
+          });
+        }
       }
     });
   }

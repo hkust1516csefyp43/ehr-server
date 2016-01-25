@@ -81,37 +81,40 @@ router.post('/image/', function (req, res) {
         } else if (return_value.reset_any_password === false) {
           res.status(errors.no_permission()).send('No permission');
         } else if (return_value.reset_any_password === true) {
-          //TODO check if token expired
           console.log("return value: " + JSON.stringify(return_value));
-          if (require('../../config.json').on_the_cloud) {                  //on the cloud >> cloudinary
-            memoryUpload(req, res, function (err) {
-              if (err) {
-                console.log(err);
-                res.status(400).send("fail to save to memory: " + err);
-              } else {
-                dUri.format(path.extname(req.file.originalname).toString(), req.file.buffer);
-                console.log("send to cloudinary starts now!");
-                //console.log(dUri.content);
-                cloudinary.uploader.upload(dUri.content, function (err, i) {
-                  if (err) {
-                    console.log(err);
-                    res.status(errors.server_error()).send('Unable to save image to cloudinary');
-                  } else {
-                    console.log(JSON.stringify(i));
-                    res.send(i);
-                  }
-                });
-              }
-            });
-          } else {                                                          //locally
-            diskUpload(req, res, function (err) {
-              if (err) {
-                console.log(JSON.stringify(err));
-                res.status(errors.bad_request()).send("fail saving image");
-              } else {
-                res.send(req.file.filename);
-              }
-            });
+          if (return_value.expiry_timestamp < Date.now()) {
+            res.status(errors.access_token_expired()).send('Access token expired');
+          } else {
+            if (require('../../config.json').on_the_cloud) {                  //on the cloud >> cloudinary
+              memoryUpload(req, res, function (err) {
+                if (err) {
+                  console.log(err);
+                  res.status(400).send("fail to save to memory: " + err);
+                } else {
+                  dUri.format(path.extname(req.file.originalname).toString(), req.file.buffer);
+                  console.log("send to cloudinary starts now!");
+                  //console.log(dUri.content);
+                  cloudinary.uploader.upload(dUri.content, function (err, i) {
+                    if (err) {
+                      console.log(err);
+                      res.status(errors.server_error()).send('Unable to save image to cloudinary');
+                    } else {
+                      console.log(JSON.stringify(i));
+                      res.send(i);
+                    }
+                  });
+                }
+              });
+            } else {                                                          //locally
+              diskUpload(req, res, function (err) {
+                if (err) {
+                  console.log(JSON.stringify(err));
+                  res.status(errors.bad_request()).send("fail saving image");
+                } else {
+                  res.send(req.file.filename);
+                }
+              });
+            }
           }
         }
       }
@@ -143,16 +146,19 @@ router.get('/image/:id', function (req, res) {
           } else if (return_value.reset_any_password === false) {
             res.status(errors.no_permission()).send('No permission');
           } else if (return_value.reset_any_password === true) {
-            //TODO check if token expired
             console.log("return value: " + JSON.stringify(return_value));
-            fs.access(p, fs.F_OK, function (err) {
-              if (err) {
-                res.status(errors.not_found()).send("Are you sure the file name is correct?");
-              } else {
-                p = '../' + p;
-                res.sendFile(path.join(__dirname, p));
-              }
-            });
+            if (return_value.expiry_timestamp < Date.now()) {
+              res.status(errors.access_token_expired()).send('Access token expired');
+            } else {
+              fs.access(p, fs.F_OK, function (err) {
+                if (err) {
+                  res.status(errors.not_found()).send("Are you sure the file name is correct?");
+                } else {
+                  p = '../' + p;
+                  res.sendFile(path.join(__dirname, p));
+                }
+              });
+            }
           }
         }
       });
