@@ -10,6 +10,7 @@ var wait = require('wait.for');
 
 var util = require('../utils');
 var errors = require('../errors');
+var consts = require('../consts');
 var valid = require('../valid');
 var db = require('../database');
 var q = require('../query');
@@ -215,7 +216,7 @@ router.post('/', function (req, res) {
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
-          params.patient_id = util.random_string(10);
+          params.patient_id = util.random_string(consts.id_random_string_length());
           params.create_timestamp = moment();
           params.last_seen = moment();
 
@@ -395,7 +396,7 @@ router.post('/visit/', function (req, res) {
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
-          params.visit_id = util.random_string(10);
+          params.visit_id = util.random_string(consts.id_random_string_length());
           params.date = moment(Date.now()).format('YYYY-MM-DD');
           params.next_station = "1";
           var patient_id = body.patient_id;
@@ -428,6 +429,9 @@ router.get('/triage/', function (req, res) {
 
 });
 
+/**
+ * TODO something is wrong with this function. It is way too long
+ */
 router.post('/triage/', function (req, res) {
   var sent = false;
   var params = {};
@@ -452,7 +456,7 @@ router.post('/triage/', function (req, res) {
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
-          params.triage_id = util.random_string(10);
+          params.triage_id = util.random_string(consts.id_random_string_length());
           params.start_time = moment();
           params.end_time = moment();
           var user_id = body.user_id;
@@ -577,7 +581,7 @@ router.post('/triage/', function (req, res) {
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
-          params.triage_id = util.random_string(10);
+          params.triage_id = util.random_string(consts.id_random_string_length());
           params.start_time = moment();
           params.end_time = moment();
           var user_id = body.user_id;

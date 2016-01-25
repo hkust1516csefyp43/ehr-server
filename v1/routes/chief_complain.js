@@ -3,6 +3,7 @@ var router = express.Router();
 var pg = require('pg');
 var util = require('../utils');
 var errors = require('../errors');
+var consts = require('../consts');
 var valid = require('../valid');
 var db = require('../database');
 var q = require('../query');
@@ -197,7 +198,7 @@ router.post('/', function (req, res) {
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
-          params.chief_complain_id = util.random_string(10);
+          params.chief_complain_id = util.random_string(consts.id_random_string_length());
           var name = body.name;
           if (body) {
             params.name = name;
