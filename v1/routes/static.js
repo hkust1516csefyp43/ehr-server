@@ -15,6 +15,7 @@ var cloudinary = require('cloudinary').v2;
 var Datauri = require('datauri');
 //files and other js
 var util = require('../utils');
+var errors = require('../errors');
 var consts = require('../consts');
 var valid = require('../valid');
 var q = require('../query');
@@ -26,14 +27,17 @@ var diskStorage = multer.diskStorage({
   },
   filename: function (req, file, cb) {
     console.log(path.extname(file.originalname));
-    //TODO save iff it's image (png/PNG/jpg/JPG/JPEG/jpeg/etc)
-    var id = util.random_string(16) + Date.now() + path.extname(file.originalname);
+    //TODO save iff it's image (png/PNG/jpg/JPG/JPEG/jpeg/etc
+    var id = util.random_string(consts.id_random_string_length()) + Date.now() + path.extname(file.originalname);
     cb(null, id);
   }
 });
 var diskUpload = multer({storage: diskStorage}).single('image');
 var memoryStorage = multer.memoryStorage();
-var memoryUpload = multer(memoryStorage).single('image');
+var memoryUpload = multer({
+  storage: memoryStorage,
+  limits: {fileSize: consts.max_image_size(), files: 1}
+}).single('image');
 
 cloudinary.config({
   cloud_name: 'hkust1516csefyp43',
@@ -61,38 +65,40 @@ router.get('/android/', function (req, res) {
 /**
  * someone upload image to the server, and then server returns return name/path
  * httpie: http -f POST http://localhost:3000/v1/static/image/ image@~/Downloads/logos/hdpi.png token:hihi
- * TODO if on the cloud >> to cloudinary
+ * NOTE: add --timeout=120 (or other number) if you experience timeout frequently
  */
 router.post('/image/', function (req, res) {
   var token = req.get('token');   //Get token from header
   if (!token) {
-    res.status(consts.token_missing()).send('Token is missing');
+    res.status(errors.token_missing()).send('Token is missing');
   } else {
     db.check_token_and_permission("reset_any_password", token, function (err, return_value, client) {
       if (err) {
-        res.status(consts.server_error()).send('some kind of error: ' + err);
+        res.status(errors.server_error()).send('some kind of error: ' + err);
       } else {
         if (!return_value) {
-          res.status(consts.token_does_not_exist()).send('Token is not valid');
+          res.status(errors.token_does_not_exist()).send('Token is not valid');
         } else if (return_value.reset_any_password === false) {
-          res.status(consts.no_permission()).send('No permission');
+          res.status(errors.no_permission()).send('No permission');
         } else if (return_value.reset_any_password === true) {
           //TODO check if token expired
           console.log("return value: " + JSON.stringify(return_value));
           if (require('../../config.json').on_the_cloud) {                  //on the cloud >> cloudinary
             memoryUpload(req, res, function (err) {
               if (err) {
-                res.status(400).send("fail to save to memory");
+                console.log(err);
+                res.status(400).send("fail to save to memory: " + err);
               } else {
                 dUri.format(path.extname(req.file.originalname).toString(), req.file.buffer);
                 console.log("send to cloudinary starts now!");
+                //console.log(dUri.content);
                 cloudinary.uploader.upload(dUri.content, function (err, i) {
                   if (err) {
                     console.log(err);
-                    res.status(consts.server_error()).send('Unable to save image to cloudinary');
+                    res.status(errors.server_error()).send('Unable to save image to cloudinary');
                   } else {
                     console.log(JSON.stringify(i));
-                    res.send("finished?");
+                    res.send(i);
                   }
                 });
               }
@@ -101,7 +107,7 @@ router.post('/image/', function (req, res) {
             diskUpload(req, res, function (err) {
               if (err) {
                 console.log(JSON.stringify(err));
-                res.status(consts.bad_request()).send("fail saving image");
+                res.status(errors.bad_request()).send("fail saving image");
               } else {
                 res.send(req.file.filename);
               }
@@ -124,22 +130,22 @@ router.get('/image/:id', function (req, res) {
   var token = req.get('token');   //Get token from header
   var p = '../images/' + filename;
   if (!token) {
-    res.status(consts.token_missing()).send('Token is missing');
+    res.status(errors.token_missing()).send('Token is missing');
   } else {
     db.check_token_and_permission("reset_any_password", token, function (err, return_value, client) {
       if (err) {
-        res.status(consts.server_error()).send('some kind of error: ' + err);
+        res.status(errors.server_error()).send('some kind of error: ' + err);
       } else {
         if (!return_value) {
-          res.status(consts.token_does_not_exist()).send('Token is not valid');
+          res.status(errors.token_does_not_exist()).send('Token is not valid');
         } else if (return_value.reset_any_password === false) {
-          res.status(consts.no_permission()).send('No permission');
+          res.status(errors.no_permission()).send('No permission');
         } else if (return_value.reset_any_password === true) {
           //TODO check if token expired
           console.log("return value: " + JSON.stringify(return_value));
           fs.access(p, fs.F_OK, function (err) {
             if (err) {
-              res.status(consts.not_found()).send("Are you sure the file name is correct?");
+              res.status(errors.not_found()).send("Are you sure the file name is correct?");
             } else {
               p = '../' + p;
               res.sendFile(path.join(__dirname, p));
@@ -178,7 +184,7 @@ router.get('/status/', function (req, res) {
 router.get('/sync/:id', function (req, res) {
   fs.stat('../query/' + req.params.id, function (err, stats) {
     if (err) {
-      res.status(consts.bad_request()).send("Error finding file: " + err);
+      res.status(errors.bad_request()).send("Error finding file: " + err);
     } else {
       res.sendFile(path.join(__dirname, '../../query', req.params.id));
     }

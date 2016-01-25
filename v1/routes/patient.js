@@ -9,7 +9,7 @@ var moment = require('moment');
 var wait = require('wait.for');
 
 var util = require('../utils');
-var consts = require('../consts');
+var errors = require('../errors');
 var valid = require('../valid');
 var db = require('../database');
 var q = require('../query');
@@ -34,14 +34,14 @@ router.get('/', function (req, res) {
 
   var token = param_query.token;
   if (!token) {
-    res.status(consts.token_missing()).send('Token is missing');
+    res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
     db.check_token_and_permission("reset_any_password", token, function (err, return_value, client) {
       if (!return_value) {                                            //return value == null >> sth wrong
-        res.status(consts.bad_request()).send('Token missing or invalid');
+        res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.reset_any_password === false) {          //false (no permission)
-        res.status(consts.no_permission).send('No permission');
+        res.status(errors.no_permission).send('No permission');
       } else if (return_value.reset_any_password === true) {           //w/ permission
         //TODO check if token expired
         var next_station = param_query.next_station;
@@ -107,7 +107,7 @@ router.get('/', function (req, res) {
           //params.email = email;
           if (valid.email(email) === false) {
             sent = true;
-            res.status(consts.bad_request()).send("invalid email");
+            res.status(errors.bad_request()).send("invalid email");
           } else {
             params.email = email;
           }
@@ -199,14 +199,14 @@ router.post('/', function (req, res) {
   var token = param_query.token;
 
   if (!token) {
-    res.status(consts.token_missing()).send('Token is missing');
+    res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
     db.check_token_and_permission("add_patient", token, function (err, return_value, client) {
       if (!return_value) {                                            //false (no token)
-        res.status(consts.bad_request()).send('Token missing or invalid');
+        res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.add_patient === false) {          //false (no permission)
-        res.status(consts.no_permission).send('No permission');
+        res.status(errors.no_permission).send('No permission');
       } else if (return_value.add_patient === true) {           //true
         //TODO check if token expired
         console.log("return value: " + JSON.stringify(return_value));
@@ -223,7 +223,7 @@ router.post('/', function (req, res) {
         if (first_name)
           params.first_name = first_name;
         else
-          res.status(consts.bad_request()).send('first_name should be not null');
+          res.status(errors.bad_request()).send('first_name should be not null');
 
         var middle_name = body.middle_name;
         if (middle_name)
@@ -243,7 +243,7 @@ router.post('/', function (req, res) {
         if (address) {
           params.address = address;
         } else {
-          res.status(consts.bad_request()).send('address should be not null');
+          res.status(errors.bad_request()).send('address should be not null');
         }
 
         var date_of_birth = body.date_of_birth;
@@ -310,15 +310,15 @@ router.get('/visit/:id', function (req, res) {
   var token = param_query.token;
   var id = req.params.id;
   if (!token) {
-    res.status(consts.token_missing()).send('Token is missing');
+    res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
     db.check_token_and_permission("add_visit", token, function (err, return_value, client) {
       if (!return_value) {
-        res.status(consts.bad_request()).send('Token missing or invalid');
+        res.status(errors.bad_request()).send('Token missing or invalid');
         sent = true;
       } else if (return_value.add_visit === false) {
-        res.status(consts.no_permission).send('No permission');
+        res.status(errors.no_permission).send('No permission');
         sent = true;
       } else if (return_value.add_visit === true) {
         console.log("return value: " + JSON.stringify(return_value));
@@ -377,14 +377,14 @@ router.post('/visit/', function (req, res) {
   var token = param_query.token;
 
   if (!token) {
-    res.status(consts.token_missing()).send('Token is missing');
+    res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
     db.check_token_and_permission("add_visit", token, function (err, return_value, client) {
       if (!return_value) {                                            //false (no token)
-        res.status(consts.bad_request()).send('Token missing or invalid');
+        res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.add_visit === false) {          //false (no permission)
-        res.status(consts.no_permission).send('No permission');
+        res.status(errors.no_permission).send('No permission');
       } else if (return_value.add_visit === true) {           //true
         //TODO check if token expired
         console.log("return value: " + JSON.stringify(return_value));
@@ -432,14 +432,14 @@ router.post('/triage/', function (req, res) {
   var token = param_query.token;
 
   if (!token) {
-    res.status(consts.token_missing()).send('Token is missing');
+    res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
     db.check_token_and_permission("add_triage", token, function (err, return_value, client) {
       if (!return_value) {                                            //false (no token)
-        res.status(consts.bad_request()).send('Token missing or invalid');
+        res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.add_triage === false) {          //false (no permission)
-        res.status(consts.no_permission).send('No permission');
+        res.status(errors.no_permission).send('No permission');
       } else if (return_value.add_triage === true) {           //true
         //TODO check if token expired
         console.log("return value: " + JSON.stringify(return_value));
@@ -541,7 +541,7 @@ router.post('/triage/', function (req, res) {
               if (err) {
                 if (!sent) {
                   sent = true;
-                  res.status(consts.bad_request()).send("error 3");
+                  res.status(errors.bad_request()).send("error 3");
                 }
               } else {
                 //util.save_sql_query(sql_query2.toString());
@@ -555,14 +555,14 @@ router.post('/triage/', function (req, res) {
     });
   }
   if (!token) {
-    res.status(consts.token_missing()).send('Token is missing');
+    res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
     db.check_token_and_permission("add_triage", token, function (err, return_value, client) {
       if (!return_value) {                                            //false (no token)
-        res.status(consts.bad_request()).send('Token missing or invalid');
+        res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.add_triage === false) {          //false (no permission)
-        res.status(consts.no_permission).send('No permission');
+        res.status(errors.no_permission).send('No permission');
       } else if (return_value.add_triage === true) {           //true
         //TODO check if token expired
         console.log("return value: " + JSON.stringify(return_value));
@@ -664,7 +664,7 @@ router.post('/triage/', function (req, res) {
               if (err) {
                 if (!sent) {
                   sent = true;
-                  res.status(consts.bad_request()).send("error 3");
+                  res.status(errors.bad_request()).send("error 3");
                 }
               } else {
                 //util.save_sql_query(sql_query2.toString());

@@ -6,7 +6,7 @@ var crypto = require('crypto');
 var router = express.Router();
 var pg = require('pg');
 var util = require('../utils');
-var consts = require('../consts');
+var errors = require('../errors');
 var valid = require('../valid');
 var db = require('../database');
 var sql = require('sql-bricks-postgres');
@@ -36,17 +36,17 @@ router.get('/', function (req, res) {
   pg.connect(db.url(), function (err, client, done) {
     if (err) {
       sent = true;
-      res.status(consts.bad_request()).send("error 1");
+      res.status(errors.bad_request()).send("error 1");
     } else
       client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
         if (err) {
           sent = true;
-          res.status(consts.bad_request()).send("error 2");
+          res.status(errors.bad_request()).send("error 2");
         } else {
           switch (result.rows.length) {
             case 0:
               sent = true;
-              res.status(consts.bad_request()).send("Email does not exist");
+              res.status(errors.bad_request()).send("Email does not exist");
               break;
             case 1:
               var user_id = result.rows[0].user_id;
@@ -69,7 +69,7 @@ router.get('/', function (req, res) {
                 if (err) {
                   if (!sent) {
                     sent = true;
-                    res.status(consts.bad_request()).send("error 3");
+                    res.status(errors.bad_request()).send("error 3");
                   }
                 } else {
                   console.log("token result: " + JSON.stringify(result.rows));
@@ -118,7 +118,7 @@ router.get('/', function (req, res) {
               break;
             default:
               sent = true;
-              res.status(consts.bad_request()).send("Something wrong with the email (bug)");
+              res.status(errors.bad_request()).send("Something wrong with the email (bug)");
           }
         }
       });
