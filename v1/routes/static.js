@@ -11,6 +11,8 @@ var http = require('http');
 var multer = require('multer');
 var mt = require('moment-timezone');
 var mime = require('mime');
+var cloudinary = require('cloudinary').v2;
+var Datauri = require('datauri');
 //files and other js
 var util = require('../utils');
 var consts = require('../consts');
@@ -18,7 +20,7 @@ var valid = require('../valid');
 var q = require('../query');
 var db = require('../database');
 //variables
-var storage = multer.diskStorage({
+var diskStorage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, '../images/');
   },
@@ -29,7 +31,16 @@ var storage = multer.diskStorage({
     cb(null, id);
   }
 });
-var upload = multer({storage: storage}).single('image');
+var diskUpload = multer({storage: diskStorage}).single('image');
+var memoryStorage = multer.memoryStorage();
+var memoryUpload = multer(memoryStorage).single('image');
+
+cloudinary.config({
+  cloud_name: 'hkust1516csefyp43',
+  api_key: '481781176725451',
+  api_secret: 'e44DHc9nERY2meBmyE8srpQWAgE'
+});
+var dUri = new Datauri();
 
 /**
  * Send apk for installation
@@ -41,8 +52,16 @@ router.get('/android.apk/', function (req, res) {
 });
 
 /**
+ * Return if new version is available
+ */
+router.get('/android/', function (req, res) {
+  res.send('In progress');
+});
+
+/**
  * someone upload image to the server, and then server returns return name/path
  * httpie: http -f POST http://localhost:3000/v1/static/image/ image@~/Downloads/logos/hdpi.png token:hihi
+ * TODO if on the cloud >> to cloudinary
  */
 router.post('/image/', function (req, res) {
   var token = req.get('token');   //Get token from header
@@ -60,14 +79,34 @@ router.post('/image/', function (req, res) {
         } else if (return_value.reset_any_password === true) {
           //TODO check if token expired
           console.log("return value: " + JSON.stringify(return_value));
-          upload(req, res, function (err) {
-            if (err) {
-              console.log(JSON.stringify(err));
-              res.status(consts.bad_request()).send("fail saving image");
-            } else {
-              res.send(req.file.filename);
-            }
-          });
+          if (require('../../config.json').on_the_cloud) {                  //on the cloud >> cloudinary
+            memoryUpload(req, res, function (err) {
+              if (err) {
+                res.status(400).send("fail to save to memory");
+              } else {
+                dUri.format(path.extname(req.file.originalname).toString(), req.file.buffer);
+                console.log("send to cloudinary starts now!");
+                cloudinary.uploader.upload(dUri.content, function (err, i) {
+                  if (err) {
+                    console.log(err);
+                    res.status(consts.server_error()).send('Unable to save image to cloudinary');
+                  } else {
+                    console.log(JSON.stringify(i));
+                    res.send("finished?");
+                  }
+                });
+              }
+            });
+          } else {                                                          //locally
+            diskUpload(req, res, function (err) {
+              if (err) {
+                console.log(JSON.stringify(err));
+                res.status(consts.bad_request()).send("fail saving image");
+              } else {
+                res.send(req.file.filename);
+              }
+            });
+          }
         }
       }
     });
@@ -78,6 +117,7 @@ router.post('/image/', function (req, res) {
  * return image
  * TODO check permission
  * httpie:  http localhost:3000/v1/static/image/oNA3vGiv2Zv061ar1453266052788.png
+ * TODO if on the cloud >> from cloudinary
  */
 router.get('/image/:id', function (req, res) {
   var filename = req.params.id;

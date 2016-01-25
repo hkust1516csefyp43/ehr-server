@@ -3,5 +3,6 @@
   "local_pgsql_connection_string": "postgres://localhost/sight",
   "cloud_api_host": "https://ehr-api.herokuapp.com/",
   "local_api_host": "http://localhost:3000/",
-  "on_the_cloud": true
+  "on_the_cloud": true,
+  "android_app_versionCode": 1
 }
