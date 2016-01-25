@@ -32,56 +32,58 @@ router.get('/', function (req, res) {
       } else if (return_value.reset_any_password === false) {          //false (no permission)
         res.status(errors.no_permission).send('No permission');
       } else if (return_value.reset_any_password === true) {           //true
-        //TODO check if token expired
         console.log("return value: " + JSON.stringify(return_value));
-
-        var diagnosis_id = param_query.diagnosis_id;
-        if (diagnosis_id) {
-          params.diagnosis_id = diagnosis_id;
-        }
-
-        var name = param_query.name;
-        if (name) {
-          params.name = name;
-        }
-
-        var sql_query = sql
-          .select()
-          .from(default_table)
-          .where(params);
-
-        var limit = param_query.limit;
-        if (limit) {
-          sql_query.limit(limit);
-        } else {    //Default limit
-          sql_query.limit(100);
-        }
-
-        var offset = param_query.offset;
-        if (offset) {
-          sql_query.offset(offset);
-        }
-
-        var sort_by = param_query.sort_by;
-        if (!sort_by) { //Default sort by
-          sql_query.orderBy('chief_complain_id');
-        } else {    //custom sort by
-          //TODO check if custom sort by param is valid
-          sql_query.orderBy(sort_by);
-        }
-
-        console.log(sql_query.toString());
-
-        client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
-          if (err) {
-            res.status(errors.bad_request()).send('error fetching client from pool 2');
-            sent = true;
-            return console.error('error fetching client from pool', err);
-          } else {
-            q.save_sql_query(sql_query.toString());
-            res.json(result.rows);
+        if (return_value.expiry_timestamp < Date.now()) {
+          res.status(errors.access_token_expired()).send('Access token expired');
+        } else {
+          var diagnosis_id = param_query.diagnosis_id;
+          if (diagnosis_id) {
+            params.diagnosis_id = diagnosis_id;
           }
-        });
+
+          var name = param_query.name;
+          if (name) {
+            params.name = name;
+          }
+
+          var sql_query = sql
+            .select()
+            .from(default_table)
+            .where(params);
+
+          var limit = param_query.limit;
+          if (limit) {
+            sql_query.limit(limit);
+          } else {    //Default limit
+            sql_query.limit(100);
+          }
+
+          var offset = param_query.offset;
+          if (offset) {
+            sql_query.offset(offset);
+          }
+
+          var sort_by = param_query.sort_by;
+          if (!sort_by) { //Default sort by
+            sql_query.orderBy('chief_complain_id');
+          } else {    //custom sort by
+            //TODO check if custom sort by param is valid
+            sql_query.orderBy(sort_by);
+          }
+
+          console.log(sql_query.toString());
+
+          client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+            if (err) {
+              res.status(errors.bad_request()).send('error fetching client from pool 2');
+              sent = true;
+              return console.error('error fetching client from pool', err);
+            } else {
+              q.save_sql_query(sql_query.toString());
+              res.json(result.rows);
+            }
+          });
+        }
       }
     });
   }

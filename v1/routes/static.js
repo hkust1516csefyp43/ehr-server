@@ -120,40 +120,43 @@ router.post('/image/', function (req, res) {
 });
 
 /**
- * return image
- * TODO check permission
- * httpie:  http localhost:3000/v1/static/image/oNA3vGiv2Zv061ar1453266052788.png
- * TODO if on the cloud >> from cloudinary
+ * return image iff it is running in local hardware (RPi)
+ * httpie:  http localhost:3000/v1/static/image/oNA3vGiv2Zv061ar1453266052788.png token:hihi
  */
 router.get('/image/:id', function (req, res) {
-  var filename = req.params.id;
-  var token = req.get('token');   //Get token from header
-  var p = '../images/' + filename;
-  if (!token) {
-    res.status(errors.token_missing()).send('Token is missing');
+  if (require('../../config.json').on_the_cloud) {
+    //error (you already have the whole cloudinary url. don't ask me to do your job for you)
+    res.status(errors.bad_request()).send("Ask cloudinary yourself");
   } else {
-    db.check_token_and_permission("reset_any_password", token, function (err, return_value, client) {
-      if (err) {
-        res.status(errors.server_error()).send('some kind of error: ' + err);
-      } else {
-        if (!return_value) {
-          res.status(errors.token_does_not_exist()).send('Token is not valid');
-        } else if (return_value.reset_any_password === false) {
-          res.status(errors.no_permission()).send('No permission');
-        } else if (return_value.reset_any_password === true) {
-          //TODO check if token expired
-          console.log("return value: " + JSON.stringify(return_value));
-          fs.access(p, fs.F_OK, function (err) {
-            if (err) {
-              res.status(errors.not_found()).send("Are you sure the file name is correct?");
-            } else {
-              p = '../' + p;
-              res.sendFile(path.join(__dirname, p));
-            }
-          });
+    var filename = req.params.id;
+    var token = req.get('token');   //Get token from header
+    var p = '../images/' + filename;
+    if (!token) {
+      res.status(errors.token_missing()).send('Token is missing');
+    } else {
+      db.check_token_and_permission("reset_any_password", token, function (err, return_value, client) {
+        if (err) {
+          res.status(errors.server_error()).send('some kind of error: ' + err);
+        } else {
+          if (!return_value) {
+            res.status(errors.token_does_not_exist()).send('Token is not valid');
+          } else if (return_value.reset_any_password === false) {
+            res.status(errors.no_permission()).send('No permission');
+          } else if (return_value.reset_any_password === true) {
+            //TODO check if token expired
+            console.log("return value: " + JSON.stringify(return_value));
+            fs.access(p, fs.F_OK, function (err) {
+              if (err) {
+                res.status(errors.not_found()).send("Are you sure the file name is correct?");
+              } else {
+                p = '../' + p;
+                res.sendFile(path.join(__dirname, p));
+              }
+            });
+          }
         }
-      }
-    });
+      });
+    }
   }
 });
 
