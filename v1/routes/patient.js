@@ -23,7 +23,28 @@ var pharmacy_table = 'pharmacy';
 
 /* GET with patient id + basic auth */
 router.get('/:id', function (req, res) {
-
+  var sent = false;
+  var params = {};
+  var param_query = req.query;
+  console.log(JSON.stringify(param_query));
+  console.log("patient_id:",req.params.id);
+  var token = param_query.token;
+    if (!token) {
+        res.status(errors.token_missing()).send('Token is missing');
+        sent = true;
+    } else {
+        db.check_token_and_permission("read_patient", token, function (err, return_value, client) {
+            if (!return_value) {                                            //return value == null >> sth wrong
+                res.status(errors.bad_request()).send('Token missing or invalid');
+            } else if (return_value.read_patient === false) {          //false (no permission)
+                res.status(errors.no_permission).send('No permission');
+            } else if (return_value.read_patient === true) {           //w/ permission
+                if (return_value.expiry_timestamp < Date.now()) {
+                    res.status(errors.access_token_expired()).send('Access token expired');
+                }
+            }
+        })
+    }
 });
 
 router.get('/', function (req, res) {
