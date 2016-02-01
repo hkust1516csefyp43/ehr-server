@@ -23,7 +23,70 @@ var pharmacy_table = 'pharmacy';
 
 /* GET with patient id + basic auth */
 router.get('/:id', function (req, res) {
+  var sent = false;
+  var params = {};
+  var param_query = req.query;
+  console.log(JSON.stringify(param_query));
+  console.log("patient_id:",req.params.id);
+  var token = param_query.token;
+    if (!token) {
+      res.status(errors.token_missing()).send('Token is missing');
+        sent = true;
+    } else {
+      db.check_token_and_permission("read_patient", token, function (err, return_value, client) {
+        if (!return_value) {                                            //return value == null >> sth wrong
+          res.status(errors.bad_request()).send('Token missing or invalid');
+        } else if (return_value.read_patient === false) {          //false (no permission)
+          res.status(errors.no_permission).send('No permission');
+        } else if (return_value.read_patient === true) {           //w/ permission
+          if (return_value.expiry_timestamp < Date.now()) {
+            res.status(errors.access_token_expired()).send('Access token expired');
+          } else{
+            var patient_id = req.params.id;
+            params.patient_id = patient_id;
 
+            var sql_query = sql
+              .select()
+              .from('patient')
+              .where(params);
+
+            var offset = param_query.offset;
+            if (offset) {
+              sql_query.offset(offset);
+            }
+
+            var sort_by = param_query.sort_by;
+            if (sort_by) {
+              //TODO check if custom sort by param is valid
+              sql_query.orderBy(sort_by);
+            } else {
+              sql_query.orderBy('patient_id');
+            }
+
+            var limit = param_query.limit;
+            if (limit) {
+              sql_query.limit(limit);
+            } else {    //Default limit
+              sql_query.limit(100);
+            }
+
+            console.log("The whole query in string: " + sql_query.toString());
+            if (sent === false) {
+              client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+                if (err) {
+                  res.send('error fetching client from pool 2');
+                  sent = true;
+                  return console.error('error fetching client from pool', err);
+                } else {
+                  q.save_sql_query(sql_query.toString());
+                  res.json(result.rows);
+                }
+              });
+            }
+            }
+          }
+      })
+    }
 });
 
 router.get('/', function (req, res) {
@@ -567,92 +630,51 @@ router.post('/triage/', function (req, res) {
       }
     });
   }
+
+});
+
+router.get('/consultation/', function (req, res) {
+
+});
+
+router.post('/consultation/', function (req, res) {
+  var sent = false;
+  var params = {};
+  var param_query = req.query;
+  var body = req.body;
+  console.log("All input queries: " + JSON.stringify(param_query));
+  console.log("The input body: " + JSON.stringify(body));
+  //TODO check token validity first
+  var token = param_query.token;
+
   if (!token) {
     res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
-    db.check_token_and_permission("add_triage", token, function (err, return_value, client) {
+    db.check_token_and_permission("add_consultation", token, function (err, return_value, client) {
       if (!return_value) {                                            //false (no token)
         res.status(errors.bad_request()).send('Token missing or invalid');
-      } else if (return_value.add_triage === false) {          //false (no permission)
+      } else if (return_value.add_consultation === false) {          //false (no permission)
         res.status(errors.no_permission).send('No permission');
-      } else if (return_value.add_triage === true) {           //true
+      } else if (return_value.add_consultation === true) {           //true
         console.log("return value: " + JSON.stringify(return_value));
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
-          params.triage_id = util.random_string(consts.id_random_string_length());
+          params.consultation_id = util.random_string(consts.id_random_string_length());
           params.start_time = moment();
           params.end_time = moment();
           var user_id = body.user_id;
-          var diastolic = body.diastolic;
-          var systolic = body.systolic;
-          var heart_rate = body.heart_rate;
-          var weight = body.weight;
-          var height = body.height;
-          var temperature_celsius = body.temperature_celsius;
-          var spo2 = body.spo2;
-          var marital_status = body.marital_status;
-          var respiratory_rate = body.respiratory_rate;
-          var last_deworming_date = body.last_deworming_date;
-          var currently_pregnant = body.currently_pregnant;
-          var currently_breast_feeding = body.currently_breast_feeding;
-          var amount_of_child = body.amount_of_child;
-          var amount_of_miscarriage = body.amount_of_miscarriage;
-          var amount_of_abortion = body.amount_of_abortion;
-          var last_menstrual_period = body.last_menstrual_period;
+          var medication_remark = body.medication_remark;
+
           if (user_id) {
             params.user_id = user_id;
           }
-          if (diastolic) {
-            params.diastolic = diastolic;
+          if ( medication_remark) {
+            params.medication_remark = medication_remark;
           }
-          if (systolic) {
-            params.systolic = systolic;
-          }
-          if (heart_rate) {
-            params.heart_rate = heart_rate;
-          }
-          if (weight) {
-            params.weight = weight;
-          }
-          if (height) {
-            params.height = height;
-          }
-          if (temperature_celsius) {
-            params.temperature_celsius = temperature_celsius;
-          }
-          if (spo2) {
-            params.spo2 = spo2;
-          }
-          if (marital_status) {
-            params.marital_status = marital_status;
-          }
-          if (respiratory_rate) {
-            params.respiratory_rate = respiratory_rate;
-          }
-          if (last_deworming_date) {
-            params.last_deworming_date = last_deworming_date;
-          }
-          if (currently_pregnant) {
-            params.currently_pregnant = currently_pregnant;
-          }
-          if (currently_breast_feeding) {
-            params.currently_breast_feeding = currently_breast_feeding;
-          }
-          if (amount_of_child) {
-            params.amount_of_child = amount_of_child;
-          }
-          if (amount_of_miscarrage) {
-            params.amount_of_miscarrage = amount_of_miscarrage;
-          }
-          if (amount_of_abortion) {
-            params.amount_of_abortion = amount_of_abortion;
-          }
-          if (last_menstrual_period) {
-            params.last_menstrual_period = last_menstrual_period;
-          }
-          var sql_query1 = sql.insert(triage_table, params);
+
+          var sql_query1 = sql.insert(consultation_table, params);
           console.log(sql_query1.toString());
           client.query(sql_query1.toParams().text, sql_query1.toParams().values, function (err, result) {
             if (err) {
@@ -666,9 +688,9 @@ router.post('/triage/', function (req, res) {
               if (visit_id) {
                 params.visit_id = visit_id;
               }
-              var triage_id = params.triage_id;
+              var consultation_id = params.consultation_id;
               var sql_query2 = sql
-                .update(visit_table, {triage_id: triage_id, next_station: '2'})
+                .update(visit_table, {consultation_id: consultation_id, next_station: '3'})
                 .where(sql('visit_id'), visit_id);
 
               console.log("result: " + JSON.stringify(result.rows[0]));
@@ -694,19 +716,83 @@ router.post('/triage/', function (req, res) {
   }
 });
 
-router.get('/consultation/', function (req, res) {
-
-});
-
-router.post('/consultation/', function (req, res) {
-
-});
-
 router.get('/pharmacy/', function (req, res) {
 
 });
 
 router.post('/pharmacy/', function (req, res) {
+  var sent = false;
+  var params = {};
+  var param_query = req.query;
+  var body = req.body;
+  console.log("All input queries: " + JSON.stringify(param_query));
+  console.log("The input body: " + JSON.stringify(body));
+  //TODO check token validity first
+  var token = param_query.token;
+
+  if (!token) {
+    res.status(errors.token_missing()).send('Token is missing');
+    sent = true;
+  } else {
+    db.check_token_and_permission("add_pharmacy", token, function (err, return_value, client) {
+      if (!return_value) {                                            //false (no token)
+        res.status(errors.bad_request()).send('Token missing or invalid');
+      } else if (return_value.add_pharmacy === false) {          //false (no permission)
+        res.status(errors.no_permission).send('No permission');
+      } else if (return_value.add_pharmacy === true) {           //true
+        console.log("return value: " + JSON.stringify(return_value));
+        if (return_value.expiry_timestamp < Date.now()) {
+          res.status(errors.access_token_expired()).send('Access token expired');
+        } else {
+          params.pharmacy_id = util.random_string(consts.id_random_string_length());
+          params.start_time = moment();
+          params.end_time = moment();
+          var user_id = body.user_id;
+
+          if (user_id) {
+            params.user_id = user_id;
+          }
+
+          var sql_query1 = sql.insert(pharmacy_table, params);
+          console.log(sql_query1.toString());
+          client.query(sql_query1.toParams().text, sql_query1.toParams().values, function (err, result) {
+            if (err) {
+              res.send('error fetching client from pool 3');
+              sent = true;
+              return console.error('error fetching client from pool', err);
+            } else {
+              //util.save_sql_query(sql_query1.toString());
+
+              var visit_id = body.visit_id;
+              if (visit_id) {
+                params.visit_id = visit_id;
+              }
+              var pharmacy_id = params.pharmacy_id;
+              var sql_query2 = sql
+                .update(visit_table, {pharmacy_id: pharmacy_id, next_station: '0'})
+                .where(sql('visit_id'), visit_id);
+
+              console.log("result: " + JSON.stringify(result.rows[0]));
+              console.log("The whole SQL query 2: " + sql_query2.toString());
+
+              client.query(sql_query2.toParams().text, sql_query2.toParams().values, function (err, result) {
+                if (err) {
+                  if (!sent) {
+                    sent = true;
+                    res.status(errors.bad_request()).send("error 3");
+                  }
+                } else {
+                  //util.save_sql_query(sql_query2.toString());
+
+                  res.json(result.rows);
+                }
+              });
+            }
+          });
+        }
+      }
+    });
+  }
 
 });
 
