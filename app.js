@@ -10,6 +10,7 @@ var routes = require('./v1/routes/index');
 var v1Inventory = require('./v1/routes/inventory');
 var v1Patient = require('./v1/routes/patient');
 var v1User = require('./v1/routes/user');
+var v1Visit = require('./v1/routes/visit')
 var v1Static = require('./v1/routes/static');
 var v1ChiefComplain = require('./v1/routes/chief_complain');
 var v1Diagnosis = require('./v1/routes/diagnosis');
@@ -36,6 +37,7 @@ app.use('/', routes);
 app.use('/v1/inventory', v1Inventory);
 app.use('/v1/patient', v1Patient);
 app.use('/v1/user', v1User);
+app.use('/v1/visit', v1Visit);
 app.use('/v1/static', v1Static);
 app.use('/v1/chief_complain', v1ChiefComplain);
 app.use('/v1/diagnosis', v1Diagnosis);
