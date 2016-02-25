@@ -185,22 +185,136 @@ router.delete('/token/:id', function (req, res) {
   //Destroy token permission cache
 });
 
+//TODO get a role
 
-//TODO add role
 
 //TODO get roles
 router.get('/roles/', function (req, res) {
+  var sent = false;
   var param_query = req.query;
   //get token from header
 
 });
 
-//TODO get a role
+//TODO add role (need to be cont.)
+router.post('/roles/', function (req, res) {
+  var sent = false;
+  var params = {};
+  var param_query = req.query;
+  var body = req.body;
+  console.log("All input queries: " + JSON.stringify(param_query));
+  console.log("The input body: " + JSON.stringify(body));
+  //TODO check token validity first
+  var token = param_query.token;
+
+  if (!token) {
+    res.status(errors.token_missing()).send('Token is missing');
+    sent = true;
+  } else {
+    db.check_token_and_permission("add_role", token, function (err, return_value, client) {
+      if (!return_value) {                                            //false (no token)
+        res.status(errors.bad_request()).send('Token missing or invalid');
+      } else if (return_value.add_role === false) {          //false (no permission)
+        res.status(errors.no_permission).send('No permission');
+      } else if (return_value.add_role === true) {           //true
+        console.log("return value: " + JSON.stringify(return_value));
+        if (return_value.expiry_timestamp < Date.now()) {
+          res.status(errors.access_token_expired()).send('Access token expired');
+        } else {
+          params.role_id = util.random_string(consts.id_random_string_length());
+
+          var name = body.name;
+          if (name)
+            params.name = name;
+          else
+            res.status(errors.bad_request()).send('name should be not null');
+
+          var read_patient = body.read_patient;
+          if (read_patient)
+            params.read_patient = read_patient;
+          else
+            res.status(errors.bad_request()).send('read_patient should be not null');
+
+          var read_patient = body.read_patient;
+          if (read_patient)
+            params.read_patient = read_patient;
+          else
+            res.status(errors.bad_request()).send('read_patient should be not null');
+
+          var add_to_inventory = body.add_to_inventory;
+          if (add_to_inventory)
+            params.add_to_inventory = add_to_inventory;
+          else
+            res.status(errors.bad_request()).send('add_to_inventory should be not null');
+
+          var add_slum = body.add_slum;
+          if (add_slum)
+            params.read_patient = add_slum;
+          else
+            res.status(errors.bad_request()).send('add_slum should be not null');
+
+          var add_medication_method = body.add_medication_method;
+          if (add_medication_method)
+            params.add_medication_method = add_medication_method;
+          else
+            res.status(errors.bad_request()).send('add_medication_method should be not null');
+
+          var add_comment = body.add_comment;
+          if (add_comment)
+            params.add_comment = add_comment;
+          else
+            res.status(errors.bad_request()).send('add_comment should be not null');
+
+          var read_patient = body.read_patient;
+          if (read_patient)
+            params.read_patient = read_patient;
+          else
+            res.status(errors.bad_request()).send('read_patient should be not null');
+
+          var read_patient = body.read_patient;
+          if (read_patient)
+            params.read_patient = read_patient;
+          else
+            res.status(errors.bad_request()).send('read_patient should be not null');
+
+
+          //TODO select slum_id from the slum input from the request body
+          //TODO create function to generate timestamps
+          var sql_query = sql.insert(patient_table, params);
+          console.log(sql_query.toString());
+          client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+            if (err) {
+              res.send('error fetching client from pool 3');
+              sent = true;
+              return console.error('error fetching client from pool', err);
+            } else {
+              //util.save_sql_query(sql_query.toString());
+              res.json(result.rows);
+            }
+          });
+        }
+      }
+    });
+  }
+
+});
 
 //TODO update role
 //Destroy token permission cache
+router.put('/roles/', function (req, res) {
+  var sent = false;
+  var param_query = req.query;
+  //get token from header
+
+});
 
 //TODO delete role
 //Destroy token permission cache
+router.delete('/roles/', function (req, res) {
+  var sent = false;
+  var param_query = req.query;
+  //get token from header
+
+});
 
 module.exports = router;

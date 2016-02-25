@@ -266,6 +266,8 @@ router.post('/triage/', function (req, res) {
               var visit_id = body.visit_id;
               if (visit_id) {
                 params.visit_id = visit_id;
+              }else {
+                res.status(errors.bad_request()).send('visit_id should be not null');
               }
               var triage_id = params.triage_id;
               var sql_query2 = sql
@@ -350,6 +352,8 @@ router.post('/consultation/', function (req, res) {
               var visit_id = body.visit_id;
               if (visit_id) {
                 params.visit_id = visit_id;
+              }else {
+                res.status(errors.bad_request()).send('visit_id should be not null');
               }
               var consultation_id = params.consultation_id;
               var sql_query2 = sql
@@ -429,6 +433,8 @@ router.post('/pharmacy/', function (req, res) {
               var visit_id = body.visit_id;
               if (visit_id) {
                 params.visit_id = visit_id;
+              }else {
+                res.status(errors.bad_request()).send('visit_id should be not null');
               }
               var pharmacy_id = params.pharmacy_id;
               var sql_query2 = sql
