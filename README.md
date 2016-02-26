@@ -14,16 +14,16 @@ A system suitable for remote patient record access. Design and optimized for the
 ###Local
 if you are just trying to run everything locally (on the computer you are staring at right now), you can click [here]() to learn more.
 ###Heroku
-Heroku is a cloud service provider. Click here to learn more about them.
+Heroku is a cloud service provider. Click here to learn more about them. 
 To deploy to Heroku, please check our "?" wiki page.
 ###Raspberry Pi
-To deploy to Raspberry Pi, please check our "?" wiki page.
+To deploy to Raspberry Pi, please check our "?" wiki page. 
 
 ##Mobile apps
 The client side software is available in 2 platforms: Android and iOS. We are also considering porting the Android version to Chrome OS and Chrome browsers using ARC.
 ###Android
-[Click here to our Android App repo](https://github.com/hkust1516csefyp43/ehr-android)
-(Download from the Google Play Store)
+[Click here to our Android App repo](https://github.com/hkust1516csefyp43/ehr-android)  
+(Download from the Google Play Store)  
 (Download from Amazon AppStore)
 ###iOS
 [Click here to our iOS App repo](https://github.com/hkust1516csefyp43/ehr-ios)
