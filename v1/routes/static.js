@@ -50,7 +50,7 @@ var dUri = new Datauri();
  * Send apk for installation
  * No auth, no checking, no instruction, just the apk
  */
-router.get('/android.apk/', function (req, res) {
+router.get('/ehr.apk/', function (req, res) {
   var p = '../../other/app.apk';
   res.sendFile(path.join(__dirname, p));
 });
