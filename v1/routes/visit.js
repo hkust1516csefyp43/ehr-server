@@ -98,6 +98,19 @@ router.get('/:id', function (req, res) {
   }
 });
 
+/**
+ * TODO
+ * get all info of a visit of a patient
+ */
+router.get('/:uid/:vid', function(req, res) {
+
+});
+
+/**
+ * TODO needs fixing
+ * add visit
+ * add :if to the end (patient id)
+ */
 router.post('/', function (req, res) {
   var sent = false;
   var params = {};
@@ -151,12 +164,21 @@ router.post('/', function (req, res) {
   }
 });
 
+
+
+
+
+/**
+ * get list of triages (param search)
+ */
 router.get('/triage/', function (req, res) {
 
 });
 
 /**
- * TODO something is wrong with this function. It is way too long
+ * TODO need fix
+ * something is wrong with this function. It is way too long
+ * add :id to the end (user_id)
  */
 router.post('/triage/', function (req, res) {
   var sent = false;
@@ -298,10 +320,39 @@ router.post('/triage/', function (req, res) {
 
 });
 
+/**
+ * TODO empty
+ * edit triage
+ */
+router.put('/triage/:id', function(req, res) {
+
+});
+
+/**
+ * TODO empty
+ * delete triage record by id
+ * permission: delete_triage
+ */
+router.delete('/triage/:id', function(req, res) {
+
+});
+
+
+
+
+/**
+ * TODO empty
+ * get list of consultations (param serach)
+ */
 router.get('/consultation/', function (req, res) {
 
 });
 
+/**
+ * TODO need fix
+ * add new consultation for a user
+ * add :id to the end (user_id)
+ */
 router.post('/consultation/', function (req, res) {
   var sent = false;
   var params = {};
@@ -383,10 +434,38 @@ router.post('/consultation/', function (req, res) {
   }
 });
 
+/**
+ * TODO
+ * edit a consultation by consultation_id
+ */
+router.put('/consultation/:id', function(req, res) {
+
+});
+
+/**
+ * TODO empty
+ * delete consultation record by id
+ * permission: delete_consultation
+ */
+router.delete('/consultation/:id', function(req, res) {
+
+});
+
+
+
+
+/**
+ * TODO empty
+ * get list of pharmacies
+ */
 router.get('/pharmacy/', function (req, res) {
 
 });
 
+/**
+ * TODO
+ * add :id to the end (user_id)
+ */
 router.post('/pharmacy/', function (req, res) {
   var sent = false;
   var params = {};
@@ -462,6 +541,23 @@ router.post('/pharmacy/', function (req, res) {
       }
     });
   }
+
+});
+
+/**
+ * TODO
+ * edit pharmacy by id
+ */
+router.put('/pharmacy/:id', function(req, res) {
+
+});
+
+/**
+ * TODO empty
+ * delete pharmacy record by id
+ * permission: delete_pharmacy
+ */
+router.delete('/pharmacy/:id', function(req, res) {
 
 });
 

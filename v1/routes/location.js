@@ -11,6 +11,9 @@ var slum_table = 'slum';
 var country_table = 'country';
 
 /**
+ * TODO rename it to clinics
+ * 1) just names & id: no access token
+ * 2) everything
  * Get list of slums
  */
 router.get('/slum/', function (req, res) {
@@ -121,6 +124,7 @@ router.get('/slum/', function (req, res) {
 });
 
 /**
+ * TODO rename it to clinics
  * Get slum by id
  */
 router.get('/slum/:id', function (req, res) {
@@ -190,6 +194,7 @@ router.get('/slum/:id', function (req, res) {
 });
 
 /**
+ * TODO rename it to clinics
  * Update info of a slum
  */
 router.put('/slum/:id', function (req, res) {
@@ -264,6 +269,7 @@ router.put('/slum/:id', function (req, res) {
 });
 
 /**
+ * TODO rename it to clinics
  * Add new slum
  */
 router.post('/slum/', function (req, res) {

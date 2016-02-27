@@ -117,6 +117,24 @@ router.get('/:id', function (req, res) {
 
 });
 
+/**
+ * TODO
+ * get a list of medicatino varitant of all medications
+ * param search
+ */
+router.get('/variants/', function (req, res) {
+
+});
+
+/**
+ * TODO
+ * 1. edit medication variant
+ * 2. flag medication as not available/insufficient/available (i.e. edit)
+ */
+router.put('/variants/:id', function (req, res) {
+
+});
+
 router.put('/:id', function (req, res) {
 
 });
@@ -125,7 +143,21 @@ router.post('/', function (req, res) {
 
 });
 
+/**
+ * TODO
+ * delete medication
+ * permission: delete_medication
+ */
 router.delete('/:id', function (req, res) {
+
+});
+
+/**
+ * TODO
+ * delete a variant of a medication
+ * permission: delete_medication_variant
+ */
+router.delete('/variants/:id', function (req, res) {
 
 });
 
