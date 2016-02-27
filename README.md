@@ -8,7 +8,10 @@
 A system suitable for remote patient record access. Design and optimized for the workflow of One-2-One Cambodia Clinic.
 
 ##How it works
-
+###Back-end
+This repository is the backend of the system. Along with a instance of PostgreSQL databse, it allows the front-end apps to access, create and modify patients records.
+###Front-end
+Basically the front-end apps parse and display the data to make it user friendly. They consists of next to no logic, which means it is possible for multiple versions of front-end apps work alongside each other as long as the back-end side is functioning correctly.
 
 ##Deployment
 ###Local
