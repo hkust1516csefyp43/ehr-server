@@ -8,6 +8,7 @@ var query_file_name;
 var query_path;
 
 /**
+ * TODO change it to save queries to db
  * A bunch of utilities related to the db synchronization
  */
 module.exports = {

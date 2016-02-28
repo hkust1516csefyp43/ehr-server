@@ -354,6 +354,9 @@ router.post('/', function (req, res) {
   }
 });
 
+/**
+ * edit patient
+ */
 router.put('/:id', function (req, res) {
   var sent = false;
   var params = {};
@@ -452,6 +455,26 @@ router.put('/:id', function (req, res) {
   }
 });
 
+/**
+ * TODO
+ * add new document to a patient (:id)
+ */
+router.post('/documents/:id', function(req, res) {
 
+});
+
+/**
+ * edit a document (:id >> document_id)
+ */
+router.put('/documents/:id', function(req, res) {
+
+});
+
+/**
+ * get a document (:id >> document_id)
+ */
+router.get('/documents/:id', function(req, res) {
+
+});
 
 module.exports = router;

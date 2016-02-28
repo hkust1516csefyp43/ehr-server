@@ -12,7 +12,11 @@ var db = require('../database');
 var sql = require('sql-bricks-postgres');
 
 /**
- * DONE? Login + renew access token
+ * DONE?
+ * 1. Login
+ * 2. renew access token
+ * 3. just getting info of myself
+ * response: the whole user row - salt - processed_password + list of permissions + list of device_id of myself (same user_id)
  * TODO check if device id is blocked
  */
 router.get('/', function (req, res) {
@@ -135,12 +139,6 @@ router.get('/:id', function (req, res) {
 
 
 /**
- * TODO return a list of currently online users
- */
-router.get('/token/', function (req, res) {
-});
-
-/**
  * TODO update user by id
  */
 router.put('/:id', function (req, res) {
@@ -161,12 +159,18 @@ router.delete('/:id', function (req, res) {
   //Destroy cache?
 });
 
-//TODO get a list of tokens
+/**
+ * TODO
+ * 1. return a list of all logged in instances (permission: see_all_tokens)
+ */
 router.get('/token/', function (req, res) {
-
 });
 
-//TODO get a token by id
+/**
+ * TODO get a token by user id
+ * 1. return a list of my logged in instances
+ * id: user_id
+ */
 router.get('/token/:id', function (req, res) {
 
 });
@@ -175,7 +179,9 @@ router.get('/token/:id', function (req, res) {
 
 /**
  * TODO revoke token
- * i.e. logout
+ * 1. logout
+ * 2. logout other instances of myself
+ * 3. remove any suspicious instances
  */
 router.delete('/token/:id', function (req, res) {
   res.send("In progress");
@@ -184,9 +190,6 @@ router.delete('/token/:id', function (req, res) {
   //get device id
   //Destroy token permission cache
 });
-
-//TODO get a role
-
 
 //TODO get roles
 router.get('/roles/', function (req, res) {
@@ -316,5 +319,60 @@ router.delete('/roles/', function (req, res) {
   //get token from header
 
 });
+
+/**
+ * Get list of notifications
+ * 1. if id == user_id of access token >> no permission
+ * 2. else need "access_any_notification"
+ */
+router.get('/notifications/:id', function (req, res) {
+
+});
+
+/**
+ * add notification
+ * 1. to global
+ * 2. to multiple people (write it to db multiple times)
+ * 3. to 1 person
+ */
+router.post('/notifications/', function (req, res) {
+
+});
+
+router.put('/notifications/:id', function (req, res) {
+
+});
+
+router.delete('/notifications/:id', function (req, res) {
+
+});
+
+/**
+ * TODO
+ * add device_id (:id) to blocked_devices table
+ * should there be an expiry time? (after that the device will be able to log in again)
+ */
+router.post('/suspensions/:id', function(req, res) {
+
+});
+
+/**
+ * TODO
+ * get a list of suspended devices
+ */
+router.get('/suspensions/', function(req, res) {
+
+});
+
+/**
+ * TODO
+ * remove device_id (:id) from blocked_devices list
+ * only admin can do that: permission "release_suspended_device"
+ */
+router.delete('/suspensions/:id', function(req, res) {
+
+});
+
+
 
 module.exports = router;

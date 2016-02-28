@@ -4,5 +4,10 @@
   "cloud_api_host": "https://ehr-api.herokuapp.com/",
   "local_api_host": "http://localhost:3000/",
   "on_the_cloud": true,
-  "android_app_versionCode": 1
+  "android_app_versionCode": 1,
+  "cloudinary": {
+    "cloud_name": "hkust1516csefyp43",
+    "api_key": "481781176725451",
+    "api_secret": "e44DHc9nERY2meBmyE8srpQWAgE"
+  }
 }
