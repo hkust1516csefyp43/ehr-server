@@ -7,15 +7,15 @@ var bodyParser = require('body-parser');
 
 var routes = require('./v1/routes/index');
 
-var v1Inventory = require('./v1/routes/inventory');
-var v1Patient = require('./v1/routes/patient');
-var v1User = require('./v1/routes/user');
-var v1Visit = require('./v1/routes/visit')
-var v1Static = require('./v1/routes/static');
-var v1ChiefComplain = require('./v1/routes/chief_complain');
-var v1Diagnosis = require('./v1/routes/diagnosis');
-var v1Medication = require('./v1/routes/medication');
-var v1Location = require('./v1/routes/location');
+var v2Inventory = require('./v2/routes/inventory');
+var v2Patient = require('./v2/routes/patient');
+var v2User = require('./v2/routes/user');
+var v2Visit = require('./v2/routes/visit')
+var v2Static = require('./v2/routes/static');
+var v2ChiefComplain = require('./v2/routes/chief_complain');
+var v2Diagnosis = require('./v2/routes/diagnosis');
+var v2Medication = require('./v2/routes/medication');
+var v2Location = require('./v2/routes/location');
 
 var app = express();
 
@@ -33,16 +33,16 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
 
-//v1
-app.use('/v1/inventory', v1Inventory);
-app.use('/v1/patient', v1Patient);
-app.use('/v1/user', v1User);
-app.use('/v1/visit', v1Visit);
-app.use('/v1/static', v1Static);
-app.use('/v1/chief_complain', v1ChiefComplain);
-app.use('/v1/diagnosis', v1Diagnosis);
-app.use('/v1/medication', v1Medication);
-app.use('/v1/location', v1Location);
+//v2
+app.use('/v2/inventory', v2Inventory);
+app.use('/v2/patient', v2Patient);
+app.use('/v2/user', v2User);
+app.use('/v2/visit', v2Visit);
+app.use('/v2/static', v2Static);
+app.use('/v2/chief_complain', v2ChiefComplain);
+app.use('/v2/diagnosis', v2Diagnosis);
+app.use('/v2/medication', v2Medication);
+app.use('/v2/location', v2Location);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
