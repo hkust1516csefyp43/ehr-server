@@ -1,6 +1,6 @@
 var fs = require('fs');
 var moment = require('moment');
-var util = require('../v1/utils');
+var util = require('../v2/utils');
 
 var endOfLine = require('os').EOL;
 var query_count = 0;

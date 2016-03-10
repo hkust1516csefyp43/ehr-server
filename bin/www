@@ -7,10 +7,10 @@
 var app = require('../app');
 var debug = require('debug')('nodejs:server');
 var http = require('http');
-var db = require('../v1/database');
-var util = require('../v1/utils');
-var valid = require('../v1/valid');
-var q = require('../v1/query');
+var db = require('../v2/database');
+var util = require('../v2/utils');
+var valid = require('../v2/valid');
+var q = require('../v2/query');
 var mt = require('moment-timezone');
 
 /**

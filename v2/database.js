@@ -48,11 +48,11 @@ module.exports = {
         sql_query = sql_query
           .select('u.*')
           .select('t.expiry_timestamp')
-          .from('users AS u, token AS t, role AS r')
+          .from('v2.users AS u, v2.tokens AS t, v2.roles AS r')
           .where(sql('t.token'), token)
           .where(sql('t.user_id'), sql('u.user_id'))
           .where(sql('u.role_id'), sql('r.role_id'))
-          .where(sql('t.access_token'), sql('true'));
+          .where(sql('t.is_access_token'), sql('true'));
 
         console.log("The whole query in string: " + sql_query.toString());
         var sqp = sql_query.toParams();

@@ -15,11 +15,11 @@ var valid = require('../valid');
 var db = require('../database');
 var q = require('../query');
 var sql = require('sql-bricks-postgres');
-var patient_table = 'patient';
-var visit_table = 'visit';
-var triage_table = 'triage';
-var consultation_table = 'consultation';
-var pharmacy_table = 'pharmacy';
+var patient_table = 'v2.patients';
+var visit_table = 'v2.visits';
+var triage_table = 'v2.triages';
+var consultation_table = 'v2.consultations';
+var pharmacy_table = 'v2.pharmacies';
 
 /* GET with patient id + basic auth */
 router.get('/:id', function (req, res) {
@@ -33,12 +33,12 @@ router.get('/:id', function (req, res) {
       res.status(errors.token_missing()).send('Token is missing');
         sent = true;
     } else {
-      db.check_token_and_permission("read_patient", token, function (err, return_value, client) {
+      db.check_token_and_permission("patients_read", token, function (err, return_value, client) {
         if (!return_value) {                                            //return value == null >> sth wrong
           res.status(errors.bad_request()).send('Token missing or invalid');
-        } else if (return_value.read_patient === false) {          //false (no permission)
+        } else if (return_value.patients_read === false) {          //false (no permission)
           res.status(errors.no_permission).send('No permission');
-        } else if (return_value.read_patient === true) {           //w/ permission
+        } else if (return_value.patients_read === true) {           //w/ permission
           if (return_value.expiry_timestamp < Date.now()) {
             res.status(errors.access_token_expired()).send('Access token expired');
           } else{
@@ -47,7 +47,7 @@ router.get('/:id', function (req, res) {
 
             var sql_query = sql
               .select()
-              .from('patient')
+              .from(patient_table)
               .where(params);
 
             var offset = param_query.offset;
