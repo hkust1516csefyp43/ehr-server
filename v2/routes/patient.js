@@ -213,7 +213,9 @@ router.get('/', function (req, res) {
           var next_station = param_query.next_station;
           if (next_station) {
             sql_query.where(sql("v2.visits.next_station"), sql(next_station));
+            sql_query.where(sql("v2.visits.patient_id"), sql("v2.patients.patient_id"));
             sql_query.select(sql("v2.visits.visit_id"));
+            sql_query.select(sql("v2.patients.*"));
             sql_query.from(visit_table);
           }
 
