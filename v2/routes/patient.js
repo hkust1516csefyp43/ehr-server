@@ -95,25 +95,23 @@ router.get('/', function (req, res) {
   var params = {};
   var param_query = req.query;
   console.log(JSON.stringify(param_query));
+  console.log(req.query.token);
+  console.log(req.query.next_station);
 
   var token = param_query.token;
   if (!token) {
     res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
-    db.check_token_and_permission("reset_any_password", token, function (err, return_value, client) {
+    db.check_token_and_permission("patients_read", token, function (err, return_value, client) {
       if (!return_value) {                                            //return value == null >> sth wrong
         res.status(errors.bad_request()).send('Token missing or invalid');
-      } else if (return_value.reset_any_password === false) {          //false (no permission)
+      } else if (return_value.patients_read === false) {          //false (no permission)
         res.status(errors.no_permission).send('No permission');
-      } else if (return_value.reset_any_password === true) {           //w/ permission
+      } else if (return_value.patients_read === true) {           //w/ permission
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
-          var next_station = param_query.next_station;
-          if (next_station) {
-            params.next_station = next_station;
-          }
 
           //These 3 are mutually exclusive
           var age = param_query.age;
@@ -212,6 +210,13 @@ router.get('/', function (req, res) {
             .from(patient_table)
             .where(params);
 
+          var next_station = param_query.next_station;
+          if (next_station) {
+            sql_query.where(sql("v2.visits.next_station"), sql(next_station));
+            sql_query.select(sql("v2.visits.visit_id"));
+            sql_query.from(visit_table);
+          }
+
           var offset = param_query.offset;
           if (offset) {
             sql_query.offset(offset);
@@ -222,7 +227,7 @@ router.get('/', function (req, res) {
             //TODO check if custom sort by param is valid
             sql_query.orderBy(sort_by);
           } else {
-            sql_query.orderBy('patient_id');
+            sql_query.orderBy('v2.patients.patient_id');
           }
 
           var limit = param_query.limit;
