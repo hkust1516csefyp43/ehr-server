@@ -101,12 +101,12 @@ router.get('/', function (req, res) {
     res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
-    db.check_token_and_permission("reset_any_password", token, function (err, return_value, client) {
+    db.check_token_and_permission("patients_read", token, function (err, return_value, client) {
       if (!return_value) {                                            //return value == null >> sth wrong
         res.status(errors.bad_request()).send('Token missing or invalid');
-      } else if (return_value.reset_any_password === false) {          //false (no permission)
+      } else if (return_value.patients_read === false) {          //false (no permission)
         res.status(errors.no_permission).send('No permission');
-      } else if (return_value.reset_any_password === true) {           //w/ permission
+      } else if (return_value.patients_read === true) {           //w/ permission
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
@@ -148,24 +148,24 @@ router.get('/', function (req, res) {
               sent = true;
           }
 
-          var slum_id = param_query.slum_id;
-          if (slum_id) {
-            params.slum_id = slum_id;
+          var clinic_id = param_query.clinic_id;
+          if (clinic_id) {
+            params.clinic_id = clinic_id;
           }
 
-          var gender = param_query.gender;
-          if (gender) {
-            params.gender = gender;
+          var gender_id = param_query.gender_id;
+          if (gender_id) {
+            params.gender_id = gender_id;
           }
 
-          var blood_type = param_query.blood_type;
-          if (blood_type) {
-            params.blood_type = blood_type;
+          var blood_type_id = param_query.blood_type_id;
+          if (blood_type_id) {
+            params.blood_type_id = blood_type_id;
           }
 
-          var country_id = param_query.country_id;
-          if (country_id) {
-            params.country_id = country_id;
+          var phone_number_country_code = param_query.phone_number_country_code;
+          if (phone_number_country_code) {
+            params.phone_number_country_code = phone_number_country_code;
           }
 
           var email = param_query.email;
