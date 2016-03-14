@@ -95,8 +95,8 @@ router.get('/', function (req, res) {
   var params = {};
   var param_query = req.query;
   console.log(JSON.stringify(param_query));
-  console.log(req.query.token);
-  console.log(req.query.next_station);
+  console.log("token = " + req.query.token);
+  console.log("next station = " + req.query.next_station);
 
   var token = param_query.token;
   if (!token) {
@@ -133,11 +133,11 @@ router.get('/', function (req, res) {
               }
               break;
             case 2:
-              if (!age) { //i.e. age_ot and age_yt exists
+              if (!age) { //i.e. age_ot and age_yt exists, although technically it can be age + age_ot/yt >> TODO fix that
                 if (age_yt - age_ot > 1) {
                   //TODO ok, calculate
                 } else {
-                  res.status(409).send('invalid age_ot and age_yt combination');
+                  res.status(409).send('age_yt must be larger than age_ot; if it is equal, use age');
                 }
               }
               break;
@@ -217,9 +217,24 @@ router.get('/', function (req, res) {
             .from(patient_table)
             .where(params);
 
+          var visit_date = param_query.visit_date;
+          var visit_date_range_before = param_query.visit_date_range_before;
+          var visit_date_range_after = param_query.visit_date_range_after;
+          if (visit_date) {
+            if (visit_date_range_after || visit_date_range_before) {
+              res.status(errors.bad_request()).send("You cant have both visit_date and visit_data_range_before/after");
+            } else {
+              sql_query.select(sql(visit_table + ".*"));
+              sql_query.from(visit_table);
+              sql_query.where(sql.and(sql.gte(visit_table + ".create_timestamp", visit_date), sql.lt(visit_table + ".create_timestamp", sql("(date '" + visit_date + "' + integer '1')"))));
+              sql_query.where(sql(visit_table + ".patient_id"), sql(patient_table + ".patient_id"));
+            }
+          } else {
+            //TODO visit_date_range
+          }
+
           var next_station = param_query.next_station;
           if (next_station) {
-            sql_query.select(sql(visit_table + ".visit_id"));
             sql_query.select(sql(visit_table + ".*"));
             sql_query.from(visit_table);
             sql_query.where(sql(visit_table + ".next_station"), sql(next_station));

@@ -73,6 +73,10 @@ module.exports = {
     return dist;
   },
 
+  /**
+   * Check if the arguments you have passed are mutually exclusive
+   * @returns {number} >> 1 == 1 variable is not null, 2 == 2 variables are not null, etc.
+   */
   mutually_exclusive: function () {
     var exclusivity = 0;
     for (var i = 0; i < arguments.length; i++) {
