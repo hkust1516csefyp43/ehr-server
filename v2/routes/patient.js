@@ -146,9 +146,9 @@ router.get('/', function (req, res) {
               sent = true;
           }
 
-          var slum_id = param_query.slum_id;
-          if (slum_id) {
-            params.slum_id = slum_id;
+          var clinic_id = param_query.clinic_id;
+          if (clinic_id) {
+            params.clinic_id = clinic_id;
           }
 
           var gender = param_query.gender;
