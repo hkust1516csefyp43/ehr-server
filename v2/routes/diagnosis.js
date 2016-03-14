@@ -3,6 +3,7 @@ var router = express.Router();
 var pg = require('pg');
 var util = require('../utils');
 var errors = require('../errors');
+var consts = require('../consts');
 var db = require('../database');
 var valid = require('../valid');
 var q = require('../query');
@@ -64,7 +65,7 @@ router.get('/', function (req, res) {
           if (limit) {
             sql_query.limit(limit);
           } else {    //Default limit
-            sql_query.limit(100);
+            sql_query.limit(consts.list_limit());
           }
 
           var offset = param_query.offset;

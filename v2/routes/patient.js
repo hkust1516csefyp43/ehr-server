@@ -67,7 +67,7 @@ router.get('/:id', function (req, res) {
             if (limit) {
               sql_query.limit(limit);
             } else {    //Default limit
-              sql_query.limit(100);
+              sql_query.limit(consts.list_limit());
             }
 
             console.log("The whole query in string: " + sql_query.toString());
@@ -151,14 +151,14 @@ router.get('/', function (req, res) {
             params.clinic_id = clinic_id;
           }
 
-          var gender = param_query.gender;
-          if (gender) {
-            params.gender = gender;
+          var gender_id = param_query.gender_id;
+          if (gender_id) {
+            params.gender_id = gender_id;
           }
 
-          var blood_type = param_query.blood_type;
-          if (blood_type) {
-            params.blood_type = blood_type;
+          var blood_type_id = param_query.blood_type_id;
+          if (blood_type_id) {
+            params.blood_type_id = blood_type_id;
           }
 
           var country_id = param_query.country_id;
@@ -192,9 +192,16 @@ router.get('/', function (req, res) {
             params.last_name = last_name;
           }
 
+          var honorific = param_query.honorific;
+          if (honorific) {
+            params.honorific = honorific;
+          }
+
           var name = param_query.name;
           if (name) {
             //TODO search it at first_name OR middle_name OR last_name
+            //i.e. LIKE
+            //first_name, middle_name, last_name, native_name LIKE name
           }
 
           //TODO get this from relationship table
@@ -212,11 +219,11 @@ router.get('/', function (req, res) {
 
           var next_station = param_query.next_station;
           if (next_station) {
-            sql_query.where(sql("v2.visits.next_station"), sql(next_station));
-            sql_query.where(sql("v2.visits.patient_id"), sql("v2.patients.patient_id"));
-            sql_query.select(sql("v2.visits.visit_id"));
-            sql_query.select(sql("v2.patients.*"));
+            sql_query.select(sql(visit_table + ".visit_id"));
+            sql_query.select(sql(visit_table + ".*"));
             sql_query.from(visit_table);
+            sql_query.where(sql(visit_table + ".next_station"), sql(next_station));
+            sql_query.where(sql(visit_table + ".patient_id"), sql(patient_table + ".patient_id"));
           }
 
           var offset = param_query.offset;
@@ -236,7 +243,7 @@ router.get('/', function (req, res) {
           if (limit) {
             sql_query.limit(limit);
           } else {    //Default limit
-            sql_query.limit(100);
+            sql_query.limit(consts.list_limit());
           }
 
           console.log("The whole query in string: " + sql_query.toString());

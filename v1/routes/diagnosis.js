@@ -5,6 +5,7 @@ var util = require('../utils');
 var errors = require('../errors');
 var db = require('../database');
 var valid = require('../valid');
+var consts = require('../consts');
 var q = require('../query');
 var sql = require('sql-bricks-postgres');
 
@@ -64,7 +65,7 @@ router.get('/', function (req, res) {
           if (limit) {
             sql_query.limit(limit);
           } else {    //Default limit
-            sql_query.limit(100);
+            sql_query.limit(consts.list_limit());
           }
 
           var offset = param_query.offset;

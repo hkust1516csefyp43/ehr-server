@@ -4,5 +4,8 @@ module.exports = {
   },
   id_random_string_length: function () {
     return 16;
+  },
+  list_limit: function () {
+    return 100;
   }
 };

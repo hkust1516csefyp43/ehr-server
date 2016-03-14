@@ -4,6 +4,7 @@ var pg = require('pg');
 var util = require('../utils');
 var errors = require('../errors');
 var valid = require('../valid');
+var consts = require('../consts');
 var sql = require('sql-bricks-postgres');
 
 var default_table = 'medication';
@@ -73,7 +74,7 @@ router.get('/', function (req, res) {
   if (limit) {
     sql_query.limit(limit);
   } else {    //Default limit
-    sql_query.limit(100);
+    sql_query.limit(consts.list_limit());
   }
 
   console.log(sql_query);
