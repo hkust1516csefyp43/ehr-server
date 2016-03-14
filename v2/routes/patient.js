@@ -223,6 +223,7 @@ router.get('/', function (req, res) {
           if (visit_date) {
             if (visit_date_range_after || visit_date_range_before) {
               res.status(errors.bad_request()).send("You cant have both visit_date and visit_data_range_before/after");
+              sent = true;
             } else {
               sql_query.select(sql(visit_table + ".*"));
               sql_query.from(visit_table);
