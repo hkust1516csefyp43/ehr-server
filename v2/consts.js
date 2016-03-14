@@ -8,98 +8,100 @@ module.exports = {
   list_limit: function () {
     return 100;
   },
+  version: function () {
+    return "v2";
+  },
   version_table_prefix: function () {
-    return "v2.";
+    return this.version() + ".";
   },
   table_attachments: function () {
-    //TODO check if this works: return this.version_table_prefix() + "attachments";
-    return "v2.attachments";
+    return this.version_table_prefix() + "attachments";
   },
   table_blocked_devices: function () {
-    return "v2.blocked_devices";
+    return this.version_table_prefix() + "blocked_devices";
   },
   table_blood_types: function () {
-    return "v2.blood_types";
+    return this.version_table_prefix() + "blood_types";
   },
   table_clinics: function () {
-    return "v2.clinics";
+    return this.version_table_prefix() + "clinics";
   },
   table_comments: function () {
-    return "v2.comments";
+    return this.version_table_prefix() + "comments";
   },
   table_consultation_attachments: function () {
-    return "v2.consultation_attachments";
+    return this.version_table_prefix() + "consultation_attachments";
   },
   table_consultations: function () {
-    return "v2.consultations";
+    return this.version_table_prefix() + "consultations";
   },
   table_countries: function () {
-    return "v2.countries";
+    return this.version_table_prefix() + "countries";
   },
   table_document_types: function () {
-    return "v2.document_types";
+    return this.version_table_prefix() + "document_types";
   },
   table_documents: function () {
-    return "v2.documents";
+    return this.version_table_prefix() + "documents";
   },
   table_emergency_contacts: function () {
-    return "v2.emergency_contacts";
+    return this.version_table_prefix() + "emergency_contacts";
   },
   table_genders: function () {
-    return "v2.genders";
+    return this.version_table_prefix() + "genders";
   },
   table_investigation_attachments: function () {
-    return "v2.investigation_attachments";
+    return this.version_table_prefix() + "investigation_attachments";
   },
   table_investigations: function () {
-    return "v2.investigations";
+    return this.version_table_prefix() + "investigations";
   },
   table_keywords: function () {
-    return "v2.keywords";
+    return this.version_table_prefix() + "keywords";
   },
   table_medication_variants: function () {
-    return "v2.medication_variants";
+    return this.version_table_prefix() + "medication_variants";
   },
   table_medications: function () {
-    return "v2.medications";
+    return this.version_table_prefix() + "medications";
   },
   table_notifications: function () {
-    return "v2.notifications";
+    return this.version_table_prefix() + "notifications";
   },
   table_patients: function () {
-    return "v2.patients";
+    return this.version_table_prefix() + "patients";
   },
   table_pharmacies: function () {
-    return "v2.pharmacies";
+    return this.version_table_prefix() + "pharmacies";
   },
   table_prescriptions: function () {
-    return "v2.prescriptions";
+    return this.version_table_prefix() + "prescriptions";
   },
   table_related_data: function () {
-    return "v2.related_data";
+    return this.version_table_prefix() + "related_data";
   },
   table_relationship_types: function () {
-    return "v2.relationship_types";
+    return this.version_table_prefix() + "relationship_types";
   },
   table_relationships: function () {
-    return "v2.relationships";
+    return this.version_table_prefix() + "relationships";
   },
   table_roles: function () {
-    return "v2.roles";
+    return this.version_table_prefix() + "roles";
   },
   table_suitcases: function () {
-    return "v2.suitcases";
+    return this.version_table_prefix() + "suitcases";
   },
   table_tokens: function () {
-    return "v2.tokens";
+    return this.version_table_prefix() + "tokens";
   },
   table_triages: function () {
-    return "v2.triages";
+    return this.version_table_prefix() + "triages";
   },
   table_users: function () {
-    return "v2.users";
+    return this.version_table_prefix() + "users";
   },
   table_visits: function () {
-    return "v2.visits";
+    return this.version_table_prefix() + "visits";
   }
 };

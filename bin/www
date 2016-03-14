@@ -10,6 +10,7 @@ var http = require('http');
 var db = require('../v2/database');
 var util = require('../v2/utils');
 var valid = require('../v2/valid');
+var consts = require('../v2/consts');
 var q = require('../v2/query');
 var mt = require('moment-timezone');
 
