@@ -204,7 +204,7 @@ router.post('/', function (req, res) {
             params.blood_type_id = util.random_string(consts.id_random_string_length());
 
 
-          var sql_query = sql.insert(blood_types_table, params);
+          var sql_query = sql.insert(blood_types_table, params).returning('*');
           console.log(sql_query.toString());
           client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
             if (err) {
@@ -256,7 +256,7 @@ router.put('/:id', function (req, res) {
 
           var sql_query = sql
             .update(blood_types_table, params)
-            .where(sql('blood_type_id'), blood_type_id);
+            .where(sql('blood_type_id'), blood_type_id).returning('*');
           console.log(sql_query.toString());
           client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
             if (err) {
