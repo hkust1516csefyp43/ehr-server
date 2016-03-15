@@ -148,131 +148,135 @@ router.get('/', function (req, res) {
 
           var clinic_id = param_query.clinic_id;
           if (clinic_id) {
-            params.clinic_id = clinic_id;
-          }
+            db.is_clinic_global(clinic_id, function (err, return_value, client) {  //TODO i might need to cache that or it will be too slow
+              if (return_value.global === false) {
+                params.clinic_id = clinic_id;
+              }
 
-          var gender_id = param_query.gender_id;
-          if (gender_id) {
-            params.gender_id = gender_id;
-          }
+              var gender_id = param_query.gender_id;
+              if (gender_id) {
+                params.gender_id = gender_id;
+              }
 
-          var blood_type_id = param_query.blood_type_id;
-          if (blood_type_id) {
-            params.blood_type_id = blood_type_id;
-          }
+              var blood_type_id = param_query.blood_type_id;
+              if (blood_type_id) {
+                params.blood_type_id = blood_type_id;
+              }
 
-          var phone_number_country_code = param_query.phone_number_country_code;
-          if (phone_number_country_code) {
-            params.phone_number_country_code = phone_number_country_code;
-          }
+              var phone_number_country_code = param_query.phone_number_country_code;
+              if (phone_number_country_code) {
+                params.phone_number_country_code = phone_number_country_code;
+              }
 
-          var email = param_query.email;
-          if (email) {
-            //params.email = email;
-            if (valid.email(email) === false) {
-              sent = true;
-              res.status(errors.bad_request()).send("invalid email");
-            } else {
-              params.email = email;
-            }
-          }
+              var email = param_query.email;
+              if (email) {
+                //params.email = email;
+                if (valid.email(email) === false) {
+                  sent = true;
+                  res.status(errors.bad_request()).send("invalid email");
+                } else {
+                  params.email = email;
+                }
+              }
 
-          var first_name = param_query.first_name;
-          if (first_name) {
-            params.first_name = first_name;
-          }
+              var first_name = param_query.first_name;
+              if (first_name) {
+                params.first_name = first_name;
+              }
 
-          var middle_name = param_query.middle_name;
-          if (middle_name) {
-            params.middle_name = middle_name;
-          }
+              var middle_name = param_query.middle_name;
+              if (middle_name) {
+                params.middle_name = middle_name;
+              }
 
-          var last_name = param_query.last_name;
-          if (last_name) {
-            params.last_name = last_name;
-          }
+              var last_name = param_query.last_name;
+              if (last_name) {
+                params.last_name = last_name;
+              }
 
-          var honorific = param_query.honorific;
-          if (honorific) {
-            params.honorific = honorific;
-          }
+              var honorific = param_query.honorific;
+              if (honorific) {
+                params.honorific = honorific;
+              }
 
-          var name = param_query.name;
-          if (name) {
-            //TODO search it at first_name OR middle_name OR last_name
-            //i.e. LIKE
-            //first_name, middle_name, last_name, native_name LIKE name
-          }
+              var name = param_query.name;
+              if (name) {
+                //TODO search it at first_name OR middle_name OR last_name
+                //i.e. LIKE
+                //first_name, middle_name, last_name, native_name LIKE name
+              }
 
-          //TODO get this from relationship table
-          //var related_to_id = param_query.related_to_id;
-          //if (related_to_id) {
-          //    params.related_id = related_to_id;
-          //}
+              //TODO get this from relationship table
+              //var related_to_id = param_query.related_to_id;
+              //if (related_to_id) {
+              //    params.related_id = related_to_id;
+              //}
 
-          //console.log(JSON.stringify(params));
+              //console.log(JSON.stringify(params));
 
-          var sql_query = sql
-            .select()
-            .from(patient_table)
-            .where(params);
+              var sql_query = sql
+                .select()
+                .from(patient_table)
+                .where(params);
 
-          var visit_date = param_query.visit_date;
-          var visit_date_range_before = param_query.visit_date_range_before;
-          var visit_date_range_after = param_query.visit_date_range_after;
-          if (visit_date) {
-            if (visit_date_range_after || visit_date_range_before) {
-              res.status(errors.bad_request()).send("You cant have both visit_date and visit_data_range_before/after");
-              sent = true;
-            } else {
-              sql_query.select(sql(visit_table + ".*"));
-              sql_query.from(visit_table);
-              sql_query.where(sql.and(sql.gte(visit_table + ".create_timestamp", visit_date), sql.lt(visit_table + ".create_timestamp", sql("(date '" + visit_date + "' + integer '1')"))));
-              sql_query.where(sql(visit_table + ".patient_id"), sql(patient_table + ".patient_id"));
-            }
-          } else {
-            //TODO visit_date_range
-          }
-
-          var next_station = param_query.next_station;
-          if (next_station) {
-            sql_query.select(sql(visit_table + ".*"));
-            sql_query.from(visit_table);
-            sql_query.where(sql(visit_table + ".next_station"), sql(next_station));
-            sql_query.where(sql(visit_table + ".patient_id"), sql(patient_table + ".patient_id"));
-          }
-
-          var offset = param_query.offset;
-          if (offset) {
-            sql_query.offset(offset);
-          }
-
-          var sort_by = param_query.sort_by;
-          if (sort_by) {
-            //TODO check if custom sort by param is valid
-            sql_query.orderBy(sort_by);
-          } else {
-            sql_query.orderBy('v2.patients.patient_id');
-          }
-
-          var limit = param_query.limit;
-          if (limit) {
-            sql_query.limit(limit);
-          } else {    //Default limit
-            sql_query.limit(consts.list_limit());
-          }
-
-          console.log("The whole query in string: " + sql_query.toString());
-
-          if (sent === false) {
-            client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
-              if (err) {
-                res.send('error fetching client from pool 2');
-                sent = true;
-                return console.error('error fetching client from pool', err);
+              var visit_date = param_query.visit_date;
+              var visit_date_range_before = param_query.visit_date_range_before;
+              var visit_date_range_after = param_query.visit_date_range_after;
+              if (visit_date) {
+                if (visit_date_range_after || visit_date_range_before) {
+                  res.status(errors.bad_request()).send("You cant have both visit_date and visit_data_range_before/after");
+                  sent = true;
+                } else {
+                  sql_query.select(sql(visit_table + ".*"));
+                  sql_query.from(visit_table);
+                  sql_query.where(sql.and(sql.gte(visit_table + ".create_timestamp", visit_date), sql.lt(visit_table + ".create_timestamp", sql("(date '" + visit_date + "' + integer '1')"))));
+                  sql_query.where(sql(visit_table + ".patient_id"), sql(patient_table + ".patient_id"));
+                }
               } else {
-                q.save_sql_query(sql_query.toString());
-                res.json(result.rows);
+                //TODO visit_date_range
+              }
+
+              var next_station = param_query.next_station;
+              if (next_station) {
+                sql_query.select(sql(visit_table + ".*"));
+                sql_query.from(visit_table);
+                sql_query.where(sql(visit_table + ".next_station"), sql(next_station));
+                sql_query.where(sql(visit_table + ".patient_id"), sql(patient_table + ".patient_id"));
+              }
+
+              var offset = param_query.offset;
+              if (offset) {
+                sql_query.offset(offset);
+              }
+
+              var sort_by = param_query.sort_by;
+              if (sort_by) {
+                //TODO check if custom sort by param is valid
+                sql_query.orderBy(sort_by);
+              } else {
+                sql_query.orderBy('v2.patients.patient_id');
+              }
+
+              var limit = param_query.limit;
+              if (limit) {
+                sql_query.limit(limit);
+              } else {    //Default limit
+                sql_query.limit(consts.list_limit());
+              }
+
+              console.log("The whole query in string: " + sql_query.toString());
+
+              if (sent === false) {
+                client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+                  if (err) {
+                    res.send('error fetching client from pool 2');
+                    sent = true;
+                    return console.error('error fetching client from pool', err);
+                  } else {
+                    q.save_sql_query(sql_query.toString());
+                    res.json(result.rows);
+                  }
+                });
               }
             });
           }
