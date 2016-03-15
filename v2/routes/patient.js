@@ -161,9 +161,9 @@ router.get('/', function (req, res) {
             params.blood_type_id = blood_type_id;
           }
 
-          var country_id = param_query.country_id;
-          if (country_id) {
-            params.country_id = country_id;
+          var phone_number_country_code = param_query.phone_number_country_code;
+          if (phone_number_country_code) {
+            params.phone_number_country_code = phone_number_country_code;
           }
 
           var email = param_query.email;
