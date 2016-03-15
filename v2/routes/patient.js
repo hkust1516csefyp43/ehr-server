@@ -29,64 +29,64 @@ router.get('/:id', function (req, res) {
   console.log(JSON.stringify(param_query));
   console.log("patient_id:",req.params.id);
   var token = param_query.token;
-    if (!token) {
-      res.status(errors.token_missing()).send('Token is missing');
-        sent = true;
-    } else {
-      db.check_token_and_permission("patients_read", token, function (err, return_value, client) {
-        if (!return_value) {                                            //return value == null >> sth wrong
-          res.status(errors.bad_request()).send('Token missing or invalid');
-        } else if (return_value.patients_read === false) {          //false (no permission)
-          res.status(errors.no_permission).send('No permission');
-        } else if (return_value.patients_read === true) {           //w/ permission
-          if (return_value.expiry_timestamp < Date.now()) {
-            res.status(errors.access_token_expired()).send('Access token expired');
-          } else{
-            var patient_id = req.params.id;
-            params.patient_id = patient_id;
+  if (!token) {
+    res.status(errors.token_missing()).send('Token is missing');
+    sent = true;
+  } else {
+    db.check_token_and_permission("patients_read", token, function (err, return_value, client) {
+      if (!return_value) {                                            //return value == null >> sth wrong
+        res.status(errors.bad_request()).send('Token missing or invalid');
+      } else if (return_value.patients_read === false) {          //false (no permission)
+        res.status(errors.no_permission).send('No permission');
+      } else if (return_value.patients_read === true) {           //w/ permission
+        if (return_value.expiry_timestamp < Date.now()) {
+          res.status(errors.access_token_expired()).send('Access token expired');
+        } else {
+          var patient_id = req.params.id;
+          params.patient_id = patient_id;
 
-            var sql_query = sql
-              .select()
-              .from(patient_table)
-              .where(params);
+          var sql_query = sql
+            .select()
+            .from(patient_table)
+            .where(params);
 
-            var offset = param_query.offset;
-            if (offset) {
-              sql_query.offset(offset);
-            }
-
-            var sort_by = param_query.sort_by;
-            if (sort_by) {
-              //TODO check if custom sort by param is valid
-              sql_query.orderBy(sort_by);
-            } else {
-              sql_query.orderBy('patient_id');
-            }
-
-            var limit = param_query.limit;
-            if (limit) {
-              sql_query.limit(limit);
-            } else {    //Default limit
-              sql_query.limit(consts.list_limit());
-            }
-
-            console.log("The whole query in string: " + sql_query.toString());
-            if (sent === false) {
-              client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
-                if (err) {
-                  res.send('error fetching client from pool 2');
-                  sent = true;
-                  return console.error('error fetching client from pool', err);
-                } else {
-                  q.save_sql_query(sql_query.toString());
-                  res.json(result.rows);
-                }
-              });
-            }
-            }
+          var offset = param_query.offset;
+          if (offset) {
+            sql_query.offset(offset);
           }
-      })
-    }
+
+          var sort_by = param_query.sort_by;
+          if (sort_by) {
+            //TODO check if custom sort by param is valid
+            sql_query.orderBy(sort_by);
+          } else {
+            sql_query.orderBy('patient_id');
+          }
+
+          var limit = param_query.limit;
+          if (limit) {
+            sql_query.limit(limit);
+          } else {    //Default limit
+            sql_query.limit(consts.list_limit());
+          }
+
+          console.log("The whole query in string: " + sql_query.toString());
+          if (sent === false) {
+            client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+              if (err) {
+                res.send('error fetching client from pool 2');
+                sent = true;
+                return console.error('error fetching client from pool', err);
+              } else {
+                q.save_sql_query(sql_query.toString());
+                res.json(result.rows);
+              }
+            });
+          }
+        }
+      }
+    })
+  }
 });
 
 router.get('/', function (req, res) {
@@ -113,172 +113,180 @@ router.get('/', function (req, res) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
 
-          //These 3 are mutually exclusive
-          var age = param_query.age;
-          var age_ot = param_query.age_ot;
-          var age_yt = param_query.age_yt;
+          var sql_query = sql
+            .select(patient_table + ".*")
+            .from(patient_table)
+            .where(params);
 
-          //TODO age_ot and age_yt can exist together iff age_yt > age_ot
-          switch (util.mutually_exclusive(age, age_ot, age_yt)) {
-            case 0:
-              //Do nothing, LITERALLY
-              break;
-            case 1:
-              if (age) {
-                //TODO calculation
-              } else if (age_ot) {
-                //TODO calculation
-              } else if (age_yt) {
-                //TODO calculation
-              }
-              break;
-            case 2:
-              if (!age) { //i.e. age_ot and age_yt exists, although technically it can be age + age_ot/yt >> TODO fix that
-                if (age_yt - age_ot > 1) {
-                  //TODO ok, calculate
-                } else {
-                  res.status(409).send('age_yt must be larger than age_ot; if it is equal, use age');
+          var cont = function () {
+
+            //These 3 are mutually exclusive
+            var age = param_query.age;
+            var age_ot = param_query.age_ot;
+            var age_yt = param_query.age_yt;
+
+            //TODO age_ot and age_yt can exist together iff age_yt > age_ot
+            switch (util.mutually_exclusive(age, age_ot, age_yt)) {
+              case 0:
+                //Do nothing, LITERALLY
+                break;
+              case 1:
+                if (age) {
+                  //TODO calculation
+                } else if (age_ot) {
+                  //TODO calculation
+                } else if (age_yt) {
+                  //TODO calculation
                 }
+                break;
+              case 2:
+                if (!age) { //i.e. age_ot and age_yt exists, although technically it can be age + age_ot/yt >> TODO fix that
+                  if (age_yt - age_ot > 1) {
+                    //TODO ok, calculate
+                  } else {
+                    res.status(409).send('age_yt must be larger than age_ot; if it is equal, use age');
+                  }
+                }
+                break;
+              default:
+                res.status(409).send('age, ago_ot and age_yt must be mutually exclusive');
+                sent = true;
+            }
+
+            var gender_id = param_query.gender_id;
+            if (gender_id) {
+              params.gender_id = gender_id;
+            }
+
+            var blood_type_id = param_query.blood_type_id;
+            if (blood_type_id) {
+              params.blood_type_id = blood_type_id;
+            }
+
+            var phone_number_country_code = param_query.phone_number_country_code;
+            if (phone_number_country_code) {
+              params.phone_number_country_code = phone_number_country_code;
+            }
+
+            var email = param_query.email;
+            if (email) {
+              //params.email = email;
+              if (valid.email(email) === false) {
+                sent = true;
+                res.status(errors.bad_request()).send("invalid email");
+              } else {
+                params.email = email;
               }
-              break;
-            default:
-              res.status(409).send('age, ago_ot and age_yt must be mutually exclusive');
-              sent = true;
-          }
+            }
+
+            var first_name = param_query.first_name;
+            if (first_name) {
+              params.first_name = first_name;
+            }
+
+            var middle_name = param_query.middle_name;
+            if (middle_name) {
+              params.middle_name = middle_name;
+            }
+
+            var last_name = param_query.last_name;
+            if (last_name) {
+              params.last_name = last_name;
+            }
+
+            var honorific = param_query.honorific;
+            if (honorific) {
+              params.honorific = honorific;
+            }
+
+            var name = param_query.name;
+            if (name) {
+              //TODO search it at first_name OR middle_name OR last_name
+              //i.e. LIKE
+              //first_name, middle_name, last_name, native_name LIKE name
+            }
+
+            //TODO get this from relationship table
+            //var related_to_id = param_query.related_to_id;
+            //if (related_to_id) {
+            //    params.related_id = related_to_id;
+            //}
+
+            //console.log(JSON.stringify(params));
+
+
+            var visit_date = param_query.visit_date;
+            var visit_date_range_before = param_query.visit_date_range_before;
+            var visit_date_range_after = param_query.visit_date_range_after;
+            if (visit_date) {
+              if (visit_date_range_after || visit_date_range_before) {
+                res.status(errors.bad_request()).send("You cant have both visit_date and visit_data_range_before/after");
+                sent = true;
+              } else {
+                sql_query.select(sql(visit_table + ".*"));
+                sql_query.from(visit_table);
+                sql_query.where(sql.and(sql.gte(visit_table + ".create_timestamp", visit_date), sql.lt(visit_table + ".create_timestamp", sql("(date '" + visit_date + "' + integer '1')"))));
+                sql_query.where(sql(visit_table + ".patient_id"), sql(patient_table + ".patient_id"));
+              }
+            } else {
+              //TODO visit_date_range
+            }
+
+            var next_station = param_query.next_station;
+            if (next_station) {
+              sql_query.select(sql(visit_table + ".*"));
+              sql_query.from(visit_table);
+              sql_query.where(sql(visit_table + ".next_station"), sql(next_station));
+              sql_query.where(sql(visit_table + ".patient_id"), sql(patient_table + ".patient_id"));
+            }
+
+            var offset = param_query.offset;
+            if (offset) {
+              sql_query.offset(offset);
+            }
+
+            var sort_by = param_query.sort_by;
+            if (sort_by) {
+              //TODO check if custom sort by param is valid
+              sql_query.orderBy(sort_by);
+            } else {
+              sql_query.orderBy('v2.patients.patient_id');
+            }
+
+            var limit = param_query.limit;
+            if (limit) {
+              sql_query.limit(limit);
+            } else {    //Default limit
+              sql_query.limit(consts.list_limit());
+            }
+
+            console.log("The whole query in string A: " + sql_query.toString());
+
+            if (sent === false) {
+              client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+                if (err) {
+                  res.send('error fetching client from pool 2');
+                  sent = true;
+                  return console.error('error fetching client from pool', err);
+                } else {
+                  q.save_sql_query(sql_query.toString());
+                  res.json(result.rows);
+                }
+              });
+            }
+          };
 
           var clinic_id = param_query.clinic_id;
           if (clinic_id) {
             db.is_clinic_global(clinic_id, function (err, return_value, client) {  //TODO i might need to cache that or it will be too slow
               if (return_value.global === false) {
-                params.clinic_id = clinic_id;
+                sql_query.where('clinic_id', clinic_id.toString());
               }
-
-              var gender_id = param_query.gender_id;
-              if (gender_id) {
-                params.gender_id = gender_id;
-              }
-
-              var blood_type_id = param_query.blood_type_id;
-              if (blood_type_id) {
-                params.blood_type_id = blood_type_id;
-              }
-
-              var phone_number_country_code = param_query.phone_number_country_code;
-              if (phone_number_country_code) {
-                params.phone_number_country_code = phone_number_country_code;
-              }
-
-              var email = param_query.email;
-              if (email) {
-                //params.email = email;
-                if (valid.email(email) === false) {
-                  sent = true;
-                  res.status(errors.bad_request()).send("invalid email");
-                } else {
-                  params.email = email;
-                }
-              }
-
-              var first_name = param_query.first_name;
-              if (first_name) {
-                params.first_name = first_name;
-              }
-
-              var middle_name = param_query.middle_name;
-              if (middle_name) {
-                params.middle_name = middle_name;
-              }
-
-              var last_name = param_query.last_name;
-              if (last_name) {
-                params.last_name = last_name;
-              }
-
-              var honorific = param_query.honorific;
-              if (honorific) {
-                params.honorific = honorific;
-              }
-
-              var name = param_query.name;
-              if (name) {
-                //TODO search it at first_name OR middle_name OR last_name
-                //i.e. LIKE
-                //first_name, middle_name, last_name, native_name LIKE name
-              }
-
-              //TODO get this from relationship table
-              //var related_to_id = param_query.related_to_id;
-              //if (related_to_id) {
-              //    params.related_id = related_to_id;
-              //}
-
-              //console.log(JSON.stringify(params));
-
-              var sql_query = sql
-                .select()
-                .from(patient_table)
-                .where(params);
-
-              var visit_date = param_query.visit_date;
-              var visit_date_range_before = param_query.visit_date_range_before;
-              var visit_date_range_after = param_query.visit_date_range_after;
-              if (visit_date) {
-                if (visit_date_range_after || visit_date_range_before) {
-                  res.status(errors.bad_request()).send("You cant have both visit_date and visit_data_range_before/after");
-                  sent = true;
-                } else {
-                  sql_query.select(sql(visit_table + ".*"));
-                  sql_query.from(visit_table);
-                  sql_query.where(sql.and(sql.gte(visit_table + ".create_timestamp", visit_date), sql.lt(visit_table + ".create_timestamp", sql("(date '" + visit_date + "' + integer '1')"))));
-                  sql_query.where(sql(visit_table + ".patient_id"), sql(patient_table + ".patient_id"));
-                }
-              } else {
-                //TODO visit_date_range
-              }
-
-              var next_station = param_query.next_station;
-              if (next_station) {
-                sql_query.select(sql(visit_table + ".*"));
-                sql_query.from(visit_table);
-                sql_query.where(sql(visit_table + ".next_station"), sql(next_station));
-                sql_query.where(sql(visit_table + ".patient_id"), sql(patient_table + ".patient_id"));
-              }
-
-              var offset = param_query.offset;
-              if (offset) {
-                sql_query.offset(offset);
-              }
-
-              var sort_by = param_query.sort_by;
-              if (sort_by) {
-                //TODO check if custom sort by param is valid
-                sql_query.orderBy(sort_by);
-              } else {
-                sql_query.orderBy('v2.patients.patient_id');
-              }
-
-              var limit = param_query.limit;
-              if (limit) {
-                sql_query.limit(limit);
-              } else {    //Default limit
-                sql_query.limit(consts.list_limit());
-              }
-
-              console.log("The whole query in string: " + sql_query.toString());
-
-              if (sent === false) {
-                client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
-                  if (err) {
-                    res.send('error fetching client from pool 2');
-                    sent = true;
-                    return console.error('error fetching client from pool', err);
-                  } else {
-                    q.save_sql_query(sql_query.toString());
-                    res.json(result.rows);
-                  }
-                });
-              }
+              //else >> literally do nothing, just move on
+              cont();
             });
+          } else {
+            cont();
           }
         }
       }
