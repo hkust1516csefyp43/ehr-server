@@ -115,8 +115,7 @@ router.get('/', function (req, res) {
 
           var sql_query = sql
             .select(patient_table + ".*")
-            .from(patient_table)
-            .where(params);
+            .from(patient_table);
 
           var cont = function () {
 
@@ -168,6 +167,11 @@ router.get('/', function (req, res) {
               params.phone_number_country_code = phone_number_country_code;
             }
 
+            var phone_number = param_query.phone_number;
+            if (phone_number) {
+              params.phone_number = phone_number;
+            }
+
             var email = param_query.email;
             if (email) {
               //params.email = email;
@@ -181,29 +185,29 @@ router.get('/', function (req, res) {
 
             var first_name = param_query.first_name;
             if (first_name) {
-              params.first_name = first_name;
+              params.first_name = "%" + first_name + "%";
             }
 
             var middle_name = param_query.middle_name;
             if (middle_name) {
-              params.middle_name = middle_name;
+              params.middle_name = "%" + middle_name + "%";
             }
 
             var last_name = param_query.last_name;
             if (last_name) {
-              params.last_name = last_name;
+              params.last_name = "%" + last_name + "%";
             }
 
             var honorific = param_query.honorific;
             if (honorific) {
-              params.honorific = honorific;
+              params.honorific = "%" + honorific + "%";
             }
 
+            // This should not exist along with other kind of names
             var name = param_query.name;
             if (name) {
-              //TODO search it at first_name OR middle_name OR last_name
-              //i.e. LIKE
-              //first_name, middle_name, last_name, native_name LIKE name
+              //select * from v2.patients where first_name LIKE '%Louis%' OR middle_name LIKE '%Louis%' OR last_name LIKE '%Louis%' OR native_name LIKE '%Louis%'
+              sql_query.where(sql.or(sql.like('first_name', util.pre_suf_percent(name)), sql.like('middle_name', util.pre_suf_percent(name)), sql.like('last_name', util.pre_suf_percent(name)), sql.like('native_name', util.pre_suf_percent(name))));
             }
 
             //TODO get this from relationship table
@@ -260,6 +264,8 @@ router.get('/', function (req, res) {
               sql_query.limit(consts.list_limit());
             }
 
+            sql_query.where(params);
+
             console.log("The whole query in string A: " + sql_query.toString());
 
             if (sent === false) {
@@ -279,11 +285,15 @@ router.get('/', function (req, res) {
           var clinic_id = param_query.clinic_id;
           if (clinic_id) {
             db.is_clinic_global(clinic_id, function (err, return_value, client) {  //TODO i might need to cache that or it will be too slow
-              if (return_value.global === false) {
-                sql_query.where('clinic_id', clinic_id.toString());
+              if (return_value) {
+                if (return_value.global === false) {
+                  sql_query.where('clinic_id', clinic_id.toString());
+                }
+                //else >> literally do nothing, just move on
+                cont();
+              } else {
+                //TODO response error
               }
-              //else >> literally do nothing, just move on
-              cont();
             });
           } else {
             cont();

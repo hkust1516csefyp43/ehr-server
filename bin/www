@@ -16,6 +16,7 @@ var mt = require('moment-timezone');
 
 /**
  * Get port from environment and store in Express.
+ * TODO find a way to get another port if 3000 is occupied
  */
 
 var port = normalizePort(process.env.PORT || '3000');

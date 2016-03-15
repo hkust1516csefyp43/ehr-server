@@ -147,5 +147,8 @@ module.exports = {
   },
   get_cloud_options: function() {
     return cloud_options;
+  },
+  pre_suf_percent: function (s) {
+    return '%' + s + '%';
   }
 };
