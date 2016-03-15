@@ -1,4 +1,7 @@
 /**
+ * Created by RickyLo on 16/3/2016.
+ */
+/**
  * Created by RickyLo on 12/3/2016.
  */
 var express = require('express');
@@ -15,7 +18,7 @@ var valid = require('../valid');
 var db = require('../database');
 var q = require('../query');
 var sql = require('sql-bricks-postgres');
-var blood_types_table = 'v2.blood_types';
+var attachments_table = 'v2.attachments';
 
 /* GET list */
 router.get('/', function (req, res) {
@@ -31,28 +34,40 @@ router.get('/', function (req, res) {
     res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
-    db.check_token_and_permission("blood_types_read", token, function (err, return_value, client) {
+    db.check_token_and_permission("attachments_read", token, function (err, return_value, client) {
       if (!return_value) {                                        //return value == null >> sth wrong
         res.status(errors.bad_request()).send('Token missing or invalid');
-      } else if (return_value.blood_types_read === false) {          //false (no permission)
+      } else if (return_value.attachments_read === false) {          //false (no permission)
         res.status(errors.no_permission).send('No permission');
-      } else if (return_value.blood_types_read === true) {           //w/ permission
+      } else if (return_value.attachments_read === true) {           //w/ permission
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
-          var blood_type_id = req.query.id;
-          if (blood_type_id) {
-            params.blood_type_id = blood_type_id;
+          var attachment_id = req.query.id;
+          if (attachment_id) {
+            params.attachment_id = attachment_id;
           }
-          var blood_type =req.query.blood_type;
-          if (blood_type) {
-            params.blood_type = blood_type;
+          var cloudinary_url =req.query.cloudinary_url;
+          if (cloudinary_url) {
+            params.cloudinary_url = cloudinary_url;
+          }
+          var file_name =req.file_name;
+          if (file_name) {
+            params.file_name = file_name;
+          }
+          var user_id =req.query.user_id;
+          if (user_id) {
+            params.user_id = user_id;
+          }
+          var create_timestamp =req.create_timestamp;
+          if (create_timestamp) {
+            params.create_timestamp = create_timestamp;
           }
           console.log(params);
 
           var sql_query = sql
             .select()
-            .from(blood_types_table)
+            .from(attachments_table)
             .where(params);
 
           var offset = param_query.offset;
@@ -65,7 +80,7 @@ router.get('/', function (req, res) {
             //TODO check if custom sort by param is valid
             sql_query.orderBy(sort_by);
           } else {
-            sql_query.orderBy('blood_type_id');
+            sql_query.orderBy('attachment_id');
           }
 
           var limit = param_query.limit;
@@ -110,21 +125,21 @@ router.get('/:id', function (req, res) {
     res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
-    db.check_token_and_permission("blood_types_read", token, function (err, return_value, client) {
+    db.check_token_and_permission("attachments_read", token, function (err, return_value, client) {
       if (!return_value) {                                        //return value == null >> sth wrong
         res.status(errors.bad_request()).send('Token missing or invalid');
-      } else if (return_value.blood_types_read === false) {          //false (no permission)
+      } else if (return_value.attachments_read === false) {          //false (no permission)
         res.status(errors.no_permission).send('No permission');
-      } else if (return_value.blood_types_read === true) {           //w/ permission
+      } else if (return_value.attachments_read === true) {           //w/ permission
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
-          var blood_type_id = req.params.id;
-          params.blood_type_id = blood_type_id;
+          var attachment_id = req.params.id;
+          params.attachment_id = attachment_id;
 
           var sql_query = sql
             .select()
-            .from(blood_types_table)
+            .from(attachments_table)
             .where(params);
 
           var offset = param_query.offset;
@@ -137,7 +152,7 @@ router.get('/:id', function (req, res) {
             //TODO check if custom sort by param is valid
             sql_query.orderBy(order_by);
           } else {
-            sql_query.orderBy('blood_type_id');
+            sql_query.orderBy('attachment_id');
           }
 
           var limit = param_query.limit;
@@ -182,28 +197,41 @@ router.post('/', function (req, res) {
     res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
-    db.check_token_and_permission("blood_types_write", token, function (err, return_value, client) {
+    db.check_token_and_permission("attachments_write", token, function (err, return_value, client) {
       if (!return_value) {                                        //return value == null >> sth wrong
         res.status(errors.bad_request()).send('Token missing or invalid');
-      } else if (return_value.blood_types_write === false) {          //false (no permission)
+      } else if (return_value.attachments_write === false) {          //false (no permission)
         res.status(errors.no_permission).send('No permission');
-      } else if (return_value.blood_types_write === true) {           //w/ permission
+      } else if (return_value.attachments_write === true) {           //w/ permission
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else{
-          var blood_type_id = body.blood_type_id;
-          if (blood_type_id)
-            params.blood_type_id = blood_type_id;
+          var attachment_id = body.attachment_id;
+          if (attachment_id)
+            params.attachment_id = attachment_id;
           else
-            params.blood_type_id = util.random_string(consts.id_random_string_length());
+            params.attachment_id = util.random_string(consts.id_random_string_length());
 
-          var blood_type = body.blood_type;
-          if (blood_type)
-            params.blood_type = blood_type;
+          var cloudinary_url = body.cloudinary_url;
+          if (cloudinary_url)
+            params.cloudinary_url = cloudinary_url;
+
+          var file_name = body.file_name;
+          if (file_name)
+            params.file_name = file_name;
+
+          var user_id = body.user_id;
+          if (user_id)
+            params.user_id = user_id;
           else
-            res.status(errors.bad_request()).send('blood_type should be not null');
+            res.status(errors.bad_request()).send('user_id should be not null');
 
-          var sql_query = sql.insert(blood_types_table, params).returning('*');
+          var create_timestamp = moment();
+          if (create_timestamp)
+            params.create_timestamp = create_timestamp;
+
+
+          var sql_query = sql.insert(attachments_table, params).returning('*');
           console.log(sql_query.toString());
           client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
             if (err) {
@@ -237,25 +265,37 @@ router.put('/:id', function (req, res) {
     res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
-    db.check_token_and_permission("blood_types_write", token, function (err, return_value, client) {
+    db.check_token_and_permission("attachments_write", token, function (err, return_value, client) {
       if (!return_value) {                                        //return value == null >> sth wrong
         res.status(errors.bad_request()).send('Token missing or invalid');
-      } else if (return_value.blood_types_write === false) {          //false (no permission)
+      } else if (return_value.attachments_write === false) {          //false (no permission)
         res.status(errors.no_permission).send('No permission');
-      } else if (return_value.blood_types_write === true) {           //w/ permission
+      } else if (return_value.attachments_write === true) {           //w/ permission
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else{
-          var blood_type_id = req.params.id;
-          params.blood_type_id = blood_type_id;
+          var attachment_id = req.params.id;
+          params.attachment_id = attachment_id;
 
-          var blood_type = body.blood_type;
-          if (blood_type)
-            params.blood_type = blood_type;
+          var cloudinary_url = body.cloudinary_url;
+          if (cloudinary_url)
+            params.cloudinary_url = cloudinary_url;
+
+          var file_name = body.file_name;
+          if (file_name)
+            params.file_name = file_name;
+
+          var user_id = body.user_id;
+          if (user_id)
+            params.user_id = user_id;
+
+          var create_timestamp = body.create_timestamp;
+          if (create_timestamp)
+            params.create_timestamp = create_timestamp;
 
           var sql_query = sql
-            .update(blood_types_table, params)
-            .where(sql('blood_type_id'), blood_type_id).returning('*');
+            .update(attachments_table, params)
+            .where(sql('attachment_id'), attachment_id).returning('*');
           console.log(sql_query.toString());
           client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
             if (err) {
