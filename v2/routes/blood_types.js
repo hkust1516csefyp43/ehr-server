@@ -3,7 +3,6 @@
  */
 var express = require('express');
 var router = express.Router();
-var ba = require('basic-auth');
 var pg = require('pg');
 var moment = require('moment');
 var wait = require('wait.for');
@@ -72,7 +71,7 @@ router.get('/', function (req, res) {
           if (limit) {
             sql_query.limit(limit);
           } else {    //Default limit
-            sql_query.limit(100);
+            sql_query.limit(consts.list_limit());
           }
 
           console.log("The whole query in string: " + sql_query.toString());
@@ -144,7 +143,7 @@ router.get('/:id', function (req, res) {
           if (limit) {
             sql_query.limit(limit);
           } else {    //Default limit
-            sql_query.limit(100);
+            sql_query.limit(consts.list_limit());
           }
 
           console.log("The whole query in string: " + sql_query.toString());
