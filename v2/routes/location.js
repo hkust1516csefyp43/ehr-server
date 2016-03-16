@@ -8,7 +8,7 @@ var consts = require('../consts');
 var db = require('../database');
 var q = require('../query');
 var sql = require('sql-bricks-postgres');
-var slum_table = 'slum';
+var slum_table = 'v2.clinics';
 var country_table = 'country';
 
 /**
@@ -17,7 +17,7 @@ var country_table = 'country';
  * 2) everything
  * Get list of slums
  */
-router.get('/slum/', function (req, res) {
+router.get('/clinics/', function (req, res) {
   var sent = false;
   var params = {};
   var param_query = req.query;
@@ -29,7 +29,8 @@ router.get('/slum/', function (req, res) {
 
   if (!token) {
     //TODO return list of slums (name only)
-    sql_query = sql.select('name').from(slum_table);
+    sql_query = sql.select('clinic_id').select('english_name').from(slum_table).where(sql('active'), sql('true')).orderBy('clinic_id');
+    console.log("The whole query is " + sql_query.toString());
     pg.connect(db.url(), function (err, client, done) {
       if (err) {
         res.status(errors.bad_request()).send('somethings wrong');
@@ -39,10 +40,7 @@ router.get('/slum/', function (req, res) {
           if (err) {
             res.status(errors.bad_request()).send('somethings wrong');
           } else {
-            var output = [];
-            for (var i = 0; i < result.rows.length; i++)
-              output.push(result.rows[i].name);
-            res.json(output);
+            res.json(result.rows);
           }
         });
       }

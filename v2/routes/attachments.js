@@ -6,7 +6,6 @@
  */
 var express = require('express');
 var router = express.Router();
-var ba = require('basic-auth');
 var pg = require('pg');
 var moment = require('moment');
 var wait = require('wait.for');
