@@ -8,6 +8,7 @@ var bodyParser = require('body-parser');
 var routes = require('./v1/routes/index');
 
 var v2Attachments = require('./v2/routes/attachments');
+var v2BlockedDevices = require('./v2/routes/blocked_devices');
 var v2BloodTypes = require('./v2/routes/blood_types');
 
 var v2Inventory = require('./v2/routes/inventory');
@@ -39,6 +40,8 @@ app.use('/', routes);
 //v2
 app.use('/v2/attachments', v2Attachments);
 app.use('/v2/blood_types', v2BloodTypes);
+app.use('/v2/blocked_devices',v2BlockedDevices);
+
 app.use('/v2/inventory', v2Inventory);
 app.use('/v2/patient', v2Patient);
 app.use('/v2/user', v2User);

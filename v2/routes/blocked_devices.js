@@ -15,7 +15,7 @@ var valid = require('../valid');
 var db = require('../database');
 var q = require('../query');
 var sql = require('sql-bricks-postgres');
-var attachments_table = 'v2.attachments';
+var blocked_devices_table = 'v2.blocked_devices';
 
 /* GET list */
 router.get('/', function (req, res) {
@@ -31,30 +31,34 @@ router.get('/', function (req, res) {
     res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
-    db.check_token_and_permission("attachments_read", token, function (err, return_value, client) {
+    db.check_token_and_permission("blocked_devices_read", token, function (err, return_value, client) {
       if (!return_value) {                                        //return value == null >> sth wrong
         res.status(errors.bad_request()).send('Token missing or invalid');
-      } else if (return_value.attachments_read === false) {          //false (no permission)
+      } else if (return_value.blocked_devices_read === false) {          //false (no permission)
         res.status(errors.no_permission).send('No permission');
-      } else if (return_value.attachments_read === true) {           //w/ permission
+      } else if (return_value.blocked_devices_read === true) {           //w/ permission
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
-          var attachment_id = req.query.id;
-          if (attachment_id) {
-            params.attachment_id = attachment_id;
+          var blocked_device_id = req.query.id;
+          if (blocked_device_id) {
+            params.blocked_device_id = blocked_device_id;
           }
-          var cloudinary_url =req.query.cloudinary_url;
-          if (cloudinary_url) {
-            params.cloudinary_url = cloudinary_url;
+          var remark =req.query.remark;
+          if (remark) {
+            params.remark = remark;
           }
-          var file_name =req.query.file_name;
-          if (file_name) {
-            params.file_name = file_name;
+          var expiry_timestamp =req.query.expiry_timestamp;
+          if (expiry_timestamp) {
+            params.expiry_timestamp = expiry_timestamp;
           }
-          var user_id =req.query.user_id;
-          if (user_id) {
-            params.user_id = user_id;
+          var reporter_id =req.query.reporter_id;
+          if (reporter_id) {
+            params.reporter_id = reporter_id;
+          }
+          var victim_id =req.query.victim_id;
+          if (victim_id) {
+            params.victim_id = victim_id;
           }
           var create_timestamp =req.query.create_timestamp;
           if (create_timestamp) {
@@ -64,7 +68,7 @@ router.get('/', function (req, res) {
 
           var sql_query = sql
             .select()
-            .from(attachments_table)
+            .from(blocked_devices_table)
             .where(params);
 
           var offset = param_query.offset;
@@ -77,7 +81,7 @@ router.get('/', function (req, res) {
             //TODO check if custom sort by param is valid
             sql_query.orderBy(sort_by);
           } else {
-            sql_query.orderBy('attachment_id');
+            sql_query.orderBy('blocked_device_id');
           }
 
           var limit = param_query.limit;
@@ -122,21 +126,21 @@ router.get('/:id', function (req, res) {
     res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
-    db.check_token_and_permission("attachments_read", token, function (err, return_value, client) {
+    db.check_token_and_permission("blocked_devices_read", token, function (err, return_value, client) {
       if (!return_value) {                                        //return value == null >> sth wrong
         res.status(errors.bad_request()).send('Token missing or invalid');
-      } else if (return_value.attachments_read === false) {          //false (no permission)
+      } else if (return_value.blocked_devices_read === false) {          //false (no permission)
         res.status(errors.no_permission).send('No permission');
-      } else if (return_value.attachments_read === true) {           //w/ permission
+      } else if (return_value.blocked_devices_read === true) {           //w/ permission
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
-          var attachment_id = req.params.id;
-          params.attachment_id = attachment_id;
+          var blocked_device_id = req.params.id;
+          params.blocked_device_id = blocked_device_id;
 
           var sql_query = sql
             .select()
-            .from(attachments_table)
+            .from(blocked_devices_table)
             .where(params);
 
           var offset = param_query.offset;
@@ -149,7 +153,7 @@ router.get('/:id', function (req, res) {
             //TODO check if custom sort by param is valid
             sql_query.orderBy(order_by);
           } else {
-            sql_query.orderBy('attachment_id');
+            sql_query.orderBy('blocked_device_id');
           }
 
           var limit = param_query.limit;
@@ -194,40 +198,46 @@ router.post('/', function (req, res) {
     res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
-    db.check_token_and_permission("attachments_write", token, function (err, return_value, client) {
+    db.check_token_and_permission("blocked_devices_write", token, function (err, return_value, client) {
       if (!return_value) {                                        //return value == null >> sth wrong
         res.status(errors.bad_request()).send('Token missing or invalid');
-      } else if (return_value.attachments_write === false) {          //false (no permission)
+      } else if (return_value.blocked_devices_write === false) {          //false (no permission)
         res.status(errors.no_permission).send('No permission');
-      } else if (return_value.attachments_write === true) {           //w/ permission
+      } else if (return_value.blocked_devices_write === true) {           //w/ permission
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else{
-          var attachment_id = body.attachment_id;
-          if (attachment_id)
-            params.attachment_id = attachment_id;
+          var blocked_device_id = body.blocked_device_id;
+          if (blocked_device_id)
+            params.blocked_device_id = blocked_device_id;
           else
-            params.attachment_id = util.random_string(consts.id_random_string_length());
+            params.blocked_device_id = util.random_string(consts.id_random_string_length());
 
-          var cloudinary_url = body.cloudinary_url;
-          if (cloudinary_url)
-            params.cloudinary_url = cloudinary_url;
+          var remark = body.remark;
+          if (remark)
+            params.remark = remark;
 
-          var file_name = body.file_name;
-          if (file_name)
-            params.file_name = file_name;
+          var expiry_timestamp= body.expiry_timestamp;
+          if (expiry_timestamp)
+            params.expiry_timestamp = expiry_timestamp;
 
-          var user_id = body.user_id;
-          if (user_id)
-            params.user_id = user_id;
+          var reporter_id = body.reporter_id;
+          if (reporter_id)
+            params.reporter_id = reporter_id;
           else
-            res.status(errors.bad_request()).send('user_id should be not null');
+            res.status(errors.bad_request()).send('reporter_id should be not null');
+
+          var victim_id = body.victim_id;
+          if (victim_id)
+            params.victim_id = victim_id;
+          else
+            res.status(errors.bad_request()).send('victim_id should be not null');
 
           var create_timestamp = moment();
           params.create_timestamp = create_timestamp;
 
 
-          var sql_query = sql.insert(attachments_table, params).returning('*');
+          var sql_query = sql.insert(blocked_devices_table, params).returning('*');
           console.log(sql_query.toString());
           client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
             if (err) {
@@ -261,37 +271,41 @@ router.put('/:id', function (req, res) {
     res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
-    db.check_token_and_permission("attachments_write", token, function (err, return_value, client) {
+    db.check_token_and_permission("blocked_devices_write", token, function (err, return_value, client) {
       if (!return_value) {                                        //return value == null >> sth wrong
         res.status(errors.bad_request()).send('Token missing or invalid');
-      } else if (return_value.attachments_write === false) {          //false (no permission)
+      } else if (return_value.blocked_devices_write === false) {          //false (no permission)
         res.status(errors.no_permission).send('No permission');
-      } else if (return_value.attachments_write === true) {           //w/ permission
+      } else if (return_value.blocked_devices_write === true) {           //w/ permission
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else{
-          var attachment_id = req.params.id;
-          params.attachment_id = attachment_id;
+          var blocked_device_id = req.params.id;
+          params.blocked_device_id = blocked_device_id;
 
-          var cloudinary_url = body.cloudinary_url;
-          if (cloudinary_url)
-            params.cloudinary_url = cloudinary_url;
+          var remark = body.remark;
+          if (remark)
+            params.remark = remark;
 
-          var file_name = body.file_name;
-          if (file_name)
-            params.file_name = file_name;
+          var expiry_timestamp= body.expiry_timestamp;
+          if (expiry_timestamp)
+            params.expiry_timestamp = expiry_timestamp;
 
-          var user_id = body.user_id;
-          if (user_id)
-            params.user_id = user_id;
+          var reporter_id = body.reporter_id;
+          if (reporter_id)
+            params.reporter_id = reporter_id;
+
+          var victim_id = body.victim_id;
+          if (victim_id)
+            params.victim_id = victim_id;
 
           var create_timestamp = body.create_timestamp;
           if (create_timestamp)
             params.create_timestamp = create_timestamp;
 
           var sql_query = sql
-            .update(attachments_table, params)
-            .where(sql('attachment_id'), attachment_id).returning('*');
+            .update(blocked_devices_table, params)
+            .where(sql('blocked_device_id'), blocked_device_id).returning('*');
           console.log(sql_query.toString());
           client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
             if (err) {
