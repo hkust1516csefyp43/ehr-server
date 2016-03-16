@@ -206,8 +206,8 @@ router.get('/', function (req, res) {
             // This should not exist along with other kind of names
             var name = param_query.name;
             if (name) {
-              //select * from v2.patients where first_name LIKE '%Louis%' OR middle_name LIKE '%Louis%' OR last_name LIKE '%Louis%' OR native_name LIKE '%Louis%'
-              sql_query.where(sql.or(sql.like('first_name', util.pre_suf_percent(name)), sql.like('middle_name', util.pre_suf_percent(name)), sql.like('last_name', util.pre_suf_percent(name)), sql.like('native_name', util.pre_suf_percent(name))));
+              //select * from v2.patients where first_name ILIKE '%Louis%' OR middle_name ILIKE '%Louis%' OR last_name ILIKE '%Louis%' OR native_name ILIKE '%Louis%'
+              sql_query.where(sql.or(sql.ilike('first_name', util.pre_suf_percent(name)), sql.ilike('middle_name', util.pre_suf_percent(name)), sql.ilike('last_name', util.pre_suf_percent(name)), sql.ilike('native_name', util.pre_suf_percent(name))));
             }
 
             //TODO get this from relationship table

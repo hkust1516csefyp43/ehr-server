@@ -28,24 +28,26 @@ router.get('/clinics/', function (req, res) {
   var token = param_query.token;
 
   if (!token) {
-    //TODO return list of slums (name only)
+    //TODO return list of active clinics (english name & id)
     sql_query = sql.select('clinic_id').select('english_name').from(slum_table).where(sql('active'), sql('true')).orderBy('clinic_id');
     console.log("The whole query is " + sql_query.toString());
     pg.connect(db.url(), function (err, client, done) {
       if (err) {
+        sent = true;
         res.status(errors.bad_request()).send('somethings wrong');
       } else {
         client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
           done();
           if (err) {
+            sent = true;
             res.status(errors.bad_request()).send('somethings wrong');
           } else {
+            sent = true;
             res.json(result.rows);
           }
         });
       }
     });
-    sent = true;
   } else {
     db.check_token_and_permission("reset_any_password", token, function (err, return_value, client) {
       if (!return_value) {
