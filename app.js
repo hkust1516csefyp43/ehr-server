@@ -7,7 +7,9 @@ var bodyParser = require('body-parser');
 
 var routes = require('./v1/routes/index');
 
+var v2Attachments = require('./v2/routes/attachments');
 var v2BloodTypes = require('./v2/routes/blood_types');
+
 var v2Inventory = require('./v2/routes/inventory');
 var v2Patient = require('./v2/routes/patient');
 var v2User = require('./v2/routes/user');
@@ -35,6 +37,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', routes);
 
 //v2
+app.use('/v2/attachments', v2Attachments);
 app.use('/v2/blood_types', v2BloodTypes);
 app.use('/v2/inventory', v2Inventory);
 app.use('/v2/patient', v2Patient);
