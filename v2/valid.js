@@ -1,5 +1,6 @@
 var validator = require('validator');
 var consts = require('./consts');
+var _ = require('underscore');
 
 /**
  * TODO a list of methods to do type validation (e.g. is that a valid email)
@@ -50,5 +51,8 @@ module.exports = {
       callback(false);
     } else
       callback(false);
+  },
+  empty_object: function (j) {
+    return _.isEmpty(j);
   }
 };

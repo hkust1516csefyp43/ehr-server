@@ -55,7 +55,7 @@ router.get('/', function (req, res) {
             client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
               if (err) {
                 sent = true;
-                res.send('error fetching client from pool');
+                res.status(errors.server_error()).send('error fetching client from pool: ' + err);
                 return console.error('error fetching client from pool', err);
               } else {
                 q.save_sql_query(sql_query.toString());
@@ -124,6 +124,11 @@ router.put('/:id', function (req, res) {
             }
           }
 
+          if (valid.empty_object(params)) {
+            sent = true;
+            res.status(errors.bad_request()).send('You cannot edit nothing');
+          }
+
           var sql_query = sql.update(consts.table_notifications(), params).where(sql('notification_id'), req.params.id).returning('*');
           console.log("The whole query in string: " + sql_query.toString());
 
@@ -155,14 +160,90 @@ router.put('/:id', function (req, res) {
 });
 
 /**
- * Create new notification for yourself
+ * Create new notification
  */
 router.post('/', function (req, res) {
+  var sent = false;
+  var token = req.headers.token;
+  if (!token) {
+    res.status(error.token_missing()).send(error.token_missing_message());
+    sent = true;
+  } else {
+    db.check_token_and_permission('notifications_write', token, function (err, return_value, client) {
+      if (!return_value) {
+        sent = true;
+        res.status(errors.bad_request()).send('Token missing or invalid');
+      } else if (return_value.notifications_write === false) {
+        sent = true;
+        res.status(errors.no_permission).send('No permission');
+      } else if (return_value.notifications_write === true) {
+        if (return_value.expiry_timestamp < Date.now()) {
+          sent = true;
+          res.status(errors.access_token_expired()).send('Access token expired');
+        } else {
+          var params = {};
+          params.notification_id = util.random_string(consts.id_random_string_length());
+          var message = req.body.message;
+          if (!message) {
+            res.status(errors.bad_request()).send('Notification must contain message');
+            sent = true;
+          } else {
+            params.message = message;
+          }
+          var user_id = req.body.user_id;
+          if (!user_id && sent === false) {
+            res.status(errors.bad_request()).send('Notification must contain user_id');
+            sent = true;
+          } else {
+            params.user_id = user_id;
+          }
+          var remind_date = req.body.remind_date;
+          if (!remind_date && sent === false) {
+            res.status(errors.bad_request()).send('Notification must contain remind_date');
+            sent = true;
+          } else {
+            if (valid.date(remind_date))
+              params.remind_date = remind_date;
+            else {
+              sent = true;
+              res.status(errors.bad_request()).send('Invalid date');
+            }
+          }
 
+          var sql_query = sql.insert(consts.table_notifications(), params).returning('*');
+          console.log("The whole query in string: " + sql_query.toString());
+
+          if (sent === false) {
+            client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+              if (err) {
+                res.status(errors.server_error()).send('error fetching client from pool: ' + err);
+                sent = true;
+                return console.error('error fetching client from pool', err);
+              } else {
+                if (result.rows.length == 1) {
+                  q.save_sql_query(sql_query.toString());
+                  sent = true;
+                  res.json(result.rows[0]);
+                } else if (result.rows.length === 0) {
+                  res.status(errors.not_found()).send('Insertion failure');
+                } else {
+                  //how can 1 pk return more than 1 row!?
+                  res.status(errors.server_error()).send('Sth weird is happening');
+                }
+              }
+            });
+          }
+        }
+      }
+    });
+  }
 });
 
 /**
  * Delete a notification
  */
+router.delete('/:id', function (req, res) {
+
+});
 
 module.exports = router;

@@ -20,6 +20,9 @@ module.exports = {
   token_missing: function () {
     return 499;
   },
+  token_missing_message: function () {
+    return 'Token is missing';
+  },
   server_error: function () {
     return 500;
   },

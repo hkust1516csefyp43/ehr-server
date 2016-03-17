@@ -67,7 +67,7 @@ router.get('/', function (req, res) {
           if (sent === false) {
             client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
               if (err) {
-                res.send('error fetching client from pool');
+                res.status(errors.server_error()).send('error fetching client from pool: ' + err);
                 sent = true;
                 return console.error('error fetching client from pool', err);
               } else {
@@ -117,7 +117,7 @@ router.get('/:id', function (req, res) {
           if (sent === false) {
             client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
               if (err) {
-                res.send('error fetching client from pool');
+                res.status(errors.server_error()).send('error fetching client from pool: ' + err);
                 sent = true;
                 return console.error('error fetching client from pool', err);
               } else {
@@ -147,14 +147,14 @@ router.put('/:id', function (req, res) {
     res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
-    db.check_token_and_permission("suitcases_read", token, function (err, return_value, client) {
+    db.check_token_and_permission("suitcases_write", token, function (err, return_value, client) {
       if (!return_value) {
         sent = true;
         res.status(errors.bad_request()).send('Token missing or invalid');
-      } else if (return_value.suitcases_read === false) {
+      } else if (return_value.suitcases_write === false) {
         sent = true;
         res.status(errors.no_permission).send('No permission');
-      } else if (return_value.suitcases_read === true) {
+      } else if (return_value.suitcases_write === true) {
         if (return_value.expiry_timestamp < Date.now()) {
           sent = true;
           res.status(errors.access_token_expired()).send('Access token expired');
@@ -171,7 +171,7 @@ router.put('/:id', function (req, res) {
           if (sent === false) {
             client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
               if (err) {
-                res.send('error fetching client from pool');
+                res.status(errors.server_error()).send('error fetching client from pool: ' + err);
                 sent = true;
                 return console.error('error fetching client from pool', err);
               } else {
@@ -201,14 +201,14 @@ router.post('/', function (req, res) {
     res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
-    db.check_token_and_permission("suitcases_read", token, function (err, return_value, client) {
+    db.check_token_and_permission("suitcases_write", token, function (err, return_value, client) {
       if (!return_value) {
         sent = true;
         res.status(errors.bad_request()).send('Token missing or invalid');
-      } else if (return_value.suitcases_read === false) {
+      } else if (return_value.suitcases_write === false) {
         sent = true;
         res.status(errors.no_permission).send('No permission');
-      } else if (return_value.suitcases_read === true) {
+      } else if (return_value.suitcases_write === true) {
         if (return_value.expiry_timestamp < Date.now()) {
           sent = true;
           res.status(errors.access_token_expired()).send('Access token expired');
@@ -224,13 +224,12 @@ router.post('/', function (req, res) {
           }
 
           var sql_query = sql.insert(consts.table_suitcases(), params).returning('*');
-
           console.log("The whole query in string: " + sql_query.toString());
 
           if (sent === false) {
             client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
               if (err) {
-                res.send('error fetching client from pool');
+                res.status(errors.server_error()).send('error fetching client from pool: ' + err);
                 sent = true;
                 return console.error('error fetching client from pool', err);
               } else {
@@ -260,14 +259,14 @@ router.delete('/:id', function (req, res) {
     res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
-    db.check_token_and_permission("suitcases_read", token, function (err, return_value, client) {
+    db.check_token_and_permission("suitcases_write", token, function (err, return_value, client) {
       if (!return_value) {
         sent = true;
         res.status(errors.bad_request()).send('Token missing or invalid');
-      } else if (return_value.suitcases_read === false) {
+      } else if (return_value.suitcases_write === false) {
         sent = true;
         res.status(errors.no_permission).send('No permission');
-      } else if (return_value.suitcases_read === true) {
+      } else if (return_value.suitcases_write === true) {
         if (return_value.expiry_timestamp < Date.now()) {
           sent = true;
           res.status(errors.access_token_expired()).send('Access token expired');
@@ -280,7 +279,7 @@ router.delete('/:id', function (req, res) {
           if (sent === false) {
             client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
               if (err) {
-                res.send('error fetching client from pool');
+                res.status(errors.server_error()).send('error fetching client from pool: ' + err);
                 sent = true;
                 return console.error('error fetching client from pool', err);
               } else {
