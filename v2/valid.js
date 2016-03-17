@@ -32,10 +32,13 @@ module.exports = {
 
   },
   date: function (d) {
-
+    return validator.isDate(d);
   },
   phone: function (p, c) {
 
+  },
+  true_or_false: function (b) {
+    return validator.isBoolean(b);
   },
   sort_by: function (request, array, callback) {
     if (array.isArray) {

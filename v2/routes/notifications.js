@@ -71,18 +71,93 @@ router.get('/', function (req, res) {
 
 /**
  * Edit your notification
+ * Won't check if you are editing your own notifications because you can only get your own notifications anyway
+ * only check permission (notifications_write)
  * - Read
  * - Change the message
  * - Postpone
  */
 router.put('/:id', function (req, res) {
+  var sent = false;
+  var token = req.headers.token;
+  if (!token) {
+    res.status(errors.token_missing()).send('Token is missing');
+    sent = true;
+  } else {
+    db.check_token_and_permission('notifications_write', token, function (err, return_value, client) {
+      if (!return_value) {
+        sent = true;
+        res.status(errors.bad_request()).send('Token missing or invalid');
+      } else if (return_value.notifications_write === false) {
+        sent = true;
+        res.status(errors.no_permission).send('No permission');
+      } else if (return_value.notifications_write === true) {
+        if (return_value.expiry_timestamp < Date.now()) {
+          sent = true;
+          res.status(errors.access_token_expired()).send('Access token expired');
+        } else {
+          console.log("body: " + JSON.stringify(req.body));
 
+          var params = {};
+
+          var message = req.body.message;
+          if (message) {
+            params.message = message;
+          }
+          var remind_date = req.body.remind_date;
+          if (remind_date) {
+            if (valid.date(remind_date)) {
+              params.remind_date = remind_date;
+            } else {
+              sent = true;
+              res.status(errors.bad_request()).send('Invalid date');
+            }
+          }
+          var read = req.body.read;
+          if (read) {
+            params.read = read;
+            if (valid.true_or_false(read)) {
+              params.read = read;
+            } else {
+              sent = true;
+              res.status(errors.bad_request()).send('Invalid read. Please enter either "true" or "false"');
+            }
+          }
+
+          var sql_query = sql.update(consts.table_notifications(), params).where(sql('notification_id'), req.params.id).returning('*');
+          console.log("The whole query in string: " + sql_query.toString());
+
+          if (sent === false) {
+            client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+              if (err) {
+                sent = true;
+                res.status(errors.server_error()).send('error fetching client from pool: ' + err);
+                sent = true;
+                return console.error('error fetching client from pool', err);
+              } else {
+                if (result.rows.length == 1) {
+                  q.save_sql_query(sql_query.toString());
+                  sent = true;
+                  res.json(result.rows[0]);
+                } else if (result.rows.length == 0) {
+                  res.status(errors.not_found()).send('Cannot find notification according to this id.');
+                } else {
+                  //how can 1 pk return more than 1 row!?
+                  res.status(errors.server_error()).send('Sth weird is happening');
+                }
+              }
+            });
+          }
+        }
+      }
+    });
+  }
 });
 
 /**
  * Create new notification for yourself
  */
-router.put('/', function (req, res) {
+router.post('/', function (req, res) {
 
 });
 

@@ -125,7 +125,7 @@ router.get('/:id', function (req, res) {
                   q.save_sql_query(sql_query.toString());
                   sent = true;
                   res.json(result.rows[0]);
-                } else if (result.rows.length == 0) {
+                } else if (result.rows.length === 0) {
                   res.status(errors.not_found()).send('Cannot find suitcase according to this id.');
                 } else {
                   //how can 1 pk return more than 1 row!?
@@ -166,7 +166,6 @@ router.put('/:id', function (req, res) {
             params.suitcase_name = name;
 
           var sql_query = sql.update(consts.table_suitcases(), params).where(sql('suitcase_id'), req.params.id).returning('*');
-
           console.log("The whole query in string: " + sql_query.toString());
 
           if (sent === false) {
@@ -180,7 +179,7 @@ router.put('/:id', function (req, res) {
                   q.save_sql_query(sql_query.toString());
                   sent = true;
                   res.json(result.rows[0]);
-                } else if (result.rows.length == 0) {
+                } else if (result.rows.length === 0) {
                   res.status(errors.not_found()).send('Cannot find suitcase according to this id.');
                 } else {
                   //how can 1 pk return more than 1 row!?
@@ -239,7 +238,7 @@ router.post('/', function (req, res) {
                   q.save_sql_query(sql_query.toString());
                   sent = true;
                   res.json(result.rows[0]);
-                } else if (result.rows.length == 0) {
+                } else if (result.rows.length === 0) {
                   res.status(errors.not_found()).send('Cannot find suitcase according to this id.');
                 } else {
                   //how can 1 pk return more than 1 row!?
@@ -289,7 +288,7 @@ router.delete('/:id', function (req, res) {
                   q.save_sql_query(sql_query.toString());
                   sent = true;
                   res.json(result.rows[0]);
-                } else if (result.rows.length == 0) {
+                } else if (result.rows.length === 0) {
                   res.status(errors.not_found()).send('Cannot find suitcase according to this id.');
                 } else {
                   //how can 1 pk return more than 1 row!?

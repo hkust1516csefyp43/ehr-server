@@ -238,12 +238,6 @@ router.post('/roles/', function (req, res) {
           else
             res.status(errors.bad_request()).send('read_patient should be not null');
 
-          var read_patient = body.read_patient;
-          if (read_patient)
-            params.read_patient = read_patient;
-          else
-            res.status(errors.bad_request()).send('read_patient should be not null');
-
           var add_to_inventory = body.add_to_inventory;
           if (add_to_inventory)
             params.add_to_inventory = add_to_inventory;
