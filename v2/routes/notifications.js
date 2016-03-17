@@ -126,7 +126,7 @@ router.put('/:id', function (req, res) {
             }
           }
 
-          if (valid.empty_object(params)) {
+          if (valid.empty_object(params) && sent === false) {
             sent = true;
             res.status(errors.bad_request()).send('You cannot edit nothing');
           }

@@ -335,7 +335,9 @@ router.post('/', function (req, res) {
   }
 });
 
-/*PUT*/
+/**
+ * edit clinic according to id
+ */
 router.put('/:id', function (req, res) {
   var sent = false;
   var params = {};
@@ -360,16 +362,20 @@ router.put('/:id', function (req, res) {
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else{
-          var clinic_id = req.params.id;
-          params.clinic_id = clinic_id;
 
           var country_id = body.country_id;
           if (country_id)
             params.country_id = country_id;
 
           var is_active = body.is_active;
-          if (is_active)
-            params.is_active = is_active;
+          if (is_active) {
+            if (valid.true_or_false(is_active))
+              params.is_active = is_active;
+            else {
+              sent = true;
+              res.status(errors.bad_request()).send('Invalid is_active. Please enter either "true" or "false"');
+            }
+          }
 
           var english_name = body.english_name;
           if (english_name)
@@ -387,36 +393,54 @@ router.put('/:id', function (req, res) {
           if (longitude)
             params.longitude = longitude;
 
-          var create_timestamp = body.create_timestamp;
-          if (create_timestamp)
-            params.create_timestamp = create_timestamp;
-
           var remark = body.remark;
           if (remark)
             params.remark = remark;
 
           var is_global = body.is_global;
-          if (is_global)
-            params.is_global = is_global;
+          if (is_global) {
+            if (valid.true_or_false(is_global))
+              params.is_global = is_global;
+            else {
+              sent = true;
+              res.status(errors.bad_request()).send('Invalid is_global. Please enter either "true" or "false"');
+            }
+          }
 
           var suitcase_id = body.suitcase_id;
           if (suitcase_id)
             params.suitcase_id = suitcase_id;
 
+          if (valid.empty_object(params) && sent === false) {
+            sent = true;
+            res.status(errors.bad_request()).send('You cannot edit nothing');
+          }
+
           var sql_query = sql
             .update(clinics_table, params)
-            .where(sql('clinic_id'), clinic_id).returning('*');
-          console.log(sql_query.toString());
-          client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
-            if (err) {
-              res.status(errors.server_error()).send('error fetching client from pool: ' + err);
-              sent = true;
-              return console.error('error fetching client from pool', err);
-            } else {
-              q.save_sql_query(sql_query.toString());
-              res.json(result.rows);
-            }
-          });
+            .where(sql('clinic_id'), req.params.id).returning('*');
+          console.log("The whole query in string: " + sql_query.toString());
+
+          if (sent === false) {
+            client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+              if (err) {
+                res.status(errors.server_error()).send('error fetching client from pool: ' + err);
+                sent = true;
+                return console.error('error fetching client from pool', err);
+              } else {
+                if (result.rows.length == 1) {
+                  q.save_sql_query(sql_query.toString());
+                  sent = true;
+                  res.json(result.rows[0]);
+                } else if (result.rows.length == 0) {
+                  res.status(errors.not_found()).send('Cannot find clinic to edit according to this id.');
+                } else {
+                  //how can 1 pk return more than 1 row!?
+                  res.status(errors.server_error()).send('Sth weird is happening');
+                }
+              }
+            });
+          }
         }
       }
     });
