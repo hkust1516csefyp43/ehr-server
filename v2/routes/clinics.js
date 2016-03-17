@@ -105,7 +105,7 @@ router.get('/', function (req, res) {
           }
           console.log(params);
 
-          sql_query = sql_query
+          sql_query = sql
             .select()
             .from(clinics_table)
             .where(params);
