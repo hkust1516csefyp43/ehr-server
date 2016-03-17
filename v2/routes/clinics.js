@@ -23,12 +23,31 @@ router.get('/', function (req, res) {
   var params = {};
   var param_query = req.query;
   var param_headers = req.headers;
+  var sql_query;
   console.log(JSON.stringify(param_query));
   console.log(JSON.stringify(param_headers));
   var token = param_headers.token;
   console.log(token);
   if (!token) {
-    res.status(errors.token_missing()).send('Token is missing');
+    sql_query = sql.select('clinic_id').select('english_name').from(consts.table_clinics()).where(sql('is_active'), sql('true')).orderBy('clinic_id');
+    console.log("The whole query is " + sql_query.toString());
+    pg.connect(db.url(), function (err, client, done) {
+      if (err) {
+        sent = true;
+        res.status(errors.bad_request()).send('somethings wrong');
+      } else {
+        client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+          done();
+          if (err) {
+            sent = true;
+            res.status(errors.bad_request()).send('somethings wrong:' + err);
+          } else {
+            sent = true;
+            res.json(result.rows);
+          }
+        });
+      }
+    });
     sent = true;
   } else {
     db.check_token_and_permission("clinics_read", token, function (err, return_value, client) {
@@ -86,7 +105,7 @@ router.get('/', function (req, res) {
           }
           console.log(params);
 
-          var sql_query = sql
+          sql_query = sql_query
             .select()
             .from(clinics_table)
             .where(params);
