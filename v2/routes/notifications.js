@@ -13,6 +13,8 @@ var consts = require('../consts');
 var valid = require('../valid');
 var db = require('../database');
 var q = require('../query');
+var nw = 'notifications_write';
+var nr = 'notifications_read';
 
 /**
  * Get list of your notifications (based on your token)
@@ -84,7 +86,7 @@ router.put('/:id', function (req, res) {
     res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
-    db.check_token_and_permission('notifications_write', token, function (err, return_value, client) {
+    db.check_token_and_permission(nw, token, function (err, return_value, client) {
       if (!return_value) {
         sent = true;
         res.status(errors.bad_request()).send('Token missing or invalid');
@@ -169,7 +171,7 @@ router.post('/', function (req, res) {
     res.status(error.token_missing()).send(error.token_missing_message());
     sent = true;
   } else {
-    db.check_token_and_permission('notifications_write', token, function (err, return_value, client) {
+    db.check_token_and_permission(nw, token, function (err, return_value, client) {
       if (!return_value) {
         sent = true;
         res.status(errors.bad_request()).send('Token missing or invalid');
@@ -243,7 +245,51 @@ router.post('/', function (req, res) {
  * Delete a notification
  */
 router.delete('/:id', function (req, res) {
+  var sent = false;
+  var token = req.headers.token;
+  if (!token) {
+    res.status(errors.token_missing()).send('Token is missing');
+    sent = true;
+  } else {
+    db.check_token_and_permission(nw, token, function (err, return_value, client) {
+      if (!return_value) {
+        sent = true;
+        res.status(errors.bad_request()).send('Token missing or invalid');
+      } else if (return_value.notifications_write === false) {
+        sent = true;
+        res.status(errors.no_permission).send('No permission');
+      } else if (return_value.notifications_write === true) {
+        if (return_value.expiry_timestamp < Date.now()) {
+          sent = true;
+          res.status(errors.access_token_expired()).send('Access token expired');
+        } else {
+          var sql_query = sql.delete().from(consts.table_notifications()).where(sql('notification_id'), req.params.id).returning('*');
+          console.log("The whole query in string: " + sql_query.toString());
 
+          if (sent === false) {
+            client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+              if (err) {
+                res.status(errors.server_error()).send('error fetching client from pool: ' + err);
+                sent = true;
+                return console.error('error fetching client from pool', err);
+              } else {
+                if (result.rows.length == 1) {
+                  q.save_sql_query(sql_query.toString());
+                  sent = true;
+                  res.json(result.rows[0]);
+                } else if (result.rows.length === 0) {
+                  res.status(errors.not_found()).send('Cannot find notification according to this id.');
+                } else {
+                  //how can 1 pk return more than 1 row!?
+                  res.status(errors.server_error()).send('Sth weird is happening');
+                }
+              }
+            });
+          }
+        }
+      }
+    });
+  }
 });
 
 module.exports = router;

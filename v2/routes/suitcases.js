@@ -273,7 +273,6 @@ router.delete('/:id', function (req, res) {
         } else {
 
           var sql_query = sql.delete().from(consts.table_suitcases()).where(sql('suitcase_id'), req.params.id).returning('*');
-
           console.log("The whole query in string: " + sql_query.toString());
 
           if (sent === false) {
