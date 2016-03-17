@@ -254,11 +254,8 @@ router.post('/', function (req, res) {
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else{
-          var clinic_id = body.clinic_id;
-          if (clinic_id)
-            params.clinic_id = clinic_id;
-          else
-            params.clinic_id = util.random_string(consts.id_random_string_length());
+
+          params.clinic_id = util.random_string(consts.id_random_string_length());
 
           var country_id = body.country_id;
           if (country_id)
@@ -267,14 +264,18 @@ router.post('/', function (req, res) {
           var is_active = body.is_active;
           if (is_active)
             params.is_active = is_active;
-          else
-            res.status(errors.bad_request()).send('active should be not null');
+          else {
+            sent = true;
+            res.status(errors.bad_request()).send('is_active should be not null');
+          }
 
           var english_name = body.english_name;
           if (english_name)
             params.english_name = english_name;
-          else
+          else if (sent === false) {
+            sent = true;
             res.status(errors.bad_request()).send('english_name should be not null');
+          }
 
           var native_name = body.native_name;
           if (native_name)
@@ -288,8 +289,7 @@ router.post('/', function (req, res) {
           if (longitude)
             params.longitude = longitude;
 
-          var create_timestamp = moment();
-          params.create_timestamp = create_timestamp;
+          params.create_timestamp = moment();
 
           var remark = body.remark;
           if (remark)
@@ -298,25 +298,37 @@ router.post('/', function (req, res) {
           var is_global = body.is_global;
           if (is_global)
             params.is_global = is_global;
-          else
-            res.status(errors.bad_request()).send('global should be not null');
+          else if (sent === false) {
+            sent = true;
+            res.status(errors.bad_request()).send('is_global should be not null');
+          }
 
           var suitcase_id = body.suitcase_id;
           if (suitcase_id)
             params.suitcase_id = suitcase_id;
 
-          var sql_query = sql.insert(clinics_table, params).returning('*');
-          console.log(sql_query.toString());
-          client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
-            if (err) {
-              res.status(errors.server_error()).send('error fetching client from pool: ' + err);
-              sent = true;
-              return console.error('error fetching client from pool', err);
-            } else {
-              q.save_sql_query(sql_query.toString());
-              res.json(result.rows);
-            }
-          });
+          if (sent === false) {
+            var sql_query = sql.insert(clinics_table, params).returning('*');
+            console.log(sql_query.toString());
+            client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+              if (err) {
+                res.status(errors.server_error()).send('error fetching client from pool: ' + err);
+                sent = true;
+                return console.error('error fetching client from pool', err);
+              } else {
+                if (result.rows.length == 1) {
+                  q.save_sql_query(sql_query.toString());
+                  sent = true;
+                  res.json(result.rows[0]);
+                } else if (result.rows.length === 0) {
+                  res.status(errors.not_found()).send('Insertion failure');
+                } else {
+                  //how can 1 pk return more than 1 row!?
+                  res.status(errors.server_error()).send('Sth weird is happening');
+                }
+              }
+            });
+          }
         }
       }
     });
