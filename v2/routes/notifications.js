@@ -23,15 +23,13 @@ router.get('/', function (req, res) {
   var sent = false;
   var token = req.headers.token;
   if (!token) {
-    console.log("1");
     res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else if (!valid.token(token)) {
-    console.log("2");
     res.status(errors.bad_request()).send('Token is not token');
     sent = true;
   } else {
-    db.check_token_and_permission("notifications_read", token, function (err, return_value, client) {
+    db.check_token_and_permission(nr, token, function (err, return_value, client) {
       if (!return_value) {
         sent = true;
         res.status(errors.bad_request()).send('Token missing or invalid');
