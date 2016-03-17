@@ -11,6 +11,7 @@ var v2Attachments = require('./v2/routes/attachments');
 var v2BlockedDevices = require('./v2/routes/blocked_devices');
 var v2BloodTypes = require('./v2/routes/blood_types');
 
+var v2Notifications = require('./v2/routes/notifications');
 var v2Suitcases = require('./v2/routes/suitcases');
 
 var v2Inventory = require('./v2/routes/inventory');
@@ -44,7 +45,7 @@ app.use('/v2/attachments', v2Attachments);
 app.use('/v2/blood_types', v2BloodTypes);
 app.use('/v2/blocked_devices',v2BlockedDevices);
 
-
+app.use('/v2/notifications', v2Notifications);
 app.use('/v2/suitcases', v2Suitcases);
 
 app.use('/v2/inventory', v2Inventory);

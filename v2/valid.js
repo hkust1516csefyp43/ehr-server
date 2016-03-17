@@ -1,4 +1,5 @@
 var validator = require('validator');
+var consts = require('./consts');
 
 /**
  * TODO a list of methods to do type validation (e.g. is that a valid email)
@@ -7,8 +8,13 @@ module.exports = {
   email: function (e) {
     return validator.isEmail(e, null);
   },
+  /**
+   * Verify token
+   * TODO change it back to return validator.isByteLength(t, consts.id_random_string_length(), consts.id_random_string_length());
+   * @param t
+   */
   token: function (t) {
-    return validator.isByteLength(t, 255, 255);
+    return validator.isByteLength(t, 0, 255);
   },
   password: function (p, callback) {
     if (validator.isLength(p, 6, 64)) {
