@@ -238,9 +238,8 @@ router.post('/', function (req, res) {
                   sent = true;
                   res.json(result.rows[0]);
                 } else if (result.rows.length === 0) {
-                  res.status(errors.not_found()).send('Cannot find suitcase according to this id.');
+                  res.status(errors.not_found()).send('Insertion failed');
                 } else {
-                  //how can 1 pk return more than 1 row!?
                   res.status(errors.server_error()).send('Sth weird is happening');
                 }
               }
