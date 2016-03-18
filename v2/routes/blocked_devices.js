@@ -232,7 +232,6 @@ router.post('/', function (req, res) {
           else
             res.status(errors.bad_request()).send('victim_id should be not null');
 
-          var create_timestamp =;
           params.create_timestamp = moment();
 
 
