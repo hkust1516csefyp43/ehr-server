@@ -135,8 +135,7 @@ router.get('/:id', function (req, res) {
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
-          var blocked_device_id = req.params.id;
-          params.blocked_device_id = blocked_device_id;
+          params.blocked_device_id = req.params.id;
 
           var sql_query = sql
             .select()
@@ -160,7 +159,7 @@ router.get('/:id', function (req, res) {
           if (limit) {
             sql_query.limit(limit);
           } else {    //Default limit
-            sql_query.limit(100);
+            sql_query.limit(consts.list_limit());
           }
 
           console.log("The whole query in string: " + sql_query.toString());
@@ -178,7 +177,7 @@ router.get('/:id', function (req, res) {
           }
         }
       }
-    })
+    });
   }
 });
 
@@ -233,8 +232,8 @@ router.post('/', function (req, res) {
           else
             res.status(errors.bad_request()).send('victim_id should be not null');
 
-          var create_timestamp = moment();
-          params.create_timestamp = create_timestamp;
+          var create_timestamp =;
+          params.create_timestamp = moment();
 
 
           var sql_query = sql.insert(blocked_devices_table, params).returning('*');

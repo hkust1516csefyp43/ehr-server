@@ -146,8 +146,7 @@ router.get('/slum/:id', function (req, res) {
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else{
-          var slum_id = req.params.id;
-          params.slum_id = slum_id;
+          params.slum_id = req.params.id;
 
           var sql_query = sql
             .select()
@@ -481,8 +480,7 @@ router.get('/country/:id', function (req, res) {
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else{
-          var country_id = req.params.id;
-          params.country_id = country_id;
+          params.country_id = req.params.id;
 
           var sql_query = sql
             .select()

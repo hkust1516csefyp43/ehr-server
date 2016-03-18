@@ -42,8 +42,7 @@ router.get('/:id', function (req, res) {
           if (return_value.expiry_timestamp < Date.now()) {
             res.status(errors.access_token_expired()).send('Access token expired');
           } else{
-            var patient_id = req.params.id;
-            params.patient_id = patient_id;
+            params.patient_id = req.params.id;
 
             var sql_query = sql
               .select()

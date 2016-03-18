@@ -42,8 +42,7 @@ router.get('/:id', function (req, res) {
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
-          var patient_id = req.params.id;
-          params.patient_id = patient_id;
+          params.patient_id = req.params.id;
 
           var sql_query = sql
             .select()
@@ -143,12 +142,12 @@ router.get('/', function (req, res) {
                   if (age_yt - age_ot > 1) {
                     //TODO ok, calculate
                   } else {
-                    res.status(409).send('age_yt must be larger than age_ot; if it is equal, use age');
+                    res.status(errors.bad_request()).send('age_yt must be larger than age_ot; if it is equal, use age');
                   }
                 }
                 break;
               default:
-                res.status(409).send('age, ago_ot and age_yt must be mutually exclusive');
+                res.status(errors.bad_request()).send('age, ago_ot and age_yt must be mutually exclusive');
                 sent = true;
             }
 

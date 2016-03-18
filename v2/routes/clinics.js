@@ -126,7 +126,7 @@ router.get('/', function (req, res) {
           if (limit) {
             sql_query.limit(limit);
           } else {    //Default limit
-            sql_query.limit(100);
+            sql_query.limit(consts.list_limit());
           }
 
           console.log("The whole query in string: " + sql_query.toString());
@@ -173,8 +173,7 @@ router.get('/:id', function (req, res) {
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
-          var clinic_id = req.params.id;
-          params.clinic_id = clinic_id;
+          params.clinic_id = req.params.id;
 
           var sql_query = sql
             .select()
@@ -198,7 +197,7 @@ router.get('/:id', function (req, res) {
           if (limit) {
             sql_query.limit(limit);
           } else {    //Default limit
-            sql_query.limit(100);
+            sql_query.limit(consts.list_limit());
           }
 
           console.log("The whole query in string: " + sql_query.toString());
@@ -209,7 +208,7 @@ router.get('/:id', function (req, res) {
                 sent = true;
                 return console.error('error fetching client from pool', err);
               } else {
-                if (result.rows.length == 1) {
+                if (result.rows.length === 1) {
                   q.save_sql_query(sql_query.toString());
                   sent = true;
                   res.json(result.rows[0]);
@@ -315,7 +314,7 @@ router.post('/', function (req, res) {
                 sent = true;
                 return console.error('error fetching client from pool', err);
               } else {
-                if (result.rows.length == 1) {
+                if (result.rows.length === 1) {
                   q.save_sql_query(sql_query.toString());
                   sent = true;
                   res.json(result.rows[0]);
@@ -427,11 +426,11 @@ router.put('/:id', function (req, res) {
                 sent = true;
                 return console.error('error fetching client from pool', err);
               } else {
-                if (result.rows.length == 1) {
+                if (result.rows.length === 1) {
                   q.save_sql_query(sql_query.toString());
                   sent = true;
                   res.json(result.rows[0]);
-                } else if (result.rows.length == 0) {
+                } else if (result.rows.length === 0) {
                   res.status(errors.not_found()).send('Cannot find clinic to edit according to this id.');
                 } else {
                   //how can 1 pk return more than 1 row!?
@@ -478,7 +477,7 @@ router.delete('/:id', function (req, res) {
                 sent = true;
                 return console.error('error fetching client from pool', err);
               } else {
-                if (result.rows.length == 1) {
+                if (result.rows.length === 1) {
                   q.save_sql_query(sql_query.toString());
                   sent = true;
                   res.json(result.rows[0]);

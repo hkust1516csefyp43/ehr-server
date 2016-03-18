@@ -94,8 +94,7 @@ router.get('/:id', function (req, res) {
   var param_query = req.query;
   console.log(JSON.stringify(param_query));
 
-  var user_id = req.params.id;
-  params.user_id = user_id;
+  params.user_id = req.params.id;
   var token = param_query.token;
   if (!token) {
     res.status(errors.token_missing()).send('Token is missing');

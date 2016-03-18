@@ -107,8 +107,7 @@ router.get('/:id', function (req, res) {
     params.token = token;
   }
 
-  var id = req.params.id;
-  params.id = id;
+  params.id = req.params.id;
 
   var sql_query = sql.select().from(default_table).where(params).toParams();
 

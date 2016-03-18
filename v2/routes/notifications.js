@@ -140,11 +140,11 @@ router.put('/:id', function (req, res) {
                 sent = true;
                 return console.error('error fetching client from pool', err);
               } else {
-                if (result.rows.length == 1) {
+                if (result.rows.length === 1) {
                   q.save_sql_query(sql_query.toString());
                   sent = true;
                   res.json(result.rows[0]);
-                } else if (result.rows.length == 0) {
+                } else if (result.rows.length === 0) {
                   res.status(errors.not_found()).send('Cannot find notification according to this id.');
                 } else {
                   //how can 1 pk return more than 1 row!?
@@ -166,7 +166,7 @@ router.post('/', function (req, res) {
   var sent = false;
   var token = req.headers.token;
   if (!token) {
-    res.status(error.token_missing()).send(error.token_missing_message());
+    res.status(errors.token_missing()).send(errors.token_missing_message());
     sent = true;
   } else {
     db.check_token_and_permission(nw, token, function (err, return_value, client) {
@@ -220,7 +220,7 @@ router.post('/', function (req, res) {
                 sent = true;
                 return console.error('error fetching client from pool', err);
               } else {
-                if (result.rows.length == 1) {
+                if (result.rows.length === 1) {
                   q.save_sql_query(sql_query.toString());
                   sent = true;
                   res.json(result.rows[0]);

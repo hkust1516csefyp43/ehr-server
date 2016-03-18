@@ -25,8 +25,5 @@ module.exports = {
   },
   server_unavailable: function () {
     return 503;
-  },
-  refresh_token_expired: function () {
-    return 419;
   }
 };

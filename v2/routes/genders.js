@@ -109,11 +109,11 @@ router.put('/:id', function (req, res) {
                 sent = true;
                 return console.error('error fetching client from pool', err);
               } else {
-                if (result.rows.length == 1) {
+                if (result.rows.length === 1) {
                   q.save_sql_query(sql_query.toString());
                   sent = true;
                   res.json(result.rows[0]);
-                } else if (result.rows.length == 0) {
+                } else if (result.rows.length === 0) {
                   res.status(errors.not_found()).send('Cannot find gender according to this id.');
                 } else {
                   //how can 1 pk return more than 1 row!?
@@ -170,7 +170,7 @@ router.post('/', function (req, res) {
                 sent = true;
                 return console.error('error fetching client from pool', err);
               } else {
-                if (result.rows.length == 1) {
+                if (result.rows.length === 1) {
                   q.save_sql_query(sql_query.toString());
                   sent = true;
                   res.json(result.rows[0]);

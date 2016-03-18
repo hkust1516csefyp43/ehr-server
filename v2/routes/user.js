@@ -8,6 +8,8 @@ var pg = require('pg');
 var util = require('../utils');
 var errors = require('../errors');
 var valid = require('../valid');
+var consts = require('../consts');
+var moment = require('moment');
 var db = require('../database');
 var sql = require('sql-bricks-postgres');
 
@@ -41,7 +43,7 @@ router.get('/', function (req, res) {
     if (err) {
       sent = true;
       res.status(errors.bad_request()).send("error 1");
-    } else
+    } else {
       client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
         if (err) {
           sent = true;
@@ -80,7 +82,7 @@ router.get('/', function (req, res) {
 
                   var sql_query3 = sql;
                   var params = {};
-                  params.token = util.random_string(255);
+                  params.token = util.random_string(consts.id_random_string_length());
                   params.expiry_timestamp = '2015-11-26 03:53:30.216636+00';
                   params.access_token = true;
                   params.user_id = user_id;
@@ -126,6 +128,7 @@ router.get('/', function (req, res) {
           }
         }
       });
+    }
   });
 });
 
