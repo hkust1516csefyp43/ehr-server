@@ -9,7 +9,7 @@ var moment = require('moment');
 var wait = require('wait.for');
 
 var util = require('../utils');
-var errors = require('../errors');
+var errors = require('../statuses');
 var consts = require('../consts');
 var valid = require('../valid');
 var db = require('../database');

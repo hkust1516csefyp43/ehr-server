@@ -15,7 +15,7 @@ var cloudinary = require('cloudinary').v2;
 var Datauri = require('datauri');
 //files and other js
 var util = require('../utils');
-var errors = require('../errors');
+var errors = require('../statuses');
 var consts = require('../consts');
 var valid = require('../valid');
 var q = require('../query');

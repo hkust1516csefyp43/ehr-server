@@ -6,7 +6,7 @@ var router = express.Router();
 var pg = require('pg');
 var util = require('../utils');
 var consts = require('../consts');
-var errors = require('../errors');
+var errors = require('../statuses');
 var valid = require('../valid');
 var sql = require('sql-bricks-postgres');
 

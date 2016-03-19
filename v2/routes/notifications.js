@@ -8,7 +8,7 @@ var moment = require('moment');
 var sql = require('sql-bricks-postgres');
 
 var util = require('../utils');
-var errors = require('../errors');
+var errors = require('../statuses');
 var consts = require('../consts');
 var valid = require('../valid');
 var db = require('../database');
@@ -45,11 +45,8 @@ router.get('/', function (req, res) {
           var sql_query = sql
             .select(consts.table_notifications() + ".*")
             .from(consts.table_notifications())
-            .from(consts.table_tokens())
-            .where(sql(consts.table_notifications() + ".user_id"), sql(consts.table_tokens() + ".user_id"))
-            .where(consts.table_tokens() + ".token", token)
-            .where(consts.table_tokens() + ".is_access_token", sql('true'));
-
+            .where(sql(consts.table_notifications() + ".user_id"), return_value.user_id);
+          
           console.log("The whole query in string: " + sql_query.toString());
           if (sent === false) {
             client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
@@ -166,7 +163,7 @@ router.post('/', function (req, res) {
   var sent = false;
   var token = req.headers.token;
   if (!token) {
-    res.status(errors.token_missing()).send(errors.token_missing_message());
+    res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
     db.check_token_and_permission(nw, token, function (err, return_value, client) {
@@ -204,9 +201,9 @@ router.post('/', function (req, res) {
           } else {
             if (valid.date(remind_date))
               params.remind_date = remind_date;
-            else {
+            else if (!sent) {
               sent = true;
-              res.status(errors.bad_request()).send('Invalid date');
+              res.status(errors.bad_request()).send('Invalid date. Please follow the format yyyy-mm-dd');
             }
           }
 

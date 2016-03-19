@@ -8,7 +8,7 @@ var moment = require('moment');
 var sql = require('sql-bricks-postgres');
 
 var util = require('../utils');
-var errors = require('../errors');
+var errors = require('../statuses');
 var consts = require('../consts');
 var valid = require('../valid');
 var db = require('../database');
@@ -104,7 +104,6 @@ router.put('/:id', function (req, res) {
           if (sent === false) {
             client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
               if (err) {
-                sent = true;
                 res.status(errors.server_error()).send('error fetching client from pool: ' + err);
                 sent = true;
                 return console.error('error fetching client from pool', err);
