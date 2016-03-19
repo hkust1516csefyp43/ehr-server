@@ -189,30 +189,31 @@ router.post('/', function (req, res) {
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else{
-          var blood_type_id = body.blood_type_id;
-          if (blood_type_id)
-            params.blood_type_id = blood_type_id;
-          else
-            params.blood_type_id = util.random_string(consts.id_random_string_length());
+
+          params.blood_type_id = util.random_string(consts.id_random_string_length());
 
           var blood_type = body.blood_type;
           if (blood_type)
             params.blood_type = blood_type;
-          else
+          else {
+            sent = true;
             res.status(errors.bad_request()).send('blood_type should be not null');
+          }
 
           var sql_query = sql.insert(blood_types_table, params).returning('*');
           console.log(sql_query.toString());
-          client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
-            if (err) {
-              res.status(errors.server_error()).send('error fetching client from pool: ' + err);
-              sent = true;
-              return console.error('error fetching client from pool', err);
-            } else {
-              q.save_sql_query(sql_query.toString());
-              res.json(result.rows);
-            }
-          });
+          if (!sent) {
+            client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+              if (err) {
+                res.status(errors.server_error()).send('error fetching client from pool: ' + err);
+                sent = true;
+                return console.error('error fetching client from pool', err);
+              } else {
+                q.save_sql_query(sql_query.toString());
+                res.json(result.rows);
+              }
+            });
+          }
         }
       }
     });
@@ -223,10 +224,8 @@ router.post('/', function (req, res) {
 router.put('/:id', function (req, res) {
   var sent = false;
   var params = {};
-  var param_query = req.query;
   var param_headers = req.headers;
   var body = req.body;
-  console.log(JSON.stringify(param_query));
   console.log(JSON.stringify(param_headers));
   console.log(JSON.stringify(body));
   var token = param_headers.token;
@@ -237,6 +236,7 @@ router.put('/:id', function (req, res) {
   } else {
     db.check_token_and_permission("blood_types_write", token, function (err, return_value, client) {
       if (!return_value) {                                        //return value == null >> sth wrong
+        sent = true;
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.blood_types_write === false) {          //false (no permission)
         res.status(errors.no_permission).send('No permission');
@@ -244,27 +244,40 @@ router.put('/:id', function (req, res) {
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else{
-          var blood_type_id = req.params.id;
-          params.blood_type_id = blood_type_id;
 
           var blood_type = body.blood_type;
           if (blood_type)
             params.blood_type = blood_type;
+          else {
+            sent = true;
+            res.status(errors.bad_request()).send('You cannnot edit nothing');
+          }
 
           var sql_query = sql
             .update(blood_types_table, params)
-            .where(sql('blood_type_id'), blood_type_id).returning('*');
+            .where(sql('blood_type_id'), req.params.id).returning('*');
           console.log(sql_query.toString());
-          client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
-            if (err) {
-              res.status(errors.server_error()).send('error fetching client from pool: ' + err);
-              sent = true;
-              return console.error('error fetching client from pool', err);
-            } else {
-              q.save_sql_query(sql_query.toString());
-              res.json(result.rows);
-            }
-          });
+
+          if (!sent) {
+            client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+              if (err) {
+                res.status(errors.server_error()).send('error fetching client from pool: ' + err);
+                sent = true;
+                return console.error('error fetching client from pool', err);
+              } else {
+                if (result.rows.length === 1) {
+                  q.save_sql_query(sql_query.toString());
+                  sent = true;
+                  res.json(result.rows[0]);
+                } else if (result.rows.length === 0) {
+                  res.status(errors.not_found()).send('Cannot find blood type according to this id.');
+                } else {
+                  //how can 1 pk return more than 1 row!?
+                  res.status(errors.server_error()).send('Sth weird is happening');
+                }
+              }
+            });
+          }
         }
       }
     });
