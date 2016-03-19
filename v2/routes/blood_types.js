@@ -153,8 +153,16 @@ router.get('/:id', function (req, res) {
                 sent = true;
                 return console.error('error fetching client from pool', err);
               } else {
-                q.save_sql_query(sql_query.toString());
-                res.json(result.rows);
+                if (result.rows.length === 1) {
+                  q.save_sql_query(sql_query.toString());
+                  sent = true;
+                  res.json(result.rows[0]);
+                } else if (result.rows.length === 0) {
+                  res.status(errors.not_found()).send('Cannot find blood type according to this id.');
+                } else {
+                  //how can 1 pk return more than 1 row!?
+                  res.status(errors.server_error()).send('Sth weird is happening');
+                }
               }
             });
           }
