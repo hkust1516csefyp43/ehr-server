@@ -19,9 +19,8 @@ var v2Attachments = require('./v2/routes/attachments');
 var v2BlockedDevices = require('./v2/routes/blocked_devices');
 var v2BloodTypes = require('./v2/routes/blood_types');
 var v2Clinics = require('./v2/routes/clinics');
-
 var v2Genders = require('./v2/routes/genders');
-
+var v2Medications = require('./v2/routes/medications');
 var v2Notifications = require('./v2/routes/notifications');
 var v2Suitcases = require('./v2/routes/suitcases');
 
@@ -33,7 +32,6 @@ var v2Visit = require('./v2/routes/visit');
 var v2Static = require('./v2/routes/static');
 var v2ChiefComplain = require('./v2/routes/chief_complain');
 var v2Diagnosis = require('./v2/routes/diagnosis');
-var v2Medication = require('./v2/routes/medication');
 var v2Location = require('./v2/routes/location');
 
 var app = express();
@@ -65,9 +63,8 @@ app.use('/v2/attachments', v2Attachments);
 app.use('/v2/blood_types', v2BloodTypes);
 app.use('/v2/blocked_devices',v2BlockedDevices);
 app.use('/v2/clinics',v2Clinics);
-
 app.use('/v2/genders', v2Genders);
-
+app.use('/v2/medications', v2Medications);
 app.use('/v2/notifications', v2Notifications);
 app.use('/v2/suitcases', v2Suitcases);
 
@@ -79,7 +76,6 @@ app.use('/v2/visit', v2Visit);
 app.use('/v2/static', v2Static);
 app.use('/v2/chief_complain', v2ChiefComplain);
 app.use('/v2/diagnosis', v2Diagnosis);
-app.use('/v2/medication', v2Medication);
 app.use('/v2/location', v2Location);
 
 // catch 404 and forward to error handler
