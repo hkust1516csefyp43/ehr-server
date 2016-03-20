@@ -143,7 +143,7 @@ router.get('/slum/:id', function (req, res) {
       if (!return_value) {                                            //return value == null >> sth wrong
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.add_slum === false) {          //false (no permission)
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.add_slum === true) {           //w/ permission
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
@@ -176,7 +176,7 @@ router.get('/slum/:id', function (req, res) {
           }
 
           console.log("The whole query in string: " + sql_query.toString());
-          if (sent === false) {
+          if (!sent) {
             client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
               if (err) {
                 res.send('error fetching client from pool 2');
@@ -216,7 +216,7 @@ router.put('/slum/:id', function (req, res) {
       if (!return_value) {                                            //false (no token)
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.add_slum === false) {          //false (no permission)
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.add_slum === true) {           //true
         console.log("return value: " + JSON.stringify(return_value));
         if (return_value.expiry_timestamp < Date.now()) {
@@ -291,7 +291,7 @@ router.post('/slum/', function (req, res) {
       if (!return_value) {                                            //false (no token)
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.add_slum === false) {          //false (no permission)
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.add_slum === true) {           //true
         console.log("return value: " + JSON.stringify(return_value));
         if (return_value.expiry_timestamp < Date.now()) {
@@ -477,7 +477,7 @@ router.get('/country/:id', function (req, res) {
       if (!return_value) {                                            //return value == null >> sth wrong
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.add_slum === false) {          //false (no permission)
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.add_slum === true) {           //w/ permission
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
@@ -510,7 +510,7 @@ router.get('/country/:id', function (req, res) {
           }
 
           console.log("The whole query in string: " + sql_query.toString());
-          if (sent === false) {
+          if (!sent) {
             client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
               if (err) {
                 res.send('error fetching client from pool 2');
@@ -549,7 +549,7 @@ router.put('/country/:id', function (req, res) {
       if (!return_value) {                                            //false (no token)
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.add_slum === false) {          //false (no permission)
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.add_slum === true) {           //true
         console.log("return value: " + JSON.stringify(return_value));
         if (return_value.expiry_timestamp < Date.now()) {
@@ -618,7 +618,7 @@ router.post('/country/', function (req, res) {
       if (!return_value) {                                            //false (no token)
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.add_slum === false) {          //false (no permission)
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.add_slum === true) {           //true
         console.log("return value: " + JSON.stringify(return_value));
         if (return_value.expiry_timestamp < Date.now()) {

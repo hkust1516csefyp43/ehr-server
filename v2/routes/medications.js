@@ -15,10 +15,10 @@ var valid = require('../valid');
 var db = require('../database');
 var q = require('../query');
 
+var this_table = consts.table_medications();
 
 /**
  * Get list of medications (also search)
- * TODO get list of medication of a suitcase
  */
 router.get('/', function (req, res) {
   var sent = false;
@@ -33,7 +33,7 @@ router.get('/', function (req, res) {
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.medications_read === false) {
         sent = true;
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.medications_read === true) {
         if (return_value.expiry_timestamp < Date.now()) {
           sent = true;
@@ -50,7 +50,7 @@ router.get('/', function (req, res) {
 
           var user_id = req.query.user_id;
           if (user_id)
-            params.user_id = user_id;
+            params[this_table + '.user_id'] = user_id;
 
           var sql_query = sql.select('v2.medications.*')
             .from(consts.table_medications())
@@ -85,7 +85,7 @@ router.get('/', function (req, res) {
 
           console.log("The whole query in string: " + sql_query.toString());
 
-          if (sent === false) {
+          if (!sent) {
             client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
               if (err) {
                 res.status(errors.server_error()).send('error fetching client from pool: ' + err);
@@ -125,7 +125,7 @@ router.get('/:id', function (req, res) {
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.medications_read === false) {
         sent = true;
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.medications_read === true) {
         if (return_value.expiry_timestamp < Date.now()) {
           sent = true;
@@ -141,7 +141,7 @@ router.get('/:id', function (req, res) {
 
           console.log("The whole query in string: " + sql_query.toString());
 
-          if (sent === false) {
+          if (!sent) {
             client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
               if (err) {
                 res.status(errors.server_error()).send('error fetching client from pool: ' + err);
@@ -180,7 +180,7 @@ router.put('/:id', function (req, res) {
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.medications_write === false) {
         sent = true;
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.medications_write === true) {
         if (return_value.expiry_timestamp < Date.now()) {
           sent = true;
@@ -204,7 +204,7 @@ router.put('/:id', function (req, res) {
           var sql_query = sql.update(consts.table_medications(), params).where(sql('medication_id'), req.params.id).returning('*');
           console.log("The whole query in string: " + sql_query.toString());
 
-          if (sent === false) {
+          if (!sent) {
             client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
               if (err) {
                 res.status(errors.server_error()).send('error fetching client from pool: ' + err);
@@ -243,7 +243,7 @@ router.post('/', function (req, res) {
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.medications_write === false) {
         sent = true;
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.medications_write === true) {
         if (return_value.expiry_timestamp < Date.now()) {
           sent = true;
@@ -265,7 +265,7 @@ router.post('/', function (req, res) {
           var sql_query = sql.insert(consts.table_medications(), params).returning('*');
           console.log("The whole query in string: " + sql_query.toString());
 
-          if (sent === false) {
+          if (!sent) {
             client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
               if (err) {
                 res.status(errors.server_error()).send('error fetching client from pool: ' + err);
@@ -303,7 +303,7 @@ router.delete('/:id', function (req, res) {
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.medications_write === false) {
         sent = true;
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.medications_write === true) {
         if (return_value.expiry_timestamp < Date.now()) {
           sent = true;
@@ -313,7 +313,7 @@ router.delete('/:id', function (req, res) {
           var sql_query = sql.delete().from(consts.table_medications()).where(sql('medication_id'), req.params.id).returning('*');
           console.log("The whole query in string: " + sql_query.toString());
 
-          if (sent === false) {
+          if (!sent) {
             client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
               if (err) {
                 res.status(errors.server_error()).send('error fetching client from pool: ' + err);

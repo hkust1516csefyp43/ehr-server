@@ -33,7 +33,7 @@ router.get('/', function (req, res) {
       if (!return_value) {                                        //return value == null >> sth wrong
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.attachments_read === false) {          //false (no permission)
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.attachments_read === true) {           //w/ permission
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
@@ -121,7 +121,7 @@ router.get('/:id', function (req, res) {
       if (!return_value) {                                        //return value == null >> sth wrong
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.attachments_read === false) {          //false (no permission)
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.attachments_read === true) {           //w/ permission
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
@@ -131,7 +131,7 @@ router.get('/:id', function (req, res) {
           var sql_query = sql.select().from(consts.table_attachments()).where(params);
 
           console.log("The whole query in string: " + sql_query.toString());
-          if (sent === false) {
+          if (!sent) {
             client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
               if (err) {
                 res.status(errors.server_error()).send('error fetching client from pool: ' + err);
@@ -175,7 +175,7 @@ router.post('/', function (req, res) {
       if (!return_value) {                                        //return value == null >> sth wrong
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.attachments_write === false) {          //false (no permission)
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.attachments_write === true) {           //w/ permission
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
@@ -240,7 +240,7 @@ router.put('/:id', function (req, res) {
       if (!return_value) {                                        //return value == null >> sth wrong
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.attachments_write === false) {          //false (no permission)
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.attachments_write === true) {           //w/ permission
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
@@ -314,7 +314,7 @@ router.delete('/:id', function (req, res) {
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.attachments_write === false) {
         sent = true;
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.attachments_write === true) {
         if (return_value.expiry_timestamp < Date.now()) {
           sent = true;
@@ -324,7 +324,7 @@ router.delete('/:id', function (req, res) {
           var sql_query = sql.delete().from(consts.table_attachments()).where(sql('attachment_id'), req.params.id).returning('*');
           console.log("The whole query in string: " + sql_query.toString());
 
-          if (sent === false) {
+          if (!sent) {
             client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
               if (err) {
                 res.status(errors.server_error()).send('error fetching client from pool: ' + err);

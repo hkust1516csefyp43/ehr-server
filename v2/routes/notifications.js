@@ -35,7 +35,7 @@ router.get('/', function (req, res) {
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.notifications_read === false) {
         sent = true;
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.notifications_read === true) {
         if (return_value.expiry_timestamp < Date.now()) {
           sent = true;
@@ -48,7 +48,7 @@ router.get('/', function (req, res) {
             .where(sql(consts.table_notifications() + ".user_id"), return_value.user_id);
           
           console.log("The whole query in string: " + sql_query.toString());
-          if (sent === false) {
+          if (!sent) {
             client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
               if (err) {
                 sent = true;
@@ -87,7 +87,7 @@ router.put('/:id', function (req, res) {
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.notifications_write === false) {
         sent = true;
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.notifications_write === true) {
         if (return_value.expiry_timestamp < Date.now()) {
           sent = true;
@@ -121,7 +121,7 @@ router.put('/:id', function (req, res) {
             }
           }
 
-          if (valid.empty_object(params) && sent === false) {
+          if (valid.empty_object(params) && !sent) {
             sent = true;
             res.status(errors.bad_request()).send('You cannot edit nothing');
           }
@@ -129,7 +129,7 @@ router.put('/:id', function (req, res) {
           var sql_query = sql.update(consts.table_notifications(), params).where(sql('notification_id'), req.params.id).returning('*');
           console.log("The whole query in string: " + sql_query.toString());
 
-          if (sent === false) {
+          if (!sent) {
             client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
               if (err) {
                 sent = true;
@@ -172,7 +172,7 @@ router.post('/', function (req, res) {
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.notifications_write === false) {
         sent = true;
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.notifications_write === true) {
         if (return_value.expiry_timestamp < Date.now()) {
           sent = true;
@@ -188,14 +188,14 @@ router.post('/', function (req, res) {
             params.message = message;
           }
           var user_id = req.body.user_id;
-          if (!user_id && sent === false) {
+          if (!user_id && !sent) {
             res.status(errors.bad_request()).send('Notification must contain user_id');
             sent = true;
           } else {
             params.user_id = user_id;
           }
           var remind_date = req.body.remind_date;
-          if (!remind_date && sent === false) {
+          if (!remind_date && !sent) {
             res.status(errors.bad_request()).send('Notification must contain remind_date');
             sent = true;
           } else {
@@ -210,7 +210,7 @@ router.post('/', function (req, res) {
           var sql_query = sql.insert(consts.table_notifications(), params).returning('*');
           console.log("The whole query in string: " + sql_query.toString());
 
-          if (sent === false) {
+          if (!sent) {
             client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
               if (err) {
                 res.status(errors.server_error()).send('error fetching client from pool: ' + err);
@@ -252,7 +252,7 @@ router.delete('/:id', function (req, res) {
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.notifications_write === false) {
         sent = true;
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.notifications_write === true) {
         if (return_value.expiry_timestamp < Date.now()) {
           sent = true;
@@ -261,7 +261,7 @@ router.delete('/:id', function (req, res) {
           var sql_query = sql.delete().from(consts.table_notifications()).where(sql('notification_id'), req.params.id).returning('*');
           console.log("The whole query in string: " + sql_query.toString());
 
-          if (sent === false) {
+          if (!sent) {
             client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
               if (err) {
                 res.status(errors.server_error()).send('error fetching client from pool: ' + err);
