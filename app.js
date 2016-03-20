@@ -20,6 +20,7 @@ var v2BlockedDevices = require('./v2/routes/blocked_devices');
 var v2BloodTypes = require('./v2/routes/blood_types');
 var v2Clinics = require('./v2/routes/clinics');
 var v2Genders = require('./v2/routes/genders');
+var v2MedicationVariants = require('./v2/routes/medication_variants');
 var v2Medications = require('./v2/routes/medications');
 var v2Notifications = require('./v2/routes/notifications');
 var v2Suitcases = require('./v2/routes/suitcases');
@@ -65,6 +66,7 @@ app.use('/v2/blocked_devices',v2BlockedDevices);
 app.use('/v2/clinics',v2Clinics);
 app.use('/v2/genders', v2Genders);
 app.use('/v2/medications', v2Medications);
+app.use('/v2/medication_variants', v2MedicationVariants);
 app.use('/v2/notifications', v2Notifications);
 app.use('/v2/suitcases', v2Suitcases);
 

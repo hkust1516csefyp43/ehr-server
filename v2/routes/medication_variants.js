@@ -6,7 +6,6 @@ var router = express.Router();
 var pg = require('pg');
 var moment = require('moment');
 var sql = require('sql-bricks-postgres');
-var _ = require('lodash');
 
 var util = require('../utils');
 var errors = require('../statuses');
@@ -15,10 +14,13 @@ var valid = require('../valid');
 var db = require('../database');
 var q = require('../query');
 
+var permission_read = 'medication_variants_read';
+var permission_write = 'medication_variants_write';
+var this_table = consts.table_medication_variants();
+var this_pk = 'medication_variant_id';
 
 /**
- * Get list of medications (also search)
- * TODO get list of medication of a suitcase
+ * Get list of medications variants (also search)
  */
 router.get('/', function (req, res) {
   var sent = false;
@@ -27,41 +29,51 @@ router.get('/', function (req, res) {
     res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
-    db.check_token_and_permission("medications_read", token, function (err, return_value, client) {
+    db.check_token_and_permission(permission_read, token, function (err, return_value, client) {
       if (!return_value) {
         sent = true;
         res.status(errors.bad_request()).send('Token missing or invalid');
-      } else if (return_value.medications_read === false) {
+      } else if (return_value[permission_read] === false) {
         sent = true;
         res.status(errors.no_permission).send('No permission');
-      } else if (return_value.medications_read === true) {
+      } else if (return_value[permission_read] === true) {
         if (return_value.expiry_timestamp < Date.now()) {
           sent = true;
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
           var params = {};
 
-          var medication = req.query.medication;
-          if (medication) {
-            params.medication = medication;
-          }
+          var name = req.query.name;
+          if (name)
+            params.name = name;
 
-          //is create_timestamp search really necessary?
+          var medication_id = req.query.medication_id;
+          if (medication_id)
+            params.medication_id = medication_id;
+
+          var strength = req.query.strength;
+          if (strength)
+            params.strength = strength;
+
+          var form = req.query.form;
+          if (form)
+            params.form = form;
+
+          var stock = req.query.stock;
+          if (stock)
+            params.stock = stock;
 
           var user_id = req.query.user_id;
           if (user_id)
             params.user_id = user_id;
 
-          var sql_query = sql.select('v2.medications.*')
-            .from(consts.table_medications())
-            .where(params);
-
           var suitcase_id = req.query.suitcase_id;
-          if (suitcase_id) {
-            sql_query.from(consts.table_medication_variants());
-            sql_query.where('v2.medication_variants.suitcase_id', suitcase_id);
-            sql_query.where('v2.medication_variants.medication_id', sql('v2.medications.medication_id'));
-          }
+          if (suitcase_id)
+            params.suitcase_id = suitcase_id;
+
+          var sql_query = sql.select()
+            .from(this_table)
+            .where(params);
 
           var offset = req.query.offset;
           if (offset) {
@@ -73,7 +85,7 @@ router.get('/', function (req, res) {
             //TODO check if custom sort by param is valid
             sql_query.orderBy(sort_by);
           } else {
-            sql_query.orderBy('v2.medications.medication_id');
+            sql_query.orderBy(this_pk);
           }
 
           var limit = req.query.limit;
@@ -93,13 +105,7 @@ router.get('/', function (req, res) {
                 return console.error('error fetching client from pool', err);
               } else {
                 q.save_sql_query(sql_query.toString());
-                var output = _.uniqWith(result.rows, function (arrVal, othVal) {
-                  if (arrVal.medication_id === othVal.medication_id)
-                    return true;
-                  else
-                    return false;
-                });
-                res.json(output);
+                res.json(result.rows);
               }
             });
           }
@@ -119,24 +125,24 @@ router.get('/:id', function (req, res) {
     res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
-    db.check_token_and_permission("medications_read", token, function (err, return_value, client) {
+    db.check_token_and_permission("medication_variants_read", token, function (err, return_value, client) {
       if (!return_value) {
         sent = true;
         res.status(errors.bad_request()).send('Token missing or invalid');
-      } else if (return_value.medications_read === false) {
+      } else if (return_value.medication_variants_read === false) {
         sent = true;
         res.status(errors.no_permission).send('No permission');
-      } else if (return_value.medications_read === true) {
+      } else if (return_value.medication_variants_read === true) {
         if (return_value.expiry_timestamp < Date.now()) {
           sent = true;
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
           var params = {};
-          params.medication_id = req.params.id;
+          params.medication_variant_id = req.params.id;
 
           var sql_query = sql
             .select()
-            .from(consts.table_medications())
+            .from(consts.table_medication_variants())
             .where(params);
 
           console.log("The whole query in string: " + sql_query.toString());
@@ -174,14 +180,14 @@ router.put('/:id', function (req, res) {
     res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
-    db.check_token_and_permission("medications_write", token, function (err, return_value, client) {
+    db.check_token_and_permission("medication_variants_write", token, function (err, return_value, client) {
       if (!return_value) {
         sent = true;
         res.status(errors.bad_request()).send('Token missing or invalid');
-      } else if (return_value.medications_write === false) {
+      } else if (return_value.medication_variants_write === false) {
         sent = true;
         res.status(errors.no_permission).send('No permission');
-      } else if (return_value.medications_write === true) {
+      } else if (return_value.medication_variants_write === true) {
         if (return_value.expiry_timestamp < Date.now()) {
           sent = true;
           res.status(errors.access_token_expired()).send('Access token expired');
@@ -201,7 +207,7 @@ router.put('/:id', function (req, res) {
             res.status(errors.bad_request()).send('You cannot edit nothing');
           }
 
-          var sql_query = sql.update(consts.table_medications(), params).where(sql('medication_id'), req.params.id).returning('*');
+          var sql_query = sql.update(consts.table_medication_variants(), params).where(sql('medication_variant_id'), req.params.id).returning('*');
           console.log("The whole query in string: " + sql_query.toString());
 
           if (sent === false) {
@@ -237,20 +243,20 @@ router.post('/', function (req, res) {
     res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
-    db.check_token_and_permission("medications_write", token, function (err, return_value, client) {
+    db.check_token_and_permission("medication_variants_write", token, function (err, return_value, client) {
       if (!return_value) {
         sent = true;
         res.status(errors.bad_request()).send('Token missing or invalid');
-      } else if (return_value.medications_write === false) {
+      } else if (return_value.medication_variants_write === false) {
         sent = true;
         res.status(errors.no_permission).send('No permission');
-      } else if (return_value.medications_write === true) {
+      } else if (return_value.medication_variants_write === true) {
         if (return_value.expiry_timestamp < Date.now()) {
           sent = true;
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
           var params = {};
-          params.medication_id = util.random_string(consts.id_random_string_length());
+          params.medication_variant_id = util.random_string(consts.id_random_string_length());
           params.user_id = return_value.user_id;
           params.create_timestamp = moment();
 
@@ -259,10 +265,10 @@ router.post('/', function (req, res) {
             params.medication = medication;
           else {
             sent = true;
-            res.status(errors.bad_request()).send('medication cannot be null');
+            res.status(errors.bad_request()).send('medication variantcannot be null');
           }
 
-          var sql_query = sql.insert(consts.table_medications(), params).returning('*');
+          var sql_query = sql.insert(consts.table_medication_variants(), params).returning('*');
           console.log("The whole query in string: " + sql_query.toString());
 
           if (sent === false) {
@@ -297,20 +303,20 @@ router.delete('/:id', function (req, res) {
     res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
-    db.check_token_and_permission("medications_write", token, function (err, return_value, client) {
+    db.check_token_and_permission("medication_variants_write", token, function (err, return_value, client) {
       if (!return_value) {
         sent = true;
         res.status(errors.bad_request()).send('Token missing or invalid');
-      } else if (return_value.medications_write === false) {
+      } else if (return_value.medication_variants_write === false) {
         sent = true;
         res.status(errors.no_permission).send('No permission');
-      } else if (return_value.medications_write === true) {
+      } else if (return_value.medication_variants_write === true) {
         if (return_value.expiry_timestamp < Date.now()) {
           sent = true;
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
 
-          var sql_query = sql.delete().from(consts.table_medications()).where(sql('medication_id'), req.params.id).returning('*');
+          var sql_query = sql.delete().from(consts.table_medication_variants()).where(sql('medication_variant_id'), req.params.id).returning('*');
           console.log("The whole query in string: " + sql_query.toString());
 
           if (sent === false) {
