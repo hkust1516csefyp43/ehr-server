@@ -168,7 +168,7 @@ router.get('/:id', function (req, res) {
           }
         }
       }
-    })
+    });
   }
 });
 
