@@ -36,7 +36,8 @@
   ],
   "scripts": {
     "devStart": "node ./bin/www",
-    "start": "forever start ./bin/www"
+    "start": "forever start --uid=ehr -a ./bin/www",
+    "stop": "forever stop ehr"
   },
   "dependencies": {
     "basic-auth": "~1.0.3",
