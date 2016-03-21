@@ -28,7 +28,26 @@ router.get('/', function (req, res) {
   var token = param_headers.token;
   console.log(token);
   if (!token) {
-    res.status(errors.token_missing()).send('Token is missing');
+    var sql_query = sql.select('clinic_id','english_name','native_name').from(clinics_table);
+    console.log(sql_query.toString());
+    pg.connect(db.url(), function (err, client, done) {
+      if (err) {
+        res.status(errors.bad_request()).send('error fetching client from pool');
+      } else {
+        client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+
+          done();
+          if (err) {
+            res.status(errors.bad_request()).send('error fetching client from pool');
+          } else {
+            var output = [];
+            for (var i = 0; i < result.rows.length; i++)
+              output.push(result.rows[i]);
+            res.json(output);
+          }
+        });
+      }
+    });
     sent = true;
   } else {
     db.check_token_and_permission("clinics_read", token, function (err, return_value, client) {
