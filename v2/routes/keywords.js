@@ -487,53 +487,139 @@ router.post('/', function (req, res) {
           } else {
             var params = {};
             params[this_pk] = util.random_string(consts.id_random_string_length());
-            params.user_id = return_value.user_id;
 
-            var medication_id = req.body.medication_id;
-            if (medication_id)
-              params.medication_id = medication_id;
-            else if (!sent) {
+            var keyword = req.body.keyword;
+            if (keyword) {
+              params.keyword = keyword;
+            } else if (!sent) {
               sent = true;
-              res.status(errors.bad_request()).send('medication_id cannot be null');
+              res.status(errors.bad_request()).send('keyword cannot be null');
             }
-
-            var strength = req.body.strength;
-            if (strength)
-              params.strength = strength;
-            else if (!sent) {
-              sent = true;
-              res.status(errors.bad_request()).send('strength cannot be null');
+            var chief_complain = req.body.chief_complain;
+            if (chief_complain) {
+              if (valid.true_or_false(chief_complain)) {
+                params.chief_complain = chief_complain;
+              } else if (!sent) {
+                sent = true;
+                res.status(errors.bad_request()).send('Invalid chief_complain. Please enter either "true" or "false"');
+              }
             }
-
-            var form = req.body.form;
-            if (form)
-              params.form = form;
-            else if (!sent) {
-              sent = true;
-              res.status(errors.bad_request()).send('form cannot be null');
+            var diagnosis = req.body.diagnosis;
+            if (diagnosis) {
+              if (valid.true_or_false(diagnosis)) {
+                params.diagnosis = diagnosis;
+              } else if (!sent) {
+                sent = true;
+                res.status(errors.bad_request()).send('Invalid diagnosis. Please enter either "true" or "false"');
+              }
             }
-
-            var stock = req.body.stock;
-            if (stock)
-              params.stock = stock;
-            else {
-              params.stock = 0;
+            var screening = req.body.screening;
+            if (screening) {
+              if (valid.true_or_false(screening)) {
+                params.chief_complain = screening;
+              } else if (!sent) {
+                sent = true;
+                res.status(errors.bad_request()).send('Invalid screening. Please enter either "true" or "false"');
+              }
             }
-
-            var suitcase_id = req.body.suitcase_id;
-            if (suitcase_id)
-              params.suitcase_id = suitcase_id;
-            else if (!sent) {
-              sent = true;
-              res.status(errors.bad_request()).send('suitcase_id cannot be null');
+            var allergen = req.body.allergen;
+            if (allergen) {
+              if (valid.true_or_false(allergen)) {
+                params.allergen = allergen;
+              } else if (!sent) {
+                sent = true;
+                res.status(errors.bad_request()).send('Invalid allergen. Please enter either "true" or "false"');
+              }
             }
-
-            var name = req.body.name;
-            if (name)
-              params.name = name;
-            else if (!sent) {
-              sent = true;
-              res.status(errors.bad_request()).send('name cannot be null');
+            var follow_up = req.body.follow_up;
+            if (follow_up) {
+              if (valid.true_or_false(follow_up)) {
+                params.chief_complain = follow_up;
+              } else if (!sent) {
+                sent = true;
+                res.status(errors.bad_request()).send('Invalid follow_up. Please enter either "true" or "false"');
+              }
+            }
+            var advice = req.body.advice;
+            if (advice) {
+              if (valid.true_or_false(advice)) {
+                params.advice = advice;
+              } else if (!sent) {
+                sent = true;
+                res.status(errors.bad_request()).send('Invalid advice. Please enter either "true" or "false"');
+              }
+            }
+            var education = req.body.education;
+            if (education) {
+              if (valid.true_or_false(education)) {
+                params.education = education;
+              } else if (!sent) {
+                sent = true;
+                res.status(errors.bad_request()).send('Invalid education. Please enter either "true" or "false"');
+              }
+            }
+            var general = req.body.general;
+            if (general) {
+              if (valid.true_or_false(general)) {
+                params.general = general;
+              } else if (!sent) {
+                sent = true;
+                res.status(errors.bad_request()).send('Invalid general. Please enter either "true" or "false"');
+              }
+            }
+            var medication_route = req.body.medication_route;
+            if (medication_route) {
+              if (valid.true_or_false(medication_route)) {
+                params.medication_route = medication_route;
+              } else if (!sent) {
+                sent = true;
+                res.status(errors.bad_request()).send('Invalid medication_route. Please enter either "true" or "false"');
+              }
+            }
+            var medication_form = req.body.medication_form;
+            if (medication_form) {
+              if (valid.true_or_false(medication_form)) {
+                params.medication_form = medication_form;
+              } else if (!sent) {
+                sent = true;
+                res.status(errors.bad_request()).send('Invalid medication_form. Please enter either "true" or "false"');
+              }
+            }
+            var unit = req.body.unit;
+            if (unit) {
+              if (valid.true_or_false(unit)) {
+                params.unit = unit;
+              } else if (!sent) {
+                sent = true;
+                res.status(errors.bad_request()).send('Invalid unit. Please enter either "true" or "false"');
+              }
+            }
+            var investigation = req.body.investigation;
+            if (investigation) {
+              if (valid.true_or_false(investigation)) {
+                params.investigation = investigation;
+              } else if (!sent) {
+                sent = true;
+                res.status(errors.bad_request()).send('Invalid investigation. Please enter either "true" or "false"');
+              }
+            }
+            var medication_frequency = req.body.medication_frequency;
+            if (medication_frequency) {
+              if (valid.true_or_false(medication_frequency)) {
+                params.medication_frequency = medication_frequency;
+              } else if (!sent) {
+                sent = true;
+                res.status(errors.bad_request()).send('Invalid medication_frequency. Please enter either "true" or "false"');
+              }
+            }
+            var relationship_type = req.body.relationship_type;
+            if (relationship_type) {
+              if (valid.true_or_false(relationship_type)) {
+                params.relationship_type = relationship_type;
+              } else if (!sent) {
+                sent = true;
+                res.status(errors.bad_request()).send('Invalid relationship_type. Please enter either "true" or "false"');
+              }
             }
 
             var sql_query = sql.insert(this_table, params).returning('*');
@@ -600,7 +686,7 @@ router.delete('/:id', function (req, res) {
                   sent = true;
                   res.json(result.rows[0]);
                 } else if (result.rows.length === 0) {
-                  res.status(errors.not_found()).send('Cannot find medication variant according to this id.');
+                  res.status(errors.not_found()).send('Cannot find keyword according to this id.');
                 } else {
                   //how can 1 pk return more than 1 row!?
                   res.status(errors.server_error()).send('Sth weird is happening');
