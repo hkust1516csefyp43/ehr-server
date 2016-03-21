@@ -9,7 +9,7 @@ var moment = require('moment');
 var wait = require('wait.for');
 
 var util = require('../utils');
-var errors = require('../errors');
+var errors = require('../statuses');
 var consts = require('../consts');
 var valid = require('../valid');
 var db = require('../database');
@@ -50,7 +50,7 @@ router.get('/:id', function (req, res) {
         res.status(errors.bad_request()).send('Token missing or invalid');
         sent = true;
       } else if (return_value.add_visit === false) {
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
         sent = true;
       } else if (return_value.add_visit === true) {
         console.log("return value: " + JSON.stringify(return_value));
@@ -129,7 +129,7 @@ router.post('/', function (req, res) {
       if (!return_value) {                                            //false (no token)
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.add_visit === false) {          //false (no permission)
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.add_visit === true) {           //true
         console.log("return value: " + JSON.stringify(return_value));
         if (return_value.expiry_timestamp < Date.now()) {
@@ -198,7 +198,7 @@ router.post('/triage/', function (req, res) {
       if (!return_value) {                                            //false (no token)
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.add_triage === false) {          //false (no permission)
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.add_triage === true) {           //true
         console.log("return value: " + JSON.stringify(return_value));
         if (return_value.expiry_timestamp < Date.now()) {
@@ -371,7 +371,7 @@ router.post('/consultation/', function (req, res) {
       if (!return_value) {                                            //false (no token)
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.add_consultation === false) {          //false (no permission)
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.add_consultation === true) {           //true
         console.log("return value: " + JSON.stringify(return_value));
         if (return_value.expiry_timestamp < Date.now()) {
@@ -484,7 +484,7 @@ router.post('/pharmacy/', function (req, res) {
       if (!return_value) {                                            //false (no token)
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.add_pharmacy === false) {          //false (no permission)
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.add_pharmacy === true) {           //true
         console.log("return value: " + JSON.stringify(return_value));
         if (return_value.expiry_timestamp < Date.now()) {

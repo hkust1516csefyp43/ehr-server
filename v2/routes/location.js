@@ -2,12 +2,14 @@ var express = require('express');
 var router = express.Router();
 var pg = require('pg');
 var util = require('../utils');
-var errors = require('../errors');
+var errors = require('../statuses');
 var valid = require('../valid');
+var consts = require('../consts');
 var db = require('../database');
 var q = require('../query');
+var moment = require('moment');
 var sql = require('sql-bricks-postgres');
-var slum_table = 'slum';
+var slum_table = 'v2.clinics';
 var country_table = 'country';
 
 /**
@@ -16,7 +18,7 @@ var country_table = 'country';
  * 2) everything
  * Get list of slums
  */
-router.get('/slum/', function (req, res) {
+router.get('/clinics/', function (req, res) {
   var sent = false;
   var params = {};
   var param_query = req.query;
@@ -27,26 +29,26 @@ router.get('/slum/', function (req, res) {
   var token = param_query.token;
 
   if (!token) {
-    //TODO return list of slums (name only)
-    sql_query = sql.select('name').from(slum_table);
+    //TODO return list of active clinics (english name & id)
+    sql_query = sql.select('clinic_id').select('english_name').from(slum_table).where(sql('active'), sql('true')).orderBy('clinic_id');
+    console.log("The whole query is " + sql_query.toString());
     pg.connect(db.url(), function (err, client, done) {
       if (err) {
+        sent = true;
         res.status(errors.bad_request()).send('somethings wrong');
       } else {
         client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
           done();
           if (err) {
+            sent = true;
             res.status(errors.bad_request()).send('somethings wrong');
           } else {
-            var output = [];
-            for (var i = 0; i < result.rows.length; i++)
-              output.push(result.rows[i].name);
-            res.json(output);
+            sent = true;
+            res.json(result.rows);
           }
         });
       }
     });
-    sent = true;
   } else {
     db.check_token_and_permission("reset_any_password", token, function (err, return_value, client) {
       if (!return_value) {
@@ -91,7 +93,7 @@ router.get('/slum/', function (req, res) {
         if (limit) {
           sql_query.limit(limit);
         } else {    //Default limit
-          sql_query.limit(100);
+          sql_query.limit(consts.list_limit());
         }
 
         var offset = param_query.offset;
@@ -141,13 +143,12 @@ router.get('/slum/:id', function (req, res) {
       if (!return_value) {                                            //return value == null >> sth wrong
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.add_slum === false) {          //false (no permission)
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.add_slum === true) {           //w/ permission
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else{
-          var slum_id = req.params.id;
-          params.slum_id = slum_id;
+          params.slum_id = req.params.id;
 
           var sql_query = sql
             .select()
@@ -171,11 +172,11 @@ router.get('/slum/:id', function (req, res) {
           if (limit) {
             sql_query.limit(limit);
           } else {    //Default limit
-            sql_query.limit(100);
+            sql_query.limit(consts.list_limit());
           }
 
           console.log("The whole query in string: " + sql_query.toString());
-          if (sent === false) {
+          if (!sent) {
             client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
               if (err) {
                 res.send('error fetching client from pool 2');
@@ -215,7 +216,7 @@ router.put('/slum/:id', function (req, res) {
       if (!return_value) {                                            //false (no token)
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.add_slum === false) {          //false (no permission)
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.add_slum === true) {           //true
         console.log("return value: " + JSON.stringify(return_value));
         if (return_value.expiry_timestamp < Date.now()) {
@@ -290,7 +291,7 @@ router.post('/slum/', function (req, res) {
       if (!return_value) {                                            //false (no token)
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.add_slum === false) {          //false (no permission)
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.add_slum === true) {           //true
         console.log("return value: " + JSON.stringify(return_value));
         if (return_value.expiry_timestamp < Date.now()) {
@@ -427,7 +428,7 @@ router.get('/country/', function (req, res) {
         if (limit) {
           sql_query.limit(limit);
         } else {    //Default limit
-          sql_query.limit(100);
+          sql_query.limit(consts.list_limit());
         }
 
         var offset = param_query.offset;
@@ -476,13 +477,12 @@ router.get('/country/:id', function (req, res) {
       if (!return_value) {                                            //return value == null >> sth wrong
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.add_slum === false) {          //false (no permission)
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.add_slum === true) {           //w/ permission
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else{
-          var country_id = req.params.id;
-          params.country_id = country_id;
+          params.country_id = req.params.id;
 
           var sql_query = sql
             .select()
@@ -506,11 +506,11 @@ router.get('/country/:id', function (req, res) {
           if (limit) {
             sql_query.limit(limit);
           } else {    //Default limit
-            sql_query.limit(100);
+            sql_query.limit(consts.list_limit());
           }
 
           console.log("The whole query in string: " + sql_query.toString());
-          if (sent === false) {
+          if (!sent) {
             client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
               if (err) {
                 res.send('error fetching client from pool 2');
@@ -524,7 +524,7 @@ router.get('/country/:id', function (req, res) {
           }
         }
       }
-    })
+    });
   }
 });
 
@@ -549,7 +549,7 @@ router.put('/country/:id', function (req, res) {
       if (!return_value) {                                            //false (no token)
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.add_slum === false) {          //false (no permission)
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.add_slum === true) {           //true
         console.log("return value: " + JSON.stringify(return_value));
         if (return_value.expiry_timestamp < Date.now()) {
@@ -618,7 +618,7 @@ router.post('/country/', function (req, res) {
       if (!return_value) {                                            //false (no token)
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.add_slum === false) {          //false (no permission)
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.add_slum === true) {           //true
         console.log("return value: " + JSON.stringify(return_value));
         if (return_value.expiry_timestamp < Date.now()) {

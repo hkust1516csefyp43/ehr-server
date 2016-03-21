@@ -5,7 +5,8 @@ var express = require('express');
 var router = express.Router();
 var pg = require('pg');
 var util = require('../utils');
-var errors = require('../errors');
+var consts = require('../consts');
+var errors = require('../statuses');
 var valid = require('../valid');
 var sql = require('sql-bricks-postgres');
 
@@ -64,7 +65,7 @@ router.get('/', function (req, res) {
   if (limit) {
     sql_query.limit(limit);
   } else {    //Default limit
-    sql_query.limit(100);
+    sql_query.limit(consts.list_limit());
   }
 
   console.log(sql_query.toString());

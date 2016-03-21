@@ -1,6 +1,7 @@
 var pg = require('pg');
 var sql = require('sql-bricks-postgres');
 var config = require('../config');
+var consts = require('./consts');
 var conString = config.cloud_pgsql_connection_string;
 var localConString = config.local_pgsql_connection_string;
 var onTheCloud = config.on_the_cloud;
@@ -57,6 +58,28 @@ module.exports = {
         console.log("The whole query in string: " + sql_query.toString());
         var sqp = sql_query.toParams();
         client.query(sqp.text, sqp.values, function (err, result) {
+          done();
+          if (err) {
+            console.log("some error: " + err);
+            callback(err, false, client);
+          } else {
+            console.log("the result: " + JSON.stringify(result.rows));
+            callback(null, result.rows[0], client);
+          }
+        });
+      }
+    });
+  },
+  is_clinic_global: function (clinic_id, callback) {
+    pg.connect(module.exports.url(), function (err, client, done) {
+      if (err) {
+        callback(err, null, client);
+        return console.error('error fetching client from pool', err);
+      } else {
+        aClient = client;
+        var sql_query = sql.select('global').from(consts.table_clinics()).where(sql("clinic_id"), clinic_id.toString());
+        console.log(sql_query.toString());
+        client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
           done();
           if (err) {
             console.log("some error: " + err);

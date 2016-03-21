@@ -1,4 +1,15 @@
 module.exports = {
+  // Successful (2XX)
+  inserted: function () {
+    return 201;
+  },
+  updated: function () {
+    return 202;
+  },
+  removed: function () {
+    return 203;
+  },
+  // It's your fault (4XX)
   bad_request: function () {
     return 400;
   },
@@ -20,13 +31,11 @@ module.exports = {
   token_missing: function () {
     return 499;
   },
+  // It's my fault (5XX)
   server_error: function () {
     return 500;
   },
   server_unavailable: function () {
     return 503;
-  },
-  refresh_token_expired: function () {
-    return 419;
   }
 };

@@ -9,7 +9,7 @@ var moment = require('moment');
 var wait = require('wait.for');
 
 var util = require('../utils');
-var errors = require('../errors');
+var errors = require('../statuses');
 var consts = require('../consts');
 var valid = require('../valid');
 var db = require('../database');
@@ -35,15 +35,13 @@ router.get('/', function (req, res) {
       if (!return_value) {                                        //return value == null >> sth wrong
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.blocked_devices_read === false) {          //false (no permission)
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.blocked_devices_read === true) {           //w/ permission
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
-          var blocked_device_id = req.query.id;
-          if (blocked_device_id) {
-            params.blocked_device_id = blocked_device_id;
-          }
+
+          //TODO replace it with ILIKE
           var remark =req.query.remark;
           if (remark) {
             params.remark = remark;
@@ -88,15 +86,15 @@ router.get('/', function (req, res) {
           if (limit) {
             sql_query.limit(limit);
           } else {    //Default limit
-            sql_query.limit(100);
+            sql_query.limit(consts.list_limit());
           }
 
           console.log("The whole query in string: " + sql_query.toString());
 
-          if (sent === false) {
+          if (!sent) {
             client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
               if (err) {
-                res.send('error fetching client from pool');
+                res.status(errors.server_error()).send('error fetching client from pool: ' + err);
                 sent = true;
                 return console.error('error fetching client from pool', err);
               } else {
@@ -130,55 +128,42 @@ router.get('/:id', function (req, res) {
       if (!return_value) {                                        //return value == null >> sth wrong
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.blocked_devices_read === false) {          //false (no permission)
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.blocked_devices_read === true) {           //w/ permission
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
-          var blocked_device_id = req.params.id;
-          params.blocked_device_id = blocked_device_id;
+          params.blocked_device_id = req.params.id;
 
           var sql_query = sql
             .select()
             .from(blocked_devices_table)
             .where(params);
 
-          var offset = param_query.offset;
-          if (offset) {
-            sql_query.offset(offset);
-          }
-
-          var order_by = param_query.order_by;
-          if (order_by) {
-            //TODO check if custom sort by param is valid
-            sql_query.orderBy(order_by);
-          } else {
-            sql_query.orderBy('blocked_device_id');
-          }
-
-          var limit = param_query.limit;
-          if (limit) {
-            sql_query.limit(limit);
-          } else {    //Default limit
-            sql_query.limit(100);
-          }
-
           console.log("The whole query in string: " + sql_query.toString());
-          if (sent === false) {
+          if (!sent) {
             client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
               if (err) {
-                res.send('error fetching client from pool');
+                res.status(errors.server_error()).send('error fetching client from pool: ' + err);
                 sent = true;
                 return console.error('error fetching client from pool', err);
               } else {
-                q.save_sql_query(sql_query.toString());
-                res.json(result.rows);
+                if (result.rows.length === 1) {
+                  q.save_sql_query(sql_query.toString());
+                  sent = true;
+                  res.json(result.rows[0]);
+                } else if (result.rows.length === 0) {
+                  res.status(errors.not_found()).send('Cannot find blocked device according to this id.');
+                } else {
+                  //how can 1 pk return more than 1 row!?
+                  res.status(errors.server_error()).send('Sth weird is happening');
+                }
               }
             });
           }
         }
       }
-    })
+    });
   }
 });
 
@@ -202,16 +187,12 @@ router.post('/', function (req, res) {
       if (!return_value) {                                        //return value == null >> sth wrong
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.blocked_devices_write === false) {          //false (no permission)
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.blocked_devices_write === true) {           //w/ permission
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else{
-          var blocked_device_id = body.blocked_device_id;
-          if (blocked_device_id)
-            params.blocked_device_id = blocked_device_id;
-          else
-            params.blocked_device_id = util.random_string(consts.id_random_string_length());
+          params.blocked_device_id = util.random_string(consts.id_random_string_length());
 
           var remark = body.remark;
           if (remark)
@@ -224,31 +205,44 @@ router.post('/', function (req, res) {
           var reporter_id = body.reporter_id;
           if (reporter_id)
             params.reporter_id = reporter_id;
-          else
+          else if (!sent) {
+            sent = true;
             res.status(errors.bad_request()).send('reporter_id should be not null');
+          }
 
           var victim_id = body.victim_id;
           if (victim_id)
             params.victim_id = victim_id;
-          else
+          else if (!sent) {
+            sent = true;
             res.status(errors.bad_request()).send('victim_id should be not null');
+          }
 
-          var create_timestamp = moment();
-          params.create_timestamp = create_timestamp;
-
+          params.create_timestamp = moment();
 
           var sql_query = sql.insert(blocked_devices_table, params).returning('*');
           console.log(sql_query.toString());
-          client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
-            if (err) {
-              res.send('error fetching client from pool');
-              sent = true;
-              return console.error('error fetching client from pool', err);
-            } else {
-              q.save_sql_query(sql_query.toString());
-              res.json(result.rows);
-            }
-          });
+          console.log("here: " + JSON.stringify(sql_query.toParams()));
+
+          if (!sent) {
+            client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+              if (err) {
+                res.status(errors.server_error()).send('error fetching client from pool: ' + err);
+                sent = true;
+                return console.error('error fetching client from pool', err);
+              } else {
+                if (result.rows.length === 1) {
+                  q.save_sql_query(sql_query.toString());
+                  sent = true;
+                  res.json(result.rows[0]);
+                } else if (result.rows.length === 0) {
+                  res.status(errors.not_found()).send('Insertion failed');
+                } else {
+                  res.status(errors.server_error()).send('Sth weird is happening');
+                }
+              }
+            });
+          }
         }
       }
     });
@@ -275,13 +269,11 @@ router.put('/:id', function (req, res) {
       if (!return_value) {                                        //return value == null >> sth wrong
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.blocked_devices_write === false) {          //false (no permission)
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.blocked_devices_write === true) {           //w/ permission
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else{
-          var blocked_device_id = req.params.id;
-          params.blocked_device_id = blocked_device_id;
 
           var remark = body.remark;
           if (remark)
@@ -299,28 +291,89 @@ router.put('/:id', function (req, res) {
           if (victim_id)
             params.victim_id = victim_id;
 
-          var create_timestamp = body.create_timestamp;
-          if (create_timestamp)
-            params.create_timestamp = create_timestamp;
+          if (valid.empty_object(params)) {
+            sent = true;
+            res.status(errors.bad_request()).send('You cannnot edit nothing');
+          }
 
           var sql_query = sql
             .update(blocked_devices_table, params)
-            .where(sql('blocked_device_id'), blocked_device_id).returning('*');
+            .where(sql('blocked_device_id'), req.params.id).returning('*');
           console.log(sql_query.toString());
-          client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
-            if (err) {
-              res.send('error fetching client from pool');
-              sent = true;
-              return console.error('error fetching client from pool', err);
-            } else {
-              q.save_sql_query(sql_query.toString());
-              res.json(result.rows);
-            }
-          });
+
+          if (!sent)
+            client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+              if (err) {
+                res.status(errors.server_error()).send('error fetching client from pool: ' + err);
+                sent = true;
+                return console.error('error fetching client from pool', err);
+              } else {
+                if (result.rows.length === 1) {
+                  q.save_sql_query(sql_query.toString());
+                  sent = true;
+                  res.json(result.rows[0]);
+                } else if (result.rows.length === 0) {
+                  res.status(errors.not_found()).send('Cannot find blocked device according to this id.');
+                } else {
+                  //how can 1 pk return more than 1 row!?
+                  res.status(errors.server_error()).send('Sth weird is happening');
+                }
+              }
+            });
         }
       }
     });
   }
+});
+
+router.delete('/:id', function (req, res) {
+  var sent = false;
+  var token = req.headers.token;
+  if (!token) {
+    res.status(errors.token_missing()).send('Token is missing');
+    sent = true;
+  } else {
+    db.check_token_and_permission("blocked_devices_write", token, function (err, return_value, client) {
+      if (!return_value) {
+        sent = true;
+        res.status(errors.bad_request()).send('Token missing or invalid');
+      } else if (return_value.blocked_devices_write === false) {
+        sent = true;
+        res.status(errors.no_permission()).send('No permission');
+      } else if (return_value.blocked_devices_write === true) {
+        if (return_value.expiry_timestamp < Date.now()) {
+          sent = true;
+          res.status(errors.access_token_expired()).send('Access token expired');
+        } else {
+
+          var sql_query = sql.delete().from(consts.table_blocked_devices()).where(sql('blocked_device_id'), req.params.id).returning('*');
+          console.log("The whole query in string: " + sql_query.toString());
+
+          if (!sent) {
+            client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+              if (err) {
+                res.status(errors.server_error()).send('error fetching client from pool: ' + err);
+                sent = true;
+                return console.error('error fetching client from pool', err);
+              } else {
+                if (result.rows.length === 1) {
+                  q.save_sql_query(sql_query.toString());
+                  sent = true;
+                  res.json(result.rows[0]);
+                } else if (result.rows.length === 0) {
+                  res.status(errors.not_found()).send('Cannot find blocked device according to this id.');
+                } else {
+                  //how can 1 pk return more than 1 row!?
+                  res.status(errors.server_error()).send('Sth weird is happening');
+                }
+              }
+            });
+          }
+        }
+      }
+    });
+  }
+
 });
 
 module.exports = router;

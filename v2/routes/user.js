@@ -6,8 +6,10 @@ var crypto = require('crypto');
 var router = express.Router();
 var pg = require('pg');
 var util = require('../utils');
-var errors = require('../errors');
+var errors = require('../statuses');
 var valid = require('../valid');
+var consts = require('../consts');
+var moment = require('moment');
 var db = require('../database');
 var sql = require('sql-bricks-postgres');
 
@@ -41,7 +43,7 @@ router.get('/', function (req, res) {
     if (err) {
       sent = true;
       res.status(errors.bad_request()).send("error 1");
-    } else
+    } else {
       client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
         if (err) {
           sent = true;
@@ -80,7 +82,7 @@ router.get('/', function (req, res) {
 
                   var sql_query3 = sql;
                   var params = {};
-                  params.token = util.random_string(255);
+                  params.token = util.random_string(consts.id_random_string_length());
                   params.expiry_timestamp = '2015-11-26 03:53:30.216636+00';
                   params.access_token = true;
                   params.user_id = user_id;
@@ -126,6 +128,7 @@ router.get('/', function (req, res) {
           }
         }
       });
+    }
   });
 });
 
@@ -218,7 +221,7 @@ router.post('/roles/', function (req, res) {
       if (!return_value) {                                            //false (no token)
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.add_role === false) {          //false (no permission)
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.add_role === true) {           //true
         console.log("return value: " + JSON.stringify(return_value));
         if (return_value.expiry_timestamp < Date.now()) {
@@ -231,12 +234,6 @@ router.post('/roles/', function (req, res) {
             params.name = name;
           else
             res.status(errors.bad_request()).send('name should be not null');
-
-          var read_patient = body.read_patient;
-          if (read_patient)
-            params.read_patient = read_patient;
-          else
-            res.status(errors.bad_request()).send('read_patient should be not null');
 
           var read_patient = body.read_patient;
           if (read_patient)

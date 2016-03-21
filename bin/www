@@ -8,13 +8,15 @@ var app = require('../app');
 var debug = require('debug')('nodejs:server');
 var http = require('http');
 var db = require('../v2/database');
+var util1 = require('../v1/utils');
 var util = require('../v2/utils');
-var valid = require('../v2/valid');
+var q1 = require('../v1/query');
 var q = require('../v2/query');
 var mt = require('moment-timezone');
 
 /**
  * Get port from environment and store in Express.
+ * TODO find a way to get another port if 3000 is occupied
  */
 
 var port = normalizePort(process.env.PORT || '3000');
@@ -38,6 +40,11 @@ var date = new Date();
 console.log('Server started at ' + date.getFullYear() + '/' + date.getMonth() + '/' + date.getDate() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds());
 console.log('http://localhost:' + port);
 
+//v1
+util1.set_start_time(date);
+util1.set_port(port);
+
+//v2
 util.set_start_time(date);
 util.set_port(port);
 
@@ -45,6 +52,7 @@ util.set_port(port);
 //1. Connect to database
 //2. Reset some tables
 //- Token
+q1.update_query_path();
 q.update_query_path();
 //if raspberry pi >> turn on/off leds
 

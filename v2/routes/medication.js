@@ -2,7 +2,8 @@ var express = require('express');
 var router = express.Router();
 var pg = require('pg');
 var util = require('../utils');
-var errors = require('../errors');
+var errors = require('../statuses');
+var consts = require('../consts');
 var valid = require('../valid');
 var sql = require('sql-bricks-postgres');
 
@@ -73,7 +74,7 @@ router.get('/', function (req, res) {
   if (limit) {
     sql_query.limit(limit);
   } else {    //Default limit
-    sql_query.limit(100);
+    sql_query.limit(consts.list_limit());
   }
 
   console.log(sql_query);
@@ -93,8 +94,7 @@ router.get('/:id', function (req, res) {
   var param_query = req.query;
   console.log(JSON.stringify(param_query));
 
-  var user_id = req.params.id;
-  params.user_id = user_id;
+  params.user_id = req.params.id;
   var token = param_query.token;
   if (!token) {
     res.status(errors.token_missing()).send('Token is missing');

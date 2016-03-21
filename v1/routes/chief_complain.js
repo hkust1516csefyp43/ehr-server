@@ -31,7 +31,7 @@ router.get('/', function (req, res) {
       if (!return_value) {                                            //false (no token)
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.reset_any_password === false) {          //false (no permission)
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.reset_any_password === true) {           //true
         console.log("return value: " + JSON.stringify(return_value));
         if (return_value.expiry_timestamp < Date.now()) {
@@ -56,7 +56,7 @@ router.get('/', function (req, res) {
           if (limit) {
             sql_query.limit(limit);
           } else {    //Default limit
-            sql_query.limit(100);
+            sql_query.limit(consts.list_limit());
           }
 
           var offset = param_query.offset;
@@ -107,8 +107,7 @@ router.get('/:id', function (req, res) {
     params.token = token;
   }
 
-  var id = req.params.id;
-  params.id = id;
+  params.id = req.params.id;
 
   var sql_query = sql.select().from(default_table).where(params).toParams();
 
@@ -142,7 +141,7 @@ router.put('/:id', function (req, res) {
       if (!return_value) {                                            //false (no token)
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.reset_any_password === false) {          //false (no permission)
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.reset_any_password === true) {           //true
         console.log("return value: " + JSON.stringify(return_value));
         if (return_value.expiry_timestamp < Date.now()) {
@@ -192,7 +191,7 @@ router.post('/', function (req, res) {
       if (!return_value) {                                            //false (no token)
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.reset_any_password === false) {          //false (no permission)
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.reset_any_password === true) {           //true
         console.log("return value: " + JSON.stringify(return_value));
         if (return_value.expiry_timestamp < Date.now()) {
@@ -243,7 +242,7 @@ router.delete('/:id', function (req, res) {
       if (!return_value) {                                            //false (no token)
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.reset_any_password === false) {          //false (no permission)
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.reset_any_password === true) {           //true
         console.log("return value: " + JSON.stringify(return_value));
         if (return_value.expiry_timestamp < Date.now()) {

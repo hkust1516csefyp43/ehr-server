@@ -15,7 +15,7 @@ var cloudinary = require('cloudinary').v2;
 var Datauri = require('datauri');
 //files and other js
 var util = require('../utils');
-var errors = require('../errors');
+var errors = require('../statuses');
 var consts = require('../consts');
 var valid = require('../valid');
 var q = require('../query');
@@ -89,7 +89,7 @@ router.post('/image/', function (req, res) {
               memoryUpload(req, res, function (err) {
                 if (err) {
                   console.log(err);
-                  res.status(400).send("fail to save to memory: " + err);
+                  res.status(errors.server_error()).send("fail to save to memory: " + err);
                 } else {
                   dUri.format(path.extname(req.file.originalname).toString(), req.file.buffer);
                   console.log("send to cloudinary starts now!");

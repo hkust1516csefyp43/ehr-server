@@ -3,13 +3,12 @@
  */
 var express = require('express');
 var router = express.Router();
-var ba = require('basic-auth');
 var pg = require('pg');
 var moment = require('moment');
 var wait = require('wait.for');
 
 var util = require('../utils');
-var errors = require('../errors');
+var errors = require('../statuses');
 var consts = require('../consts');
 var valid = require('../valid');
 var db = require('../database');
@@ -23,27 +22,27 @@ router.get('/', function (req, res) {
   var params = {};
   var param_query = req.query;
   var param_headers = req.headers;
+  var sql_query;
   console.log(JSON.stringify(param_query));
   console.log(JSON.stringify(param_headers));
   var token = param_headers.token;
   console.log(token);
   if (!token) {
-    var sql_query = sql.select('clinic_id','english_name','native_name').from(clinics_table);
-    console.log(sql_query.toString());
+    sql_query = sql.select('clinic_id').select('english_name').from(consts.table_clinics()).where(sql('is_active'), sql('true')).orderBy('clinic_id');
+    console.log("The whole query is " + sql_query.toString());
     pg.connect(db.url(), function (err, client, done) {
       if (err) {
-        res.status(errors.bad_request()).send('error fetching client from pool');
+        sent = true;
+        res.status(errors.bad_request()).send('somethings wrong');
       } else {
         client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
-
           done();
           if (err) {
-            res.status(errors.bad_request()).send('error fetching client from pool');
+            sent = true;
+            res.status(errors.bad_request()).send('somethings wrong:' + err);
           } else {
-            var output = [];
-            for (var i = 0; i < result.rows.length; i++)
-              output.push(result.rows[i]);
-            res.json(output);
+            sent = true;
+            res.json(result.rows);
           }
         });
       }
@@ -54,7 +53,7 @@ router.get('/', function (req, res) {
       if (!return_value) {                                        //return value == null >> sth wrong
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.clinics_read === false) {          //false (no permission)
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.clinics_read === true) {           //w/ permission
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
@@ -105,7 +104,7 @@ router.get('/', function (req, res) {
           }
           console.log(params);
 
-          var sql_query = sql
+          sql_query = sql
             .select()
             .from(clinics_table)
             .where(params);
@@ -127,15 +126,15 @@ router.get('/', function (req, res) {
           if (limit) {
             sql_query.limit(limit);
           } else {    //Default limit
-            sql_query.limit(100);
+            sql_query.limit(consts.list_limit());
           }
 
           console.log("The whole query in string: " + sql_query.toString());
 
-          if (sent === false) {
+          if (!sent) {
             client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
               if (err) {
-                res.send('error fetching client from pool');
+                res.status(errors.server_error()).send('error fetching client from pool: ' + err);
                 sent = true;
                 return console.error('error fetching client from pool', err);
               } else {
@@ -169,13 +168,12 @@ router.get('/:id', function (req, res) {
       if (!return_value) {                                        //return value == null >> sth wrong
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.clinics_read === false) {          //false (no permission)
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.clinics_read === true) {           //w/ permission
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
-          var clinic_id = req.params.id;
-          params.clinic_id = clinic_id;
+          params.clinic_id = req.params.id;
 
           var sql_query = sql
             .select()
@@ -199,25 +197,33 @@ router.get('/:id', function (req, res) {
           if (limit) {
             sql_query.limit(limit);
           } else {    //Default limit
-            sql_query.limit(100);
+            sql_query.limit(consts.list_limit());
           }
 
           console.log("The whole query in string: " + sql_query.toString());
-          if (sent === false) {
+          if (!sent) {
             client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
               if (err) {
-                res.send('error fetching client from pool');
+                res.status(errors.server_error()).send('error fetching client from pool: ' + err);
                 sent = true;
                 return console.error('error fetching client from pool', err);
               } else {
-                q.save_sql_query(sql_query.toString());
-                res.json(result.rows);
+                if (result.rows.length === 1) {
+                  q.save_sql_query(sql_query.toString());
+                  sent = true;
+                  res.json(result.rows[0]);
+                } else if (result.rows.length === 0) {
+                  res.status(errors.not_found()).send('Cannot find clinic according to this id.');
+                } else {
+                  //how can 1 pk return more than 1 row!?
+                  res.status(errors.server_error()).send('Sth weird is happening');
+                }
               }
             });
           }
         }
       }
-    })
+    });
   }
 });
 
@@ -241,16 +247,13 @@ router.post('/', function (req, res) {
       if (!return_value) {                                        //return value == null >> sth wrong
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.clinics_write === false) {          //false (no permission)
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.clinics_write === true) {           //w/ permission
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else{
-          var clinic_id = body.clinic_id;
-          if (clinic_id)
-            params.clinic_id = clinic_id;
-          else
-            params.clinic_id = util.random_string(consts.id_random_string_length());
+
+          params.clinic_id = util.random_string(consts.id_random_string_length());
 
           var country_id = body.country_id;
           if (country_id)
@@ -259,14 +262,18 @@ router.post('/', function (req, res) {
           var is_active = body.is_active;
           if (is_active)
             params.is_active = is_active;
-          else
-            res.status(errors.bad_request()).send('active should be not null');
+          else {
+            sent = true;
+            res.status(errors.bad_request()).send('is_active should be not null');
+          }
 
           var english_name = body.english_name;
           if (english_name)
             params.english_name = english_name;
-          else
+          else if (!sent) {
+            sent = true;
             res.status(errors.bad_request()).send('english_name should be not null');
+          }
 
           var native_name = body.native_name;
           if (native_name)
@@ -280,8 +287,7 @@ router.post('/', function (req, res) {
           if (longitude)
             params.longitude = longitude;
 
-          var create_timestamp = moment();
-          params.create_timestamp = create_timestamp;
+          params.create_timestamp = moment();
 
           var remark = body.remark;
           if (remark)
@@ -290,32 +296,46 @@ router.post('/', function (req, res) {
           var is_global = body.is_global;
           if (is_global)
             params.is_global = is_global;
-          else
-            res.status(errors.bad_request()).send('global should be not null');
+          else if (!sent) {
+            sent = true;
+            res.status(errors.bad_request()).send('is_global should be not null');
+          }
 
           var suitcase_id = body.suitcase_id;
           if (suitcase_id)
             params.suitcase_id = suitcase_id;
 
-          var sql_query = sql.insert(clinics_table, params).returning('*');
-          console.log(sql_query.toString());
-          client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
-            if (err) {
-              res.send('error fetching client from pool');
-              sent = true;
-              return console.error('error fetching client from pool', err);
-            } else {
-              q.save_sql_query(sql_query.toString());
-              res.json(result.rows);
-            }
-          });
+          if (!sent) {
+            var sql_query = sql.insert(clinics_table, params).returning('*');
+            console.log(sql_query.toString());
+            client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+              if (err) {
+                res.status(errors.server_error()).send('error fetching client from pool: ' + err);
+                sent = true;
+                return console.error('error fetching client from pool', err);
+              } else {
+                if (result.rows.length === 1) {
+                  q.save_sql_query(sql_query.toString());
+                  sent = true;
+                  res.json(result.rows[0]);
+                } else if (result.rows.length === 0) {
+                  res.status(errors.not_found()).send('Insertion failure');
+                } else {
+                  //how can 1 pk return more than 1 row!?
+                  res.status(errors.server_error()).send('Sth weird is happening');
+                }
+              }
+            });
+          }
         }
       }
     });
   }
 });
 
-/*PUT*/
+/**
+ * edit clinic according to id
+ */
 router.put('/:id', function (req, res) {
   var sent = false;
   var params = {};
@@ -335,21 +355,25 @@ router.put('/:id', function (req, res) {
       if (!return_value) {                                        //return value == null >> sth wrong
         res.status(errors.bad_request()).send('Token missing or invalid');
       } else if (return_value.clinics_write === false) {          //false (no permission)
-        res.status(errors.no_permission).send('No permission');
+        res.status(errors.no_permission()).send('No permission');
       } else if (return_value.clinics_write === true) {           //w/ permission
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else{
-          var clinic_id = req.params.id;
-          params.clinic_id = clinic_id;
 
           var country_id = body.country_id;
           if (country_id)
             params.country_id = country_id;
 
           var is_active = body.is_active;
-          if (is_active)
-            params.is_active = is_active;
+          if (is_active) {
+            if (valid.true_or_false(is_active))
+              params.is_active = is_active;
+            else {
+              sent = true;
+              res.status(errors.bad_request()).send('Invalid is_active. Please enter either "true" or "false"');
+            }
+          }
 
           var english_name = body.english_name;
           if (english_name)
@@ -367,36 +391,105 @@ router.put('/:id', function (req, res) {
           if (longitude)
             params.longitude = longitude;
 
-          var create_timestamp = body.create_timestamp;
-          if (create_timestamp)
-            params.create_timestamp = create_timestamp;
-
           var remark = body.remark;
           if (remark)
             params.remark = remark;
 
           var is_global = body.is_global;
-          if (is_global)
-            params.is_global = is_global;
+          if (is_global) {
+            if (valid.true_or_false(is_global))
+              params.is_global = is_global;
+            else {
+              sent = true;
+              res.status(errors.bad_request()).send('Invalid is_global. Please enter either "true" or "false"');
+            }
+          }
 
           var suitcase_id = body.suitcase_id;
           if (suitcase_id)
             params.suitcase_id = suitcase_id;
 
+          if (valid.empty_object(params) && !sent) {
+            sent = true;
+            res.status(errors.bad_request()).send('You cannot edit nothing');
+          }
+
           var sql_query = sql
             .update(clinics_table, params)
-            .where(sql('clinic_id'), clinic_id).returning('*');
-          console.log(sql_query.toString());
-          client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
-            if (err) {
-              res.send('error fetching client from pool');
-              sent = true;
-              return console.error('error fetching client from pool', err);
-            } else {
-              q.save_sql_query(sql_query.toString());
-              res.json(result.rows);
-            }
-          });
+            .where(sql('clinic_id'), req.params.id).returning('*');
+          console.log("The whole query in string: " + sql_query.toString());
+
+          if (!sent) {
+            client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+              if (err) {
+                res.status(errors.server_error()).send('error fetching client from pool: ' + err);
+                sent = true;
+                return console.error('error fetching client from pool', err);
+              } else {
+                if (result.rows.length === 1) {
+                  q.save_sql_query(sql_query.toString());
+                  sent = true;
+                  res.json(result.rows[0]);
+                } else if (result.rows.length === 0) {
+                  res.status(errors.not_found()).send('Cannot find clinic to edit according to this id.');
+                } else {
+                  //how can 1 pk return more than 1 row!?
+                  res.status(errors.server_error()).send('Sth weird is happening');
+                }
+              }
+            });
+          }
+        }
+      }
+    });
+  }
+});
+
+/**
+ * Delete clinic
+ */
+router.delete('/:id', function (req, res) {
+  var sent = false;
+  var token = req.headers.token;
+  if (!token) {
+    res.status(errors.token_missing()).send('Token is missing');
+    sent = true;
+  } else {
+    db.check_token_and_permission('clinics_write', token, function (err, return_value, client) {
+      if (!return_value) {
+        sent = true;
+        res.status(errors.bad_request()).send('Token missing or invalid');
+      } else if (return_value.clinics_write === false) {
+        sent = true;
+        res.status(errors.no_permission()).send('No permission');
+      } else if (return_value.clinics_write === true) {
+        if (return_value.expiry_timestamp < Date.now()) {
+          sent = true;
+          res.status(errors.access_token_expired()).send('Access token expired');
+        } else {
+          var sql_query = sql.delete().from(consts.table_clinics()).where(sql('clinic_id'), req.params.id).returning('*');
+          console.log("The whole query in string: " + sql_query.toString());
+
+          if (!sent) {
+            client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+              if (err) {
+                res.status(errors.server_error()).send('error fetching client from pool: ' + err);
+                sent = true;
+                return console.error('error fetching client from pool', err);
+              } else {
+                if (result.rows.length === 1) {
+                  q.save_sql_query(sql_query.toString());
+                  sent = true;
+                  res.json(result.rows[0]);
+                } else if (result.rows.length === 0) {
+                  res.status(errors.not_found()).send('Cannot find clinic according to this id to delete');
+                } else {
+                  //how can 1 pk return more than 1 row!?
+                  res.status(errors.server_error()).send('Sth weird is happening');
+                }
+              }
+            });
+          }
         }
       }
     });
