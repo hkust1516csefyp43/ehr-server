@@ -1,5 +1,5 @@
 /**
- * Created by RickyLo on 16/3/2016.
+ * Created by RickyLo on 23/3/2016.
  */
 var express = require('express');
 var router = express.Router();
@@ -29,29 +29,45 @@ router.get('/', function (req, res) {
     res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
-    db.check_token_and_permission("consultation_attachments_read", token, function (err, return_value, client) {
+    db.check_token_and_permission("countries_read", token, function (err, return_value, client) {
       if (!return_value) {                                        //return value == null >> sth wrong
         res.status(errors.bad_request()).send('Token missing or invalid');
-      } else if (return_value.consultation_attachments_read === false) {          //false (no permission)
+      } else if (return_value.countries_read === false) {          //false (no permission)
         res.status(errors.no_permission()).send('No permission');
-      } else if (return_value.consultation_attachments_read === true) {           //w/ permission
+      } else if (return_value.countries_read === true) {           //w/ permission
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
 
-          var file_id = req.query.file_id;
-          if (file_id)
-            params.file_id = file_id;
+          var english_name = req.query.english_name;
+          if (english_name)
+            params.english_name = english_name;
 
-          var consultation_id = req.query.consultation_id;
-          if (consultation_id)
-            params.consultation_id = consultation_id;
+          var native_name = req.query.native_name;
+          if (native_name)
+            params.native_name = native_name;
+
+          var phone_country_code = req.query.phone_country_code;
+          if (phone_country_code)
+            params.phone_country_code = phone_country_code;
+
+          var phone_number_syntax = req.query.phone_number_syntax;
+          if (phone_number_syntax)
+            params.phone_number_syntax = phone_number_syntax;
+
+          var emoji = req.query.emoji;
+          if (emoji)
+            params.emoji = emoji;
+
+          var create_timestamp = req.query.create_timestamp;
+          if (create_timestamp)
+            params.create_timestamp = create_timestamp;
 
           console.log(params);
 
           var sql_query = sql
             .select()
-            .from(consts.table_consultation_attachments())
+            .from(consts.table_countries())
             .where(params);
 
           var offset = param_query.offset;
@@ -64,7 +80,7 @@ router.get('/', function (req, res) {
             //TODO check if custom sort by param is valid
             sql_query.orderBy(sort_by);
           } else {
-            sql_query.orderBy('ca_id');
+            sql_query.orderBy('country_id');
           }
 
           var limit = param_query.limit;
@@ -109,18 +125,18 @@ router.get('/:id', function (req, res) {
     res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
-    db.check_token_and_permission("consultation_attachments_read", token, function (err, return_value, client) {
+    db.check_token_and_permission("countries_read", token, function (err, return_value, client) {
       if (!return_value) {                                        //return value == null >> sth wrong
         res.status(errors.bad_request()).send('Token missing or invalid');
-      } else if (return_value.consultation_attachments_read === false) {          //false (no permission)
+      } else if (return_value.countries_read === false) {          //false (no permission)
         res.status(errors.no_permission()).send('No permission');
-      } else if (return_value.consultation_attachments_read === true) {           //w/ permission
+      } else if (return_value.countries_read === true) {           //w/ permission
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
-          params.ca_id = req.params.id;
+          params.country_id = req.params.id;
 
-          var sql_query = sql.select().from(consts.table_consultation_attachments()).where(params);
+          var sql_query = sql.select().from(consts.table_countries()).where(params);
 
           console.log("The whole query in string: " + sql_query.toString());
           if (!sent) {
@@ -135,7 +151,7 @@ router.get('/:id', function (req, res) {
                   sent = true;
                   res.json(result.rows[0]);
                 } else if (result.rows.length === 0) {
-                  res.status(errors.not_found()).send('Cannot find consultation attachment according to this id.');
+                  res.status(errors.not_found()).send('Cannot find country according to this id.');
                 } else {
                   //how can 1 pk return more than 1 row!?
                   res.status(errors.server_error()).send('Sth weird is happening');
@@ -163,22 +179,43 @@ router.post('/', function (req, res) {
     res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
-    db.check_token_and_permission("consultation_attachments_write", token, function (err, return_value, client) {
+    db.check_token_and_permission("countries_write", token, function (err, return_value, client) {
       if (!return_value) {                                        //return value == null >> sth wrong
         res.status(errors.bad_request()).send('Token missing or invalid');
-      } else if (return_value.consultation_attachments_write === false) {          //false (no permission)
+      } else if (return_value.countries_write === false) {          //false (no permission)
         res.status(errors.no_permission()).send('No permission');
-      } else if (return_value.consultation_attachments_write === true) {           //w/ permission
+      } else if (return_value.countries_write === true) {           //w/ permission
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else{
-          params.ca_id = util.random_string(consts.id_random_string_length());
+          params.create_timestamp = moment();
+          params.country_id = util.random_string(consts.id_random_string_length());
 
-          var file_id = body.file_id;
-          if (file_id)
-            params.file_id = file_id;
+          var english_name = body.english_name;
+          if (english_name)
+            params.english_name = english_name;
+          else if (!sent) {
+            sent = true;
+            res.status(errors.bad_request()).send('english_name should be not null');
+          }
 
-          var sql_query = sql.insert(consts.table_consultation_attachments(), params).returning('*');
+          var native_name = body.native_name;
+          if (native_name)
+            params.native_name = native_name;
+
+          var phone_country_code = body.phone_country_code;
+          if (phone_country_code)
+            params.phone_country_code = phone_country_code;
+
+          var phone_number_syntax = body.phone_number_syntax;
+          if (phone_number_syntax)
+            params.phone_number_syntax = phone_number_syntax;
+
+          var emoji = body.emoji;
+          if (emoji)
+            params.emoji = emoji;
+
+          var sql_query = sql.insert(consts.table_countries(), params).returning('*');
           console.log(sql_query.toString());
 
           client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
@@ -219,23 +256,34 @@ router.put('/:id', function (req, res) {
     res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
-    db.check_token_and_permission("consultation_attachments_write", token, function (err, return_value, client) {
+    db.check_token_and_permission("countries_write", token, function (err, return_value, client) {
       if (!return_value) {                                        //return value == null >> sth wrong
         res.status(errors.bad_request()).send('Token missing or invalid');
-      } else if (return_value.consultation_attachments_write === false) {          //false (no permission)
+      } else if (return_value.countries_write === false) {          //false (no permission)
         res.status(errors.no_permission()).send('No permission');
-      } else if (return_value.consultation_attachments_write === true) {           //w/ permission
+      } else if (return_value.countries_write === true) {           //w/ permission
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else{
+          var english_name = body.english_name;
+          if (english_name)
+            params.english_name = english_name;
 
-          var file_id = body.file_id;
-          if (file_id)
-            params.file_id = file_id;
+          var native_name = body.native_name;
+          if (native_name)
+            params.native_name = native_name;
 
-          var consultation_id = body.consultation_id;
-          if (consultation_id)
-            params.consultation_id = consultation_id;
+          var phone_country_code = body.phone_country_code;
+          if (phone_country_code)
+            params.phone_country_code = phone_country_code;
+
+          var phone_number_syntax = body.phone_number_syntax;
+          if (phone_number_syntax)
+            params.phone_number_syntax = phone_number_syntax;
+
+          var emoji = body.emoji;
+          if (emoji)
+            params.emoji = emoji;
 
           if (valid.empty_object(params)) {
             sent = true;
@@ -243,8 +291,8 @@ router.put('/:id', function (req, res) {
           }
 
           var sql_query = sql
-            .update(consts.table_consultation_attachments(), params)
-            .where(sql('ca_id'), req.params.id)
+            .update(consts.table_countries(), params)
+            .where(sql('country_id'), req.params.id)
             .returning('*');
 
           console.log(sql_query.toString());
@@ -260,7 +308,7 @@ router.put('/:id', function (req, res) {
                   sent = true;
                   res.json(result.rows[0]);
                 } else if (result.rows.length === 0) {
-                  res.status(errors.not_found()).send('Cannot find attachment according to this id.');
+                  res.status(errors.not_found()).send('Cannot find country according to this id.');
                 } else {
                   //how can 1 pk return more than 1 row!?
                   res.status(errors.server_error()).send('Sth weird is happening');
@@ -274,10 +322,10 @@ router.put('/:id', function (req, res) {
 });
 
 /**
- * Delete attachment
+ * Delete country
  * TODO also actually delete the file
  * TODO better implementation:
- * just mark attachment as INACTIVE,and every time if someone try to access a
+ * just mark country as INACTIVE,and every time if someone try to access a
  * file that is inactive, return nothing and check if that file still exist. If
  * it does, remove it
  */
@@ -288,20 +336,20 @@ router.delete('/:id', function (req, res) {
     res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
-    db.check_token_and_permission("consultation_attachments_write", token, function (err, return_value, client) {
+    db.check_token_and_permission("countries_write", token, function (err, return_value, client) {
       if (!return_value) {
         sent = true;
         res.status(errors.bad_request()).send('Token missing or invalid');
-      } else if (return_value.consultation_attachments_write === false) {
+      } else if (return_value.countries_write === false) {
         sent = true;
         res.status(errors.no_permission()).send('No permission');
-      } else if (return_value.consultation_attachments_write === true) {
+      } else if (return_value.countries_write === true) {
         if (return_value.expiry_timestamp < Date.now()) {
           sent = true;
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
 
-          var sql_query = sql.delete().from(consts.table_consultation_attachments()).where(sql('ca_id'), req.params.id).returning('*');
+          var sql_query = sql.delete().from(consts.table_countries()).where(sql('country_id'), req.params.id).returning('*');
           console.log("The whole query in string: " + sql_query.toString());
 
           if (!sent) {
@@ -316,7 +364,7 @@ router.delete('/:id', function (req, res) {
                   sent = true;
                   res.json(result.rows[0]);
                 } else if (result.rows.length === 0) {
-                  res.status(errors.not_found()).send('Cannot find consultation attachment according to this id.');
+                  res.status(errors.not_found()).send('Cannot find country according to this id.');
                 } else {
                   //how can 1 pk return more than 1 row!?
                   res.status(errors.server_error()).send('Sth weird is happening');

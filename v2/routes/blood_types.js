@@ -43,7 +43,7 @@ router.get('/', function (req, res) {
           if (blood_type_id)
             params.blood_type_id = blood_type_id;
 
-          var blood_type =req.query.blood_type;
+          var blood_type = req.query.blood_type;
           if (blood_type)
             params.blood_type = blood_type;
 
