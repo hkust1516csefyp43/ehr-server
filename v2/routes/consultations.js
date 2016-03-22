@@ -333,7 +333,6 @@ router.post('/', function (req, res) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else{
           params.user_id = return_value.user_id;
-          params.start_timestamp = moment();
           params.consultation_id = util.random_string(consts.id_random_string_length());
 
           var visit_id = body.visit_id;
@@ -343,6 +342,10 @@ router.post('/', function (req, res) {
             sent = true;
             res.status(errors.bad_request()).send('visit_id should be not null');
           }
+
+          var start_timestamp= body.start_timestamp;
+          if (start_timestamp)
+            params.start_timestamp = start_timestamp;
 
           var end_timestamp = body.end_timestamp;
           if (end_timestamp)
