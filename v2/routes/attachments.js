@@ -40,21 +40,21 @@ router.get('/', function (req, res) {
         } else {
 
           var cloudinary_url =req.query.cloudinary_url;
-          if (cloudinary_url) {
+          if (cloudinary_url)
             params.cloudinary_url = cloudinary_url;
-          }
+
           var file_name =req.query.file_name;
-          if (file_name) {
+          if (file_name)
             params.file_name = file_name;
-          }
+
           var user_id =req.query.user_id;
-          if (user_id) {
+          if (user_id)
             params.user_id = user_id;
-          }
+
           var create_timestamp =req.query.create_timestamp;
-          if (create_timestamp) {
+          if (create_timestamp)
             params.create_timestamp = create_timestamp;
-          }
+
           console.log(params);
 
           var sql_query = sql
@@ -185,15 +185,12 @@ router.post('/', function (req, res) {
           params.attachment_id = util.random_string(consts.id_random_string_length());
 
           var cloudinary_url = body.cloudinary_url;
-          if (cloudinary_url) {
+          if (cloudinary_url)
             params.cloudinary_url = cloudinary_url;
 
-          }
           var file_name = body.file_name;
-          if (file_name) {
+          if (file_name)
             params.file_name = file_name;
-
-          }
 
           var sql_query = sql.insert(consts.table_attachments(), params).returning('*');
           console.log(sql_query.toString());

@@ -59,49 +59,49 @@ router.get('/', function (req, res) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
           var clinic_id = req.query.id;
-          if (clinic_id) {
+          if (clinic_id)
             params.clinic_id = clinic_id;
-          }
+
           var country_id =req.query.country_id;
-          if (country_id) {
+          if (country_id)
             params.country_id = country_id;
-          }
+
           var is_active =req.query.is_active;
-          if (is_active) {
+          if (is_active)
             params.is_active = is_active;
-          }
+
           var english_name =req.query.english_name;
-          if (english_name) {
+          if (english_name)
             params.english_name = english_name;
-          }
+
           var native_name =req.query.native_name;
-          if (native_name) {
+          if (native_name)
             params.native_name = native_name;
-          }
+
           var latitude =req.query.latitude;
-          if (latitude) {
+          if (latitude)
             params.latitude = latitude;
-          }
+
           var longitude =req.query.longitude;
-          if (longitude) {
+          if (longitude)
             params.longitude = longitude;
-          }
+
           var create_timestamp =req.query.create_timestamp;
-          if (create_timestamp) {
+          if (create_timestamp)
             params.create_timestamp = create_timestamp;
-          }
+
           var remark =req.query.remark;
-          if (remark) {
+          if (remark)
             params.remark = remark;
-          }
+
           var is_global =req.query.is_global;
-          if (is_global) {
+          if (is_global)
             params.is_global = is_global;
-          }
+
           var suitcase_id =req.query.suitcase_id;
-          if (suitcase_id) {
+          if (suitcase_id)
             params.suitcase_id = suitcase_id;
-          }
+
           console.log(params);
 
           sql_query = sql
