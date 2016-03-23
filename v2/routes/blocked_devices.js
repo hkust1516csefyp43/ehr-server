@@ -43,25 +43,25 @@ router.get('/', function (req, res) {
 
           //TODO replace it with ILIKE
           var remark =req.query.remark;
-          if (remark) {
+          if (remark)
             params.remark = remark;
-          }
+
           var expiry_timestamp =req.query.expiry_timestamp;
-          if (expiry_timestamp) {
+          if (expiry_timestamp)
             params.expiry_timestamp = expiry_timestamp;
-          }
+
           var reporter_id =req.query.reporter_id;
-          if (reporter_id) {
+          if (reporter_id)
             params.reporter_id = reporter_id;
-          }
+
           var victim_id =req.query.victim_id;
-          if (victim_id) {
+          if (victim_id)
             params.victim_id = victim_id;
-          }
+
           var create_timestamp =req.query.create_timestamp;
-          if (create_timestamp) {
+          if (create_timestamp)
             params.create_timestamp = create_timestamp;
-          }
+
           console.log(params);
 
           var sql_query = sql
