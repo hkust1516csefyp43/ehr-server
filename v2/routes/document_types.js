@@ -1,5 +1,5 @@
 /**
- * Created by RickyLo on 16/3/2016.
+ * Created by RickyLo on 23/3/2016.
  */
 var express = require('express');
 var router = express.Router();
@@ -14,6 +14,7 @@ var valid = require('../valid');
 var db = require('../database');
 var q = require('../query');
 var sql = require('sql-bricks-postgres');
+var document_types_table = 'v2.document_types';
 
 /* GET list */
 router.get('/', function (req, res) {
@@ -29,29 +30,28 @@ router.get('/', function (req, res) {
     res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
-    db.check_token_and_permission("consultation_attachments_read", token, function (err, return_value, client) {
+    db.check_token_and_permission("document_types_read", token, function (err, return_value, client) {
       if (!return_value) {                                        //return value == null >> sth wrong
         res.status(errors.bad_request()).send('Token missing or invalid');
-      } else if (return_value.consultation_attachments_read === false) {          //false (no permission)
+      } else if (return_value.document_types_read === false) {          //false (no permission)
         res.status(errors.no_permission()).send('No permission');
-      } else if (return_value.consultation_attachments_read === true) {           //w/ permission
+      } else if (return_value.document_types_read === true) {           //w/ permission
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
+          var document_type_id = req.query.id;
+          if (document_type_id)
+            params.document_type_id = document_type_id;
 
-          var file_id = req.query.file_id;
-          if (file_id)
-            params.file_id = file_id;
-
-          var consultation_id = req.query.consultation_id;
-          if (consultation_id)
-            params.consultation_id = consultation_id;
+          var type = req.query.type;
+          if (type)
+            params.type = type;
 
           console.log(params);
 
           var sql_query = sql
             .select()
-            .from(consts.table_consultation_attachments())
+            .from(document_types_table)
             .where(params);
 
           var offset = param_query.offset;
@@ -64,7 +64,7 @@ router.get('/', function (req, res) {
             //TODO check if custom sort by param is valid
             sql_query.orderBy(sort_by);
           } else {
-            sql_query.orderBy('ca_id');
+            sql_query.orderBy('document_type_id');
           }
 
           var limit = param_query.limit;
@@ -109,18 +109,41 @@ router.get('/:id', function (req, res) {
     res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
-    db.check_token_and_permission("consultation_attachments_read", token, function (err, return_value, client) {
+    db.check_token_and_permission("document_types_read", token, function (err, return_value, client) {
       if (!return_value) {                                        //return value == null >> sth wrong
         res.status(errors.bad_request()).send('Token missing or invalid');
-      } else if (return_value.consultation_attachments_read === false) {          //false (no permission)
+      } else if (return_value.document_types_read === false) {          //false (no permission)
         res.status(errors.no_permission()).send('No permission');
-      } else if (return_value.consultation_attachments_read === true) {           //w/ permission
+      } else if (return_value.document_types_read === true) {           //w/ permission
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
-          params.ca_id = req.params.id;
+          params.document_type_id = req.params.id;
 
-          var sql_query = sql.select().from(consts.table_consultation_attachments()).where(params);
+          var sql_query = sql
+            .select()
+            .from(document_types_table)
+            .where(params);
+
+          var offset = param_query.offset;
+          if (offset) {
+            sql_query.offset(offset);
+          }
+
+          var order_by = param_query.order_by;
+          if (order_by) {
+            //TODO check if custom sort by param is valid
+            sql_query.orderBy(order_by);
+          } else {
+            sql_query.orderBy('document_type_id');
+          }
+
+          var limit = param_query.limit;
+          if (limit) {
+            sql_query.limit(limit);
+          } else {    //Default limit
+            sql_query.limit(consts.list_limit());
+          }
 
           console.log("The whole query in string: " + sql_query.toString());
           if (!sent) {
@@ -135,7 +158,7 @@ router.get('/:id', function (req, res) {
                   sent = true;
                   res.json(result.rows[0]);
                 } else if (result.rows.length === 0) {
-                  res.status(errors.not_found()).send('Cannot find consultation attachment according to this id.');
+                  res.status(errors.not_found()).send('Cannot find blood type according to this id.');
                 } else {
                   //how can 1 pk return more than 1 row!?
                   res.status(errors.server_error()).send('Sth weird is happening');
@@ -153,8 +176,10 @@ router.get('/:id', function (req, res) {
 router.post('/', function (req, res) {
   var sent = false;
   var params = {};
+  var param_query = req.query;
   var param_headers = req.headers;
   var body = req.body;
+  console.log(JSON.stringify(param_query));
   console.log(JSON.stringify(param_headers));
   console.log(JSON.stringify(body));
   var token = param_headers.token;
@@ -163,42 +188,40 @@ router.post('/', function (req, res) {
     res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
-    db.check_token_and_permission("consultation_attachments_write", token, function (err, return_value, client) {
+    db.check_token_and_permission("document_types_write", token, function (err, return_value, client) {
       if (!return_value) {                                        //return value == null >> sth wrong
         res.status(errors.bad_request()).send('Token missing or invalid');
-      } else if (return_value.consultation_attachments_write === false) {          //false (no permission)
+      } else if (return_value.document_types_write === false) {          //false (no permission)
         res.status(errors.no_permission()).send('No permission');
-      } else if (return_value.consultation_attachments_write === true) {           //w/ permission
+      } else if (return_value.document_types_write === true) {           //w/ permission
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else{
-          params.ca_id = util.random_string(consts.id_random_string_length());
 
-          var file_id = body.file_id;
-          if (file_id)
-            params.file_id = file_id;
+          params.document_type_id = util.random_string(consts.id_random_string_length());
 
-          var sql_query = sql.insert(consts.table_consultation_attachments(), params).returning('*');
+          var type = body.type;
+          if (type)
+            params.type = type;
+          else {
+            sent = true;
+            res.status(errors.bad_request()).send('type should be not null');
+          }
+
+          var sql_query = sql.insert(document_types_table, params).returning('*');
           console.log(sql_query.toString());
-
-          client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
-            if (err) {
-              res.status(errors.server_error()).send('error fetching client from pool: ' + err);
-              sent = true;
-              return console.error('error fetching client from pool', err);
-            } else {
-              if (result.rows.length === 1) {
-                q.save_sql_query(sql_query.toString());
+          if (!sent) {
+            client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+              if (err) {
+                res.status(errors.server_error()).send('error fetching client from pool: ' + err);
                 sent = true;
-                res.json(result.rows[0]);
-              } else if (result.rows.length === 0) {
-                res.status(errors.not_found()).send('Insertion failed');
+                return console.error('error fetching client from pool', err);
               } else {
-                //how can 1 pk return more than 1 row!?
-                res.status(errors.server_error()).send('Sth weird is happening');
+                q.save_sql_query(sql_query.toString());
+                res.json(result.rows);
               }
-            }
-          });
+            });
+          }
         }
       }
     });
@@ -219,36 +242,31 @@ router.put('/:id', function (req, res) {
     res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
-    db.check_token_and_permission("consultation_attachments_write", token, function (err, return_value, client) {
+    db.check_token_and_permission("document_types_write", token, function (err, return_value, client) {
       if (!return_value) {                                        //return value == null >> sth wrong
+        sent = true;
         res.status(errors.bad_request()).send('Token missing or invalid');
-      } else if (return_value.consultation_attachments_write === false) {          //false (no permission)
+      } else if (return_value.document_types_write === false) {          //false (no permission)
         res.status(errors.no_permission()).send('No permission');
-      } else if (return_value.consultation_attachments_write === true) {           //w/ permission
+      } else if (return_value.document_types_write === true) {           //w/ permission
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else{
 
-          var file_id = body.file_id;
-          if (file_id)
-            params.file_id = file_id;
-
-          var consultation_id = body.consultation_id;
-          if (consultation_id)
-            params.consultation_id = consultation_id;
-
-          if (valid.empty_object(params)) {
+          var type = body.type;
+          if (type)
+            params.type = type;
+          else {
             sent = true;
             res.status(errors.bad_request()).send('You cannnot edit nothing');
           }
 
           var sql_query = sql
-            .update(consts.table_consultation_attachments(), params)
-            .where(sql('ca_id'), req.params.id)
-            .returning('*');
-
+            .update(document_types_table, params)
+            .where(sql('document_type_id'), req.params.id).returning('*');
           console.log(sql_query.toString());
-          if (!sent)
+
+          if (!sent) {
             client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
               if (err) {
                 res.status(errors.server_error()).send('error fetching client from pool: ' + err);
@@ -260,27 +278,20 @@ router.put('/:id', function (req, res) {
                   sent = true;
                   res.json(result.rows[0]);
                 } else if (result.rows.length === 0) {
-                  res.status(errors.not_found()).send('Cannot find attachment according to this id.');
+                  res.status(errors.not_found()).send('Cannot find blood type according to this id.');
                 } else {
                   //how can 1 pk return more than 1 row!?
                   res.status(errors.server_error()).send('Sth weird is happening');
                 }
               }
             });
+          }
         }
       }
     });
   }
 });
 
-/**
- * Delete attachment
- * TODO also actually delete the file
- * TODO better implementation:
- * just mark attachment as INACTIVE,and every time if someone try to access a
- * file that is inactive, return nothing and check if that file still exist. If
- * it does, remove it
- */
 router.delete('/:id', function (req, res) {
   var sent = false;
   var token = req.headers.token;
@@ -288,20 +299,20 @@ router.delete('/:id', function (req, res) {
     res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
-    db.check_token_and_permission("consultation_attachments_write", token, function (err, return_value, client) {
+    db.check_token_and_permission("document_types_write", token, function (err, return_value, client) {
       if (!return_value) {
         sent = true;
         res.status(errors.bad_request()).send('Token missing or invalid');
-      } else if (return_value.consultation_attachments_write === false) {
+      } else if (return_value.document_types_write === false) {
         sent = true;
         res.status(errors.no_permission()).send('No permission');
-      } else if (return_value.consultation_attachments_write === true) {
+      } else if (return_value.document_types_write === true) {
         if (return_value.expiry_timestamp < Date.now()) {
           sent = true;
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
 
-          var sql_query = sql.delete().from(consts.table_consultation_attachments()).where(sql('ca_id'), req.params.id).returning('*');
+          var sql_query = sql.delete().from(consts.table_document_types()).where(sql('document_type_id'), req.params.id).returning('*');
           console.log("The whole query in string: " + sql_query.toString());
 
           if (!sent) {
@@ -316,7 +327,7 @@ router.delete('/:id', function (req, res) {
                   sent = true;
                   res.json(result.rows[0]);
                 } else if (result.rows.length === 0) {
-                  res.status(errors.not_found()).send('Cannot find consultation attachment according to this id.');
+                  res.status(errors.not_found()).send('Cannot find blood type according to this id.');
                 } else {
                   //how can 1 pk return more than 1 row!?
                   res.status(errors.server_error()).send('Sth weird is happening');

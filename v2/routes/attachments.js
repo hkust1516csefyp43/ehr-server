@@ -39,19 +39,19 @@ router.get('/', function (req, res) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
 
-          var cloudinary_url =req.query.cloudinary_url;
+          var cloudinary_url = req.query.cloudinary_url;
           if (cloudinary_url)
             params.cloudinary_url = cloudinary_url;
 
-          var file_name =req.query.file_name;
+          var file_name = req.query.file_name;
           if (file_name)
             params.file_name = file_name;
 
-          var user_id =req.query.user_id;
+          var user_id = req.query.user_id;
           if (user_id)
             params.user_id = user_id;
 
-          var create_timestamp =req.query.create_timestamp;
+          var create_timestamp = req.query.create_timestamp;
           if (create_timestamp)
             params.create_timestamp = create_timestamp;
 

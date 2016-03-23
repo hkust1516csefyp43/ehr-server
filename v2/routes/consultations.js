@@ -39,19 +39,19 @@ router.get('/', function (req, res) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
 
-          var visit_id =req.query.visit_id;
+          var visit_id = req.query.visit_id;
           if (visit_id)
             params.visit_id = visit_id;
 
-          var user_id =req.query.user_id;
+          var user_id = req.query.user_id;
           if (user_id)
             params.user_id = user_id;
 
-          var start_timestamp =req.query.start_timestamp;
+          var start_timestamp = req.query.start_timestamp;
           if (start_timestamp)
             params.start_timestamp = start_timestamp;
 
-          var end_timestamp =req.query.end_timestamp;
+          var end_timestamp = req.query.end_timestamp;
           if (end_timestamp)
             params.end_timestamp = end_timestamp;
 
@@ -203,7 +203,7 @@ router.get('/', function (req, res) {
           if (education)
             params.education = education;
 
-          var remark =req.query.remark;
+          var remark = req.query.remark;
           if (remark)
             params.remark = remark;
 
