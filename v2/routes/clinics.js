@@ -58,10 +58,6 @@ router.get('/', function (req, res) {
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
-          var clinic_id = req.query.id;
-          if (clinic_id) {
-            params.clinic_id = clinic_id;
-          }
           var country_id =req.query.country_id;
           if (country_id) {
             params.country_id = country_id;
@@ -179,26 +175,6 @@ router.get('/:id', function (req, res) {
             .select()
             .from(clinics_table)
             .where(params);
-
-          var offset = param_query.offset;
-          if (offset) {
-            sql_query.offset(offset);
-          }
-
-          var order_by = param_query.order_by;
-          if (order_by) {
-            //TODO check if custom sort by param is valid
-            sql_query.orderBy(order_by);
-          } else {
-            sql_query.orderBy('clinic_id');
-          }
-
-          var limit = param_query.limit;
-          if (limit) {
-            sql_query.limit(limit);
-          } else {    //Default limit
-            sql_query.limit(consts.list_limit());
-          }
 
           console.log("The whole query in string: " + sql_query.toString());
           if (!sent) {

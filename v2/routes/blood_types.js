@@ -39,10 +39,7 @@ router.get('/', function (req, res) {
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
-          var blood_type_id = req.query.id;
-          if (blood_type_id) {
-            params.blood_type_id = blood_type_id;
-          }
+          //TODO ILIKE
           var blood_type =req.query.blood_type;
           if (blood_type) {
             params.blood_type = blood_type;
