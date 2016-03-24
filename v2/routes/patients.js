@@ -110,9 +110,25 @@ router.get('/', function (req, res) {
           console.log(params);
 
           var sql_query = sql
-            .select()
+            .select(sql(consts.table_patients() + ".*"))
             .from(consts.table_patients())
             .where(params);
+
+          var next_station = req.query.next_station;
+          if (next_station) {
+            if (next_station > 3 || next_station < 1) { //error
+              if (!sent) {
+                sent = true;
+                res.status(errors.bad_request()).send('Next station must be 1(triage), 2(consultation) or 3(pharmacy)');
+              }
+            } else {
+              sql_query
+                .select(sql(consts.table_visits() + ".next_station"))
+                .from(consts.table_visits())
+                .where(sql(consts.table_visits() + ".next_station"), next_station)
+                .where(sql(consts.table_visits() + ".patient_id"), sql(consts.table_patients() + ".patient_id"));
+            }
+          }
 
           var offset = param_query.offset;
           if (offset) {
@@ -124,7 +140,7 @@ router.get('/', function (req, res) {
             //TODO check if custom sort by param is valid
             sql_query.orderBy(sort_by);
           } else {
-            sql_query.orderBy('patient_id');
+            sql_query.orderBy(consts.table_patients() + '.patient_id');
           }
 
           var limit = param_query.limit;
