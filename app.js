@@ -26,10 +26,13 @@ var v2Countries = require('./v2/routes/countries');
 var v2DocumentTypes = require('./v2/routes/document_types');
 var v2EmergencyContacts = require('./v2/routes/emergency_contacts');
 var v2Genders = require('./v2/routes/genders');
+var v2InvestigationAttachments = require('./v2/routes/investigation_attachments');
+var v2Investigations = require('./v2/routes/investigations');
 var v2Keywords = require('./v2/routes/keywords');
 var v2MedicationVariants = require('./v2/routes/medication_variants');
 var v2Medications = require('./v2/routes/medications');
 var v2Notifications = require('./v2/routes/notifications');
+var v2Patients = require('./v2/routes/patients');
 var v2Suitcases = require('./v2/routes/suitcases');
 
 //old stuff
@@ -78,10 +81,13 @@ app.use('/v2/countries',v2Countries);
 app.use('/v2/document_types', v2DocumentTypes);
 app.use('/v2/emergency_contacts', v2EmergencyContacts);
 app.use('/v2/genders', v2Genders);
+app.use('/v2/investigation_attachments', v2InvestigationAttachments);
+app.use('/v2/investigations', v2Investigations);
 app.use('/v2/keywords', v2Keywords);
 app.use('/v2/medications', v2Medications);
 app.use('/v2/medication_variants', v2MedicationVariants);
 app.use('/v2/notifications', v2Notifications);
+app.use('/v2/patients', v2Patients);
 app.use('/v2/suitcases', v2Suitcases);
 
 //old stuff
