@@ -111,27 +111,27 @@ router.get('/', function (req, res) {
 
             var first_name = param_query.first_name;
             if (first_name) {
-              params.first_name = util.pre_suf_percent(first_name);
+              sql_query.where(sql.ilike('first_name', util.pre_suf_percent(first_name)));
             }
 
             var middle_name = param_query.middle_name;
             if (middle_name) {
-              params.middle_name = util.pre_suf_percent(middle_name);
+              sql_query.where(sql.ilike('first_name', util.pre_suf_percent(middle_name)));
             }
 
             var last_name = param_query.last_name;
             if (last_name) {
-              params.last_name = util.pre_suf_percent(last_name);
+              sql_query.where(sql.ilike('first_name', util.pre_suf_percent(last_name)));
             }
 
             var honorific = param_query.honorific;
             if (honorific) {
-              params.honorific = util.pre_suf_percent(honorific);
+              sql_query.where(sql.ilike('first_name', util.pre_suf_percent(honorific)));
             }
 
             var native_name = param_query.native_name;
             if (native_name) {
-              params.native_name = util.pre_suf_percent(native_name);
+              sql_query.where(sql.ilike('first_name', util.pre_suf_percent(native_name)));
             }
 
             var name = param_query.name;
@@ -160,8 +160,10 @@ router.get('/', function (req, res) {
 
             if (visit_date) {
               if (visit_date_range_after || visit_date_range_before) {
-                res.status(errors.bad_request()).send("You cant have both visit_date and visit_data_range_before/after");
-                sent = true;
+                if (!sent) {
+                  res.status(errors.bad_request()).send("You cant have both visit_date and visit_data_range_before/after");
+                  sent = true;
+                }
               } else {
                 sql_query.select(sql(consts.table_visits() + ".*"));
                 sql_query.from(visit_table);
@@ -473,17 +475,36 @@ router.put('/:id', function (req, res) {
             params.address = address;
 
           var email = body.email;
-          if (email)
-            params.email = email;
+          if (email) {
+            if (valid.email(email)) {
+              params.email = email;
+            } else if (!sent) {
+              sent = true;
+              res.status(errors.bad_request()).send("Invalid email");
+            }
+          }
 
           var birth_year = body.birth_year;
-          if (birth_year)
-            params.birth_year = birth_year;
+          if (birth_year) {
+            if (birth_year > 1800 && birth_year < 2100) {
+              params.birth_year = birth_year;
+            } else if (!sent) {
+              sent = true;
+              res.status(errors.bad_request()).send("I am pretty sure the birth year is wrong");
+            }
+          }
 
           var birth_month = body.birth_month;
-          if (birth_month)
-            params.birth_month = birth_month;
+          if (birth_month) {
+            if (birth_month > 0 && birth_month < 13) {
+              params.birth_month = birth_month;
+            } else if (!sent) {
+              sent = true;
+              res.status(errors.bad_request()).send("The birth month is wrong");
+            }
+          }
 
+          //TODO check this
           var birth_date = body.birth_date;
           if (birth_date)
             params.birth_date = birth_date;
@@ -554,7 +575,6 @@ router.put('/:id', function (req, res) {
 
 /**
  * Delete patient
- * TODO also actually delete the file
  * TODO better implementation:
  * just mark patient as INACTIVE,and every time if someone try to access a
  * file that is inactive, return nothing and check if that file still exist. If
