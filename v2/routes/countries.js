@@ -175,7 +175,10 @@ router.post('/', function (req, res) {
   console.log(JSON.stringify(body));
   var token = param_headers.token;
   console.log(token);
-  if (!token) {
+  if (valid.empty_object(body)) {
+    res.status(errors.bad_request()).send('body cannot be empty');
+    sent = true;
+  } else if (!token) {
     res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
@@ -218,24 +221,26 @@ router.post('/', function (req, res) {
           var sql_query = sql.insert(consts.table_countries(), params).returning('*');
           console.log(sql_query.toString());
 
-          client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
-            if (err) {
-              res.status(errors.server_error()).send('error fetching client from pool: ' + err);
-              sent = true;
-              return console.error('error fetching client from pool', err);
-            } else {
-              if (result.rows.length === 1) {
-                q.save_sql_query(sql_query.toString());
+          if (!sent) {
+            client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+              if (err) {
+                res.status(errors.server_error()).send('error fetching client from pool: ' + err);
                 sent = true;
-                res.json(result.rows[0]);
-              } else if (result.rows.length === 0) {
-                res.status(errors.not_found()).send('Insertion failed');
+                return console.error('error fetching client from pool', err);
               } else {
-                //how can 1 pk return more than 1 row!?
-                res.status(errors.server_error()).send('Sth weird is happening');
+                if (result.rows.length === 1) {
+                  q.save_sql_query(sql_query.toString());
+                  sent = true;
+                  res.json(result.rows[0]);
+                } else if (result.rows.length === 0) {
+                  res.status(errors.not_found()).send('Insertion failed');
+                } else {
+                  //how can 1 pk return more than 1 row!?
+                  res.status(errors.server_error()).send('Sth weird is happening');
+                }
               }
-            }
-          });
+            });
+          }
         }
       }
     });
@@ -252,7 +257,10 @@ router.put('/:id', function (req, res) {
   console.log(JSON.stringify(body));
   var token = param_headers.token;
   console.log(token);
-  if (!token) {
+  if (valid.empty_object(body)) {
+    res.status(errors.bad_request()).send('body cannot be empty');
+    sent = true;
+  } else if (!token) {
     res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
@@ -323,11 +331,6 @@ router.put('/:id', function (req, res) {
 
 /**
  * Delete country
- * TODO also actually delete the file
- * TODO better implementation:
- * just mark country as INACTIVE,and every time if someone try to access a
- * file that is inactive, return nothing and check if that file still exist. If
- * it does, remove it
  */
 router.delete('/:id', function (req, res) {
   var sent = false;
