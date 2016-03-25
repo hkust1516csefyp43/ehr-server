@@ -14,7 +14,6 @@ var valid = require('../valid');
 var db = require('../database');
 var q = require('../query');
 var sql = require('sql-bricks-postgres');
-var document_types_table = 'v2.document_types';
 
 /* GET list */
 router.get('/', function (req, res) {
@@ -39,10 +38,6 @@ router.get('/', function (req, res) {
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
-          var document_type_id = req.query.id;
-          if (document_type_id)
-            params.document_type_id = document_type_id;
-
           var type = req.query.type;
           if (type)
             params.type = type;
@@ -51,7 +46,7 @@ router.get('/', function (req, res) {
 
           var sql_query = sql
             .select()
-            .from(document_types_table)
+            .from(consts.table_document_types())
             .where(params);
 
           var offset = param_query.offset;
@@ -94,84 +89,6 @@ router.get('/', function (req, res) {
   }
 });
 
-/* GET */
-router.get('/:id', function (req, res) {
-  var sent = false;
-  var params = {};
-  var param_query = req.query;
-  var param_headers = req.headers;
-  console.log(JSON.stringify(param_query));
-  console.log(JSON.stringify(param_headers));
-  console.log("id:",req.params.id);
-  var token = param_headers.token;
-  console.log(token);
-  if (!token) {
-    res.status(errors.token_missing()).send('Token is missing');
-    sent = true;
-  } else {
-    db.check_token_and_permission("document_types_read", token, function (err, return_value, client) {
-      if (!return_value) {                                        //return value == null >> sth wrong
-        res.status(errors.bad_request()).send('Token missing or invalid');
-      } else if (return_value.document_types_read === false) {          //false (no permission)
-        res.status(errors.no_permission()).send('No permission');
-      } else if (return_value.document_types_read === true) {           //w/ permission
-        if (return_value.expiry_timestamp < Date.now()) {
-          res.status(errors.access_token_expired()).send('Access token expired');
-        } else {
-          params.document_type_id = req.params.id;
-
-          var sql_query = sql
-            .select()
-            .from(document_types_table)
-            .where(params);
-
-          var offset = param_query.offset;
-          if (offset) {
-            sql_query.offset(offset);
-          }
-
-          var order_by = param_query.order_by;
-          if (order_by) {
-            //TODO check if custom sort by param is valid
-            sql_query.orderBy(order_by);
-          } else {
-            sql_query.orderBy('document_type_id');
-          }
-
-          var limit = param_query.limit;
-          if (limit) {
-            sql_query.limit(limit);
-          } else {    //Default limit
-            sql_query.limit(consts.list_limit());
-          }
-
-          console.log("The whole query in string: " + sql_query.toString());
-          if (!sent) {
-            client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
-              if (err) {
-                res.status(errors.server_error()).send('error fetching client from pool: ' + err);
-                sent = true;
-                return console.error('error fetching client from pool', err);
-              } else {
-                if (result.rows.length === 1) {
-                  q.save_sql_query(sql_query.toString());
-                  sent = true;
-                  res.json(result.rows[0]);
-                } else if (result.rows.length === 0) {
-                  res.status(errors.not_found()).send('Cannot find blood type according to this id.');
-                } else {
-                  //how can 1 pk return more than 1 row!?
-                  res.status(errors.server_error()).send('Sth weird is happening');
-                }
-              }
-            });
-          }
-        }
-      }
-    });
-  }
-});
-
 /* POST */
 router.post('/', function (req, res) {
   var sent = false;
@@ -184,7 +101,10 @@ router.post('/', function (req, res) {
   console.log(JSON.stringify(body));
   var token = param_headers.token;
   console.log(token);
-  if (!token) {
+  if (valid.empty_object(body)) {
+    sent = true;
+    res.status(errors.bad_request()).send("You can create nothing");
+  } else if (!token) {
     res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
@@ -201,14 +121,15 @@ router.post('/', function (req, res) {
           params.document_type_id = util.random_string(consts.id_random_string_length());
 
           var type = body.type;
-          if (type)
+          if (type) {
             params.type = type;
-          else {
+          } else if (!sent) {
             sent = true;
             res.status(errors.bad_request()).send('type should be not null');
           }
 
-          var sql_query = sql.insert(document_types_table, params).returning('*');
+          var sql_query = sql.insert(consts.table_document_types(), params).returning('*');
+
           console.log(sql_query.toString());
           if (!sent) {
             client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
@@ -217,8 +138,15 @@ router.post('/', function (req, res) {
                 sent = true;
                 return console.error('error fetching client from pool', err);
               } else {
-                q.save_sql_query(sql_query.toString());
-                res.json(result.rows);
+                if (result.rows.length === 1) {
+                  q.save_sql_query(sql_query.toString());
+                  sent = true;
+                  res.json(result.rows[0]);
+                } else if (result.rows.length === 0) {
+                  res.status(errors.not_found()).send('Insertion failed');
+                } else {
+                  res.status(errors.server_error()).send('Sth weird is happening');
+                }
               }
             });
           }
@@ -238,7 +166,10 @@ router.put('/:id', function (req, res) {
   console.log(JSON.stringify(body));
   var token = param_headers.token;
   console.log(token);
-  if (!token) {
+  if (valid.empty_object(body)) {
+    sent = true;
+    res.status(errors.bad_request()).send("You can edit nothing");
+  } else if (!token) {
     res.status(errors.token_missing()).send('Token is missing');
     sent = true;
   } else {
@@ -258,11 +189,11 @@ router.put('/:id', function (req, res) {
             params.type = type;
           else {
             sent = true;
-            res.status(errors.bad_request()).send('You cannnot edit nothing');
+            res.status(errors.bad_request()).send('You must edit type');
           }
 
           var sql_query = sql
-            .update(document_types_table, params)
+            .update(consts.table_document_types(), params)
             .where(sql('document_type_id'), req.params.id).returning('*');
           console.log(sql_query.toString());
 
@@ -278,7 +209,7 @@ router.put('/:id', function (req, res) {
                   sent = true;
                   res.json(result.rows[0]);
                 } else if (result.rows.length === 0) {
-                  res.status(errors.not_found()).send('Cannot find blood type according to this id.');
+                  res.status(errors.not_found()).send('Cannot find document type according to this id.');
                 } else {
                   //how can 1 pk return more than 1 row!?
                   res.status(errors.server_error()).send('Sth weird is happening');
@@ -327,7 +258,7 @@ router.delete('/:id', function (req, res) {
                   sent = true;
                   res.json(result.rows[0]);
                 } else if (result.rows.length === 0) {
-                  res.status(errors.not_found()).send('Cannot find blood type according to this id.');
+                  res.status(errors.not_found()).send('Cannot find document type according to this id.');
                 } else {
                   //how can 1 pk return more than 1 row!?
                   res.status(errors.server_error()).send('Sth weird is happening');
