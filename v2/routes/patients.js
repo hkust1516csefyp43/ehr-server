@@ -145,19 +145,13 @@ router.get('/', function (req, res) {
               }
             }
 
-            //TODO get this from relationship table
             var related_to_id = param_query.related_to_id;
             if (related_to_id) {
-              //FROM v2.patients, v2.relationships
               sql_query.from(consts.table_relationships());
-              //WHERE (v2.relationships.patient_id_1 = '13' OR v2.relationships.patient_id_2 = '13')
-              //and (v2.relationships.patient_id_1 = v2.patients.patient_id or v2.relationships.patient_id_2 = v2.patients.patient_id)
-              //and (v2.patients.patient_id <> '13')
               sql_query.where(sql.and(sql.or(sql.eq(sql(consts.table_relationships() + ".patient_id_1"), related_to_id), sql.eq(sql(consts.table_relationships() + ".patient_id_2"), related_to_id)), sql.or(sql.eq(sql(consts.table_relationships() + ".patient_id_1"), sql(consts.table_patients() + ".patient_id")), sql.eq(sql(consts.table_relationships() + ".patient_id_2"), sql(consts.table_patients() + ".patient_id"))), sql.notEq(sql(consts.table_patients() + ".patient_id"), related_to_id)));
             }
 
-            //console.log(JSON.stringify(params));
-
+            console.log(JSON.stringify(params));
 
             var visit_date = param_query.visit_date;
             var visit_date_range_before = param_query.visit_date_range_before;
@@ -232,7 +226,7 @@ router.get('/', function (req, res) {
                 res.status(errors.server_error()).send("something wrong");
               }
               if (return_value) {
-                if (return_value.global === false) {
+                if (return_value.is_global === false) {
                   sql_query.where('clinic_id', clinic_id.toString());
                 }
                 //else >> literally do nothing, just move on

@@ -77,7 +77,7 @@ module.exports = {
         return console.error('error fetching client from pool', err);
       } else {
         aClient = client;
-        var sql_query = sql.select('global').from(consts.table_clinics()).where(sql("clinic_id"), clinic_id.toString());
+        var sql_query = sql.select('is_global').from(consts.table_clinics()).where(sql("clinic_id"), clinic_id.toString());
         console.log(sql_query.toString());
         client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
           done();
