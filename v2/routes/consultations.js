@@ -15,7 +15,10 @@ var db = require('../database');
 var q = require('../query');
 var sql = require('sql-bricks-postgres');
 
-/* GET list */
+/**
+ * TODO don't do this >> very easy to get everyone's medical history
+ * GET list
+ */
 router.get('/', function (req, res) {
   var sent = false;
   var params = {};
