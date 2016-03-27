@@ -35,6 +35,7 @@ var v2Notifications = require('./v2/routes/notifications');
 var v2Patients = require('./v2/routes/patients');
 var v2Pharmacies = require('./v2/routes/pharmacies');
 var v2Prescriptions = require('./v2/routes/prescriptions');
+var v2RelatedData = require('./v2/routes/related_data');
 var v2Suitcases = require('./v2/routes/suitcases');
 
 //old stuff
@@ -92,6 +93,7 @@ app.use('/v2/notifications', v2Notifications);
 app.use('/v2/patients', v2Patients);
 app.use('/v2/pharmacies', v2Pharmacies);
 app.use('/v2/prescriptions', v2Prescriptions);
+app.use('/v2/related_data', v2RelatedData);
 app.use('/v2/suitcases', v2Suitcases);
 
 //old stuff
