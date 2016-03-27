@@ -33,6 +33,8 @@ var v2MedicationVariants = require('./v2/routes/medication_variants');
 var v2Medications = require('./v2/routes/medications');
 var v2Notifications = require('./v2/routes/notifications');
 var v2Patients = require('./v2/routes/patients');
+var v2Pharmacies = require('./v2/routes/pharmacies');
+var v2Prescriptions = require('./v2/routes/prescriptions');
 var v2Suitcases = require('./v2/routes/suitcases');
 
 //old stuff
@@ -88,6 +90,8 @@ app.use('/v2/medications', v2Medications);
 app.use('/v2/medication_variants', v2MedicationVariants);
 app.use('/v2/notifications', v2Notifications);
 app.use('/v2/patients', v2Patients);
+app.use('/v2/pharmacies', v2Pharmacies);
+app.use('/v2/prescriptions', v2Prescriptions);
 app.use('/v2/suitcases', v2Suitcases);
 
 //old stuff
