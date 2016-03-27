@@ -15,7 +15,9 @@ var db = require('../database');
 var q = require('../query');
 var sql = require('sql-bricks-postgres');
 
-/* GET list */
+/**
+ * Get list of document types
+ */
 router.get('/', function (req, res) {
   var sent = false;
   var params = {};
@@ -89,7 +91,9 @@ router.get('/', function (req, res) {
   }
 });
 
-/* POST */
+/**
+ * POST (add) document type
+ */
 router.post('/', function (req, res) {
   var sent = false;
   var params = {};
@@ -156,7 +160,9 @@ router.post('/', function (req, res) {
   }
 });
 
-/*PUT*/
+/**
+ * Edit document type by id
+ */
 router.put('/:id', function (req, res) {
   var sent = false;
   var params = {};
@@ -223,6 +229,9 @@ router.put('/:id', function (req, res) {
   }
 });
 
+/**
+ * Delete document type by id
+ */
 router.delete('/:id', function (req, res) {
   var sent = false;
   var token = req.headers.token;

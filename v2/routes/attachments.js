@@ -51,10 +51,6 @@ router.get('/', function (req, res) {
           if (user_id)
             params.user_id = user_id;
 
-          var create_timestamp = req.query.create_timestamp;
-          if (create_timestamp)
-            params.create_timestamp = create_timestamp;
-
           console.log(params);
 
           var sql_query = sql
@@ -194,6 +190,26 @@ router.post('/', function (req, res) {
 
           var sql_query = sql.insert(consts.table_attachments(), params).returning('*');
           console.log(sql_query.toString());
+
+          var offset = param_query.offset;
+          if (offset) {
+            sql_query.offset(offset);
+          }
+
+          var sort_by = param_query.sort_by;
+          if (sort_by) {
+            //TODO check if custom sort by param is valid
+            sql_query.orderBy(sort_by);
+          } else {
+            sql_query.orderBy('attachment_id');
+          }
+
+          var limit = param_query.limit;
+          if (limit) {
+            sql_query.limit(limit);
+          } else {    //Default limit
+            sql_query.limit(consts.list_limit());
+          }
 
           client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
             if (err) {

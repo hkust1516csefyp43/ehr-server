@@ -59,10 +59,6 @@ router.get('/', function (req, res) {
           if (emoji)
             params.emoji = emoji;
 
-          var create_timestamp = req.query.create_timestamp;
-          if (create_timestamp)
-            params.create_timestamp = create_timestamp;
-
           console.log(params);
 
           var sql_query = sql
