@@ -39,6 +39,8 @@ var v2RelatedData = require('./v2/routes/related_data');
 var v2Relationships = require('./v2/routes/relationships');
 var v2Roles = require('./v2/routes/roles');
 var v2Suitcases = require('./v2/routes/suitcases');
+var v2Tokens = require('./v2/routes/tokens');
+var v2Triages = require('./v2/routes/triages');
 
 
 //old stuff
@@ -100,6 +102,9 @@ app.use('/v2/related_data', v2RelatedData);
 app.use('/v2/relationships', v2Relationships);
 app.use('/v2/roles', v2Roles);
 app.use('/v2/suitcases', v2Suitcases);
+app.use('/v2/tokens', v2Tokens);
+app.use('/v2/triages', v2Triages);
+
 
 //old stuff
 app.use('/v2/inventory', v2Inventory);
