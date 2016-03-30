@@ -41,6 +41,8 @@ var v2Roles = require('./v2/routes/roles');
 var v2Suitcases = require('./v2/routes/suitcases');
 var v2Tokens = require('./v2/routes/tokens');
 var v2Triages = require('./v2/routes/triages');
+var v2Users = require('./v2/routes/users');
+//var v2Visits = require('./v2/routes/visits');
 
 
 //old stuff
@@ -104,6 +106,8 @@ app.use('/v2/roles', v2Roles);
 app.use('/v2/suitcases', v2Suitcases);
 app.use('/v2/tokens', v2Tokens);
 app.use('/v2/triages', v2Triages);
+app.use('/v2/users', v2Users);
+//app.use('/v2/visits', v2Visits);
 
 
 //old stuff
