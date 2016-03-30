@@ -103,7 +103,7 @@ app.use('/v2/relationships', v2Relationships);
 app.use('/v2/roles', v2Roles);
 app.use('/v2/suitcases', v2Suitcases);
 app.use('/v2/tokens', v2Tokens);
-// app.use('/v2/triages', v2Triages);
+app.use('/v2/triages', v2Triages);
 
 
 //old stuff
