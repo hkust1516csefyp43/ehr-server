@@ -165,10 +165,12 @@ router.get('/', function (req, res) {
                   sent = true;
                 }
               } else {
-                sql_query.select(sql(consts.table_visits() + ".*"));
-                sql_query.from(visit_table);
-                sql_query.where(sql.and(sql.gte(visit_table + ".create_timestamp", visit_date), sql.lt(visit_table + ".create_timestamp", sql("(date '" + visit_date + "' + integer '1')"))));
-                sql_query.where(sql(visit_table + ".patient_id"), sql(patient_table + ".patient_id"));
+                sql_query.select(sql(consts.table_visits() + ".tag"));
+                sql_query.select(sql(consts.table_visits() + ".next_station"));
+                sql_query.select(sql(consts.table_visits() + ".visit_id"));
+                sql_query.from(consts.table_visits());
+                sql_query.where(sql.and(sql.gte(consts.table_visits() + ".create_timestamp", visit_date), sql.lt(consts.table_visits() + ".create_timestamp", sql("(date '" + visit_date + "' + integer '1')"))));
+                sql_query.where(sql(consts.table_visits() + ".patient_id"), sql(consts.table_patients() + ".patient_id"));
               }
             } else {
               //TODO visit_date_range
@@ -176,10 +178,14 @@ router.get('/', function (req, res) {
 
             var next_station = param_query.next_station;
             if (next_station) {
-              sql_query.select(sql(consts.table_visits() + ".*"));
-              sql_query.from(visit_table);
-              sql_query.where(sql(visit_table + ".next_station"), sql(next_station));
-              sql_query.where(sql(visit_table + ".patient_id"), sql(patient_table + ".patient_id"));
+              if (!visit_date) {
+                sql_query.select(sql(consts.table_visits() + ".tag"));
+                sql_query.select(sql(consts.table_visits() + ".next_station"));
+                sql_query.select(sql(consts.table_visits() + ".visit_id"));
+                sql_query.from(consts.table_visits());
+              }
+              sql_query.where(sql(consts.table_visits() + ".next_station"), sql(next_station));
+              sql_query.where(sql(consts.table_visits() + ".patient_id"), sql(consts.table_patients() + ".patient_id"));
             }
 
             var offset = param_query.offset;

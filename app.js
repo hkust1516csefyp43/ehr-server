@@ -100,10 +100,10 @@ app.use('/v2/pharmacies', v2Pharmacies);
 app.use('/v2/prescriptions', v2Prescriptions);
 app.use('/v2/related_data', v2RelatedData);
 app.use('/v2/relationships', v2Relationships);
-app.use('/v2/roles', v2Roles);
+// app.use('/v2/roles', v2Roles);
 app.use('/v2/suitcases', v2Suitcases);
 app.use('/v2/tokens', v2Tokens);
-app.use('/v2/triages', v2Triages);
+// app.use('/v2/triages', v2Triages);
 
 
 //old stuff
