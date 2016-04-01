@@ -39,7 +39,11 @@ module.exports = {
 
   },
   true_or_false: function (b) {
-    return validator.isBoolean(b);
+    if (validator.isString(b))
+      return validator.isBoolean(b);
+    else {
+      return b;                     //TODO idk
+    }
   },
   sort_by: function (request, array, callback) {
     if (array.isArray) {

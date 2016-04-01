@@ -516,7 +516,7 @@ router.post('/', function (req, res) {
             var screening = req.body.screening;
             if (screening) {
               if (valid.true_or_false(screening)) {
-                params.chief_complain = screening;
+                params.screening = screening;
               } else if (!sent) {
                 sent = true;
                 res.status(errors.bad_request()).send('Invalid screening. Please enter either "true" or "false"');
@@ -534,7 +534,7 @@ router.post('/', function (req, res) {
             var follow_up = req.body.follow_up;
             if (follow_up) {
               if (valid.true_or_false(follow_up)) {
-                params.chief_complain = follow_up;
+                params.follow_up = follow_up;
               } else if (!sent) {
                 sent = true;
                 res.status(errors.bad_request()).send('Invalid follow_up. Please enter either "true" or "false"');
