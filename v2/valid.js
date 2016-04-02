@@ -7,7 +7,7 @@ var _ = require('underscore');
  */
 module.exports = {
   email: function (e) {
-    return validator.isEmail(e, null);
+    return validator.isEmail(e + "", null);
   },
   /**
    * Verify token
@@ -18,7 +18,7 @@ module.exports = {
     return validator.isByteLength(t, 0, 255);
   },
   password: function (p, callback) {
-    if (validator.isLength(p, 6, 64)) {
+    if (validator.isLength(p + "", 6, 64)) {
       var letters = /^[0-9a-zA-Z!()+_.,`@#-]+$/;
       if (letters.test(p)) {  //A-OK
         callback(null, true);
@@ -33,7 +33,7 @@ module.exports = {
 
   },
   date: function (d) {
-    return validator.isDate(d);
+    return validator.isDate(d + "");
   },
   phone: function (p, c) {
 
