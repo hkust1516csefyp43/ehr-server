@@ -16,48 +16,6 @@ var login_logic = require('../login_logic');
 var q = require('../query');
 var sql = require('sql-bricks-postgres');
 
-//if (access token exist in header) {
-//  //get user logic
-//  check permission >> callback
-//  "select user.*, role.*, token.* where user_id=the user id in token" >> callback{
-//    return result
-//  }
-//} else if (refresh token & device_id exist in header) {
-//  //give new access token
-//  UPDATE access token where device_id = sth1 & refresh_token = sth2
-//} else if (username & pw & device_id are all NOT null) {
-//  //login logic
-//  select salt, pp from user where username = username >> callback {
-//    calculate pp and compare
-//    if (correct) {
-//      access token = random string
-//      refresh token = random string
-//      UPDATE access token & refresh_token where device_id=sth >> callback {
-//        if (empty) {    //update failure
-//          INSERT access token & refresh_token where device_id=sth >> callback {
-//            if (!empty) {       //insert successful
-//              "select user.*, role.*, token.* where user_id=the user id in token" >> callback {
-//                return result
-//              }
-//            } else {            //insert failure
-//              5XX
-//            }
-//          }
-//        } else {        //update successful
-//          "select user.*, role.*, token.* where user_id=the user id in token" >> callback {
-//            return result
-//          }
-//        }
-//      }
-//    } else {
-//      4XX
-//    }
-//  }
-//} else {
-//  4XX
-//}
-
-
 /* POST */
 router.post('/', function (req, res) {
   var sent = false;
