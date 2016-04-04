@@ -43,7 +43,7 @@ var v2Tokens = require('./v2/routes/tokens');
 var v2Triages = require('./v2/routes/triages');
 var v2Users = require('./v2/routes/users');
 var v2Visits = require('./v2/routes/visits');
-
+var v2Login = require('./v2/routes/login');
 
 //old stuff
 var v2Inventory = require('./v2/routes/inventory');
@@ -108,6 +108,7 @@ app.use('/v2/tokens', v2Tokens);
 app.use('/v2/triages', v2Triages);
 app.use('/v2/users', v2Users);
 app.use('/v2/visits', v2Visits);
+app.use('/v2/login', v2Login);
 
 
 //old stuff
