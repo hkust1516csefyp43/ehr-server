@@ -12,6 +12,7 @@ var errors = require('../statuses');
 var consts = require('../consts');
 var valid = require('../valid');
 var db = require('../database');
+var login_logic = require('../login_logic');
 var q = require('../query');
 var sql = require('sql-bricks-postgres');
 
@@ -232,73 +233,82 @@ router.post('/', function (req, res) {
             res.status(errors.bad_request()).send('user_name should be not null');
           }
 
-          var email = body.email;
-          if (email)
-            params.email = email;
+          login_logic.return_user_info(username, function (err, return_value, client) {
+            if (return_value) {
+              sent = true;
+              res.status(errors.bad_request()).send('username should be unique');
+            }else{
 
-          var salt = body.salt;
-          if (salt)
-            params.salt = salt;
-          else if (!sent) {
-            sent = true;
-            res.status(errors.bad_request()).send('salt should be not null');
-          }
+              var email = body.email;
+              if (email)
+                params.email = email;
 
-          //TODO: automatically update the processed password
-          var processed_password = body.processed_password;
-          if (processed_password)
-            params.processed_password = processed_password;
-          else if (!sent) {
-            sent = true;
-            res.status(errors.bad_request()).send('processed_password should be not null');
-          }
-
-          var birth_year = body.birth_year;
-          if (birth_year)
-            params.birth_year = birth_year;
-
-          var birth_month = body.birth_month;
-          if (birth_month)
-            params.birth_month = birth_month;
-
-          var birth_day = body.birth_day;
-          if (birth_day)
-            params.birth_day = birth_day;
-
-          var image_id = body.image_id;
-          if (image_id)
-            params.image_id = image_id;
-
-          var phone_country_code = body.phone_country_code;
-          if (phone_country_code)
-            params.phone_country_code = phone_country_code;
-
-          var phone_number = body.phone_number;
-          if (phone_number)
-            params.phone_number = phone_number;
-
-          var sql_query = sql.insert(consts.table_users(), params).returning('*');
-          console.log(sql_query.toString());
-
-          if (!sent)
-            client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
-              if (err) {
-                res.status(errors.server_error()).send('error fetching client from pool: ' + err);
+              var salt = body.salt;
+              if (salt)
+                params.salt = salt;
+              else if (!sent) {
                 sent = true;
-                return console.error('error fetching client from pool', err);
-              } else {
-                if (result.rows.length === 1) {
-                  q.save_sql_query(sql_query.toString());
-                  sent = true;
-                  res.json(result.rows[0]);
-                } else if (result.rows.length === 0) {
-                  res.status(errors.not_found()).send('Insertion failed');
-                } else {
-                  //how can 1 pk return more than 1 row!?
-                  res.status(errors.server_error()).send('Sth weird is happening');
-                }
+                res.status(errors.bad_request()).send('salt should be not null');
               }
-            });
+
+              //TODO: automatically update the processed password
+              var processed_password = body.processed_password;
+              if (processed_password)
+                params.processed_password = processed_password;
+              else if (!sent) {
+                sent = true;
+                res.status(errors.bad_request()).send('processed_password should be not null');
+              }
+
+              var birth_year = body.birth_year;
+              if (birth_year)
+                params.birth_year = birth_year;
+
+              var birth_month = body.birth_month;
+              if (birth_month)
+                params.birth_month = birth_month;
+
+              var birth_day = body.birth_day;
+              if (birth_day)
+                params.birth_day = birth_day;
+
+              var image_id = body.image_id;
+              if (image_id)
+                params.image_id = image_id;
+
+              var phone_country_code = body.phone_country_code;
+              if (phone_country_code)
+                params.phone_country_code = phone_country_code;
+
+              var phone_number = body.phone_number;
+              if (phone_number)
+                params.phone_number = phone_number;
+
+              var sql_query = sql.insert(consts.table_users(), params).returning('*');
+              console.log(sql_query.toString());
+
+              if (!sent)
+                client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+                  if (err) {
+                    res.status(errors.server_error()).send('error fetching client from pool: ' + err);
+                    sent = true;
+                    return console.error('error fetching client from pool', err);
+                  } else {
+                    if (result.rows.length === 1) {
+                      q.save_sql_query(sql_query.toString());
+                      sent = true;
+                      res.json(result.rows[0]);
+                    } else if (result.rows.length === 0) {
+                      res.status(errors.not_found()).send('Insertion failed');
+                    } else {
+                      //how can 1 pk return more than 1 row!?
+                      res.status(errors.server_error()).send('Sth weird is happening');
+                    }
+                  }
+                });
+
+            }
+          });
         }
       }
     });
