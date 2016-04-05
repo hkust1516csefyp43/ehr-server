@@ -7,7 +7,7 @@ var _ = require('underscore');
  */
 module.exports = {
   email: function (e) {
-    return validator.isEmail(e + "", null);
+    return validator.isEmail(e + '', null);
   },
   /**
    * Verify token

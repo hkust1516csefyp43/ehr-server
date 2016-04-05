@@ -22,14 +22,17 @@ module.exports = {
         console.log("error witting file");
       }
     });
-    query_count++;
+    query_count += 1;
   },
   save_sql_query_2: function (sq) {
     //TODO save to db
     //1. connect to db
     //2. generate sql query
     //3. run that query
+    //INSERT INTO queries ("random_string", user_id, create_timestamp, query);
     //4. output successful or not
+    //TODO what if save failed? what can you do?
+    
   },
   get_query_count: function () {
     return query_count;

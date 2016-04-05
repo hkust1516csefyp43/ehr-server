@@ -44,16 +44,8 @@ var v2Triages = require('./v2/routes/triages');
 var v2Users = require('./v2/routes/users');
 var v2Visits = require('./v2/routes/visits');
 
-
 //old stuff
-var v2Inventory = require('./v2/routes/inventory');
-var v2Patient = require('./v2/routes/patient');
-var v2User = require('./v2/routes/user');
-var v2Visit = require('./v2/routes/visit');
 var v2Static = require('./v2/routes/static');
-var v2ChiefComplain = require('./v2/routes/chief_complain');
-var v2Diagnosis = require('./v2/routes/diagnosis');
-var v2Location = require('./v2/routes/location');
 
 var app = express();
 
@@ -111,14 +103,7 @@ app.use('/v2/visits', v2Visits);
 
 
 //old stuff
-app.use('/v2/inventory', v2Inventory);
-app.use('/v2/patient', v2Patient);
-app.use('/v2/user', v2User);
-app.use('/v2/visit', v2Visit);
 app.use('/v2/static', v2Static);
-app.use('/v2/chief_complain', v2ChiefComplain);
-app.use('/v2/diagnosis', v2Diagnosis);
-app.use('/v2/location', v2Location);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -45,7 +45,7 @@ router.get('/', function (req, res) {
 
           var expiry_timestamp = req.query.expiry_timestamp;
           if (expiry_timestamp)
-            params.expiry_timestamp = expiry_timestamp
+            params.expiry_timestamp = expiry_timestamp;
 
           var device_id = req.query.device_id;
           if (device_id)

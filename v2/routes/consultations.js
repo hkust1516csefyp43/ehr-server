@@ -154,10 +154,6 @@ router.get('/', function (req, res) {
           if (pe_genital)
             params.pe_genital = pe_genital;
 
-          var pe_genital = req.query.pe_genital;
-          if (pe_genital)
-            params.pe_genital = pe_genital;
-
           var pe_ent = req.query.pe_ent;
           if (pe_ent)
             params.pe_ent = pe_ent;
@@ -450,10 +446,6 @@ router.post('/', function (req, res) {
           if (pe_genital)
             params.pe_genital = pe_genital;
 
-          var pe_genital = body.pe_genital;
-          if (pe_genital)
-            params.pe_genital = pe_genital;
-
           var pe_ent = body.pe_ent;
           if (pe_ent)
             params.pe_ent = pe_ent;
@@ -664,10 +656,6 @@ router.put('/:id', function (req, res) {
           var pe_gastro = body.pe_gastro;
           if (pe_gastro)
             params.pe_gastro = pe_gastro;
-
-          var pe_genital = body.pe_genital;
-          if (pe_genital)
-            params.pe_genital = pe_genital;
 
           var pe_genital = body.pe_genital;
           if (pe_genital)

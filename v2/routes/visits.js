@@ -43,9 +43,7 @@ router.get('/', function (req, res) {
             .from(consts.table_visits())
             .where(params);
 
-          var create_timestamp = req.query.create_timestamp;
-          if (create_timestamp)
-            params.create_timestamp = create_timestamp;
+          params.create_timestamp = moment();
 
           var tag = req.query.tag;
           if (tag)
