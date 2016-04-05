@@ -25,6 +25,12 @@ module.exports = {
   remoteUrl: function () {
     return conString;
   },
+  /**
+   * Get some information about that token (i.e. SELECT * FROM tokens WHERE token=?)
+   * @param token of the user
+   * @param callback a function(error, return_value, client)
+   * client if for the next stage to use pg
+   */
   return_token_info: function (token, callback) {
     pg.connect(module.exports.url(), function (err, client, done) {
       if (err) {

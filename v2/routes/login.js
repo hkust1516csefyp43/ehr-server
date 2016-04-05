@@ -30,7 +30,10 @@ router.post('/', function (req, res) {
   if (token) {
     login_logic.return_token_info(token, function (err, return_value, client) {
       var user_id = return_value.user_id;
-      if (return_value) {
+      if (err) {
+        sent = true;
+        res.status(errors.server_error()).send('Something wrong (error code 10000)');
+      } else if (return_value) {
         responseJson.token_info = return_value;
         if (return_value.is_access_token === true){
           sent = true;
@@ -39,7 +42,7 @@ router.post('/', function (req, res) {
         else if (return_value.is_access_token === false){
 
           var device_id = body.device_id;
-          if (!device_id) {
+          if (!device_id && !sent) {
             sent = true;
             res.status(errors.bad_request()).send('device_id should be not null');
           }
@@ -62,38 +65,45 @@ router.post('/', function (req, res) {
             }
           });
         }
-      }else{                                        //return value == null >> sth wrong
+      } else if (!sent) {                                        //return value == null >> sth wrong
+        sent = true;
         res.status(errors.bad_request()).send('Token invalid');
       }
     });
-  }
-  else if (!token) {
-
+  } else if (!token) {      //i.e. login with username & password
     var username = body.username;
-    if (!username) {
+    if (!username && !sent) {
       sent = true;
       res.status(errors.bad_request()).send('username should be not null');
     }
     var password = body.password;
-    if (!password) {
+    if (!password && !sent) {
       sent = true;
       res.status(errors.bad_request()).send('password should be not null');
     }
     var device_id = body.device_id;
-    if (!device_id) {
+    if (!device_id && !sent) {
       sent = true;
       res.status(errors.bad_request()).send('device_id should be not null');
     }
 
     login_logic.return_user_info(username, function (err, return_value, client) {
+      if (err) {
+        if (!sent) {
+          sent = true;
+          res.status(errors.server_error()).send('Something wrong (error code 10001)');
+        }
+      }
       if (!return_value) {
-        sent = true;
-        res.status(errors.bad_request()).send('username missing or invalid');
+        if (!sent) {
+          sent = true;
+          res.status(errors.bad_request()).send('username missing or invalid');
+        }
       } else {
         var user_id = return_value.user_id;
         //TODO: implement password to processed_password
         password = password;
-        if (return_value.processed_password !== password) {
+        if (return_value.processed_password !== password && !sent) {
           sent = true;
           res.status(errors.bad_request()).send('password missing or invalid');
         }
@@ -101,16 +111,32 @@ router.post('/', function (req, res) {
           var access_token = util.random_string(consts.id_random_string_length());
           var refresh_token = util.random_string(consts.id_random_string_length());
           login_logic.update_access_token(access_token, device_id, function (err, return_value, client) {
-            if (return_value) {
+            if (err) {
+              if (!sent) {
+                sent = true;
+                res.status(errors.server_error()).send('Something wrong (error code 10002)');
+              }
+            } else if (return_value) {
               responseJson.update_access_token = return_value;
               login_logic.update_refresh_token(refresh_token, device_id, function (err, return_value, client) {
+                if (err) {
+                  if (!sent) {
+                    sent = true;
+                    res.status(errors.server_error()).send('Something wrong (error code 10003)');
+                  }
+                }
                 if (return_value) {
                   responseJson.update_refresh_token = return_value;
                   sent = true;
                   res.json(responseJson);
                 } else {
                   login_logic.insert_refresh_token(refresh_token, device_id, user_id, function (err, return_value, client) {
-                    if (return_value) {
+                    if (err) {
+                      if (!sent) {
+                        sent = true;
+                        res.status(errors.server_error()).send('Something wrong (error code 10004)');
+                      }
+                    } else if (return_value) {
                       responseJson.insert_refresh_token = return_value;
                       sent = true;
                       res.json(responseJson);
@@ -120,10 +146,20 @@ router.post('/', function (req, res) {
               });
             } else {
               login_logic.insert_access_token(access_token, device_id, user_id, function (err, return_value, client) {
-                if (return_value) {
+                if (err) {
+                  if (!sent) {
+                    sent = true;
+                    res.status(errors.server_error()).send('Something wrong (error code 10004)');
+                  }
+                } else if (return_value) {
                   responseJson.insert_access_token = return_value;
                   login_logic.insert_refresh_token(refresh_token, device_id, user_id, function (err, return_value, client) {
-                    if (return_value) {
+                    if (err) {
+                      if (!sent) {
+                        sent = true;
+                        res.status(errors.server_error()).send('Something wrong (error code 10004)');
+                      }
+                    } else if (return_value) {
                       responseJson.insert_refresh_token = return_value;
                       sent = true;
                       res.json(responseJson);
