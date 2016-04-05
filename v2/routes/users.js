@@ -341,6 +341,15 @@ router.put('/:id', function (req, res) {
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else{
+
+          login_logic.insert_refresh_token(refresh_token, device_id, user_id, function (err, return_value, client) {
+            if (return_value) {
+              responseJson.insert_refresh_token = return_value;
+              sent = true;
+              res.json(responseJson);
+            }
+          });
+
           var gender_id = body.gender_id;
           if (gender_id)
             params.gender_id = gender_id;
