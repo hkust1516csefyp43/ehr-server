@@ -341,6 +341,7 @@ router.put('/:id', function (req, res) {
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else{
+
           var gender_id = body.gender_id;
           if (gender_id)
             params.gender_id = gender_id;
