@@ -29,6 +29,7 @@ router.post('/', function (req, res) {
   var responseJson = { };
   if (token) {
     login_logic.return_token_info(token, function (err, return_value, client) {
+      var user_id = return_value.user_id;
       if (return_value) {
         responseJson.token_info = return_value;
         if (return_value.is_access_token === true){
@@ -50,6 +51,14 @@ router.post('/', function (req, res) {
               responseJson.update_access_token = return_value;
               sent = true;
               res.json(responseJson);
+            } else {
+              login_logic.insert_access_token(access_token, device_id, user_id, function (err, return_value, client) {
+                if (return_value) {
+                  responseJson.insert_access_token = return_value;
+                  sent = true;
+                  res.json(responseJson);
+                }
+              });
             }
           });
         }

@@ -145,7 +145,7 @@ module.exports = {
       } else {
         var params = {};
         params.token = access_token;
-        params.expiry_timestamp = moment().add(7, 'd');
+        params.expiry_timestamp = moment().add(3, 'h');
         params.device_id = device_id;
         params.is_access_token = 'true';
         params.user_id = user_id;
