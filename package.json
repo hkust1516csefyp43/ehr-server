@@ -36,7 +36,7 @@
   ],
   "scripts": {
     "devStart": "node ./bin/www",
-    "start": "forever start --uid=ehr -a ./bin/www",
+    "start": "forever start -o out.log -l ehr.log -e err.log --uid=ehr -a ./bin/www",
     "stop": "forever stop ehr"
   },
   "dependencies": {
