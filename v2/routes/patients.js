@@ -395,10 +395,6 @@ router.post('/', function (req, res) {
           var gender_id = body.gender_id;
           if (gender_id)
             params.gender_id = gender_id;
-          else if (!sent) {
-            sent = true;
-            res.status(errors.bad_request()).send('gender_id should be not null');
-          }
 
           var image_id = body.image_id;
           if (image_id)
