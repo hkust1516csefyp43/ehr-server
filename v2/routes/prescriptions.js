@@ -39,20 +39,30 @@ router.get('/', function (req, res) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
 
-          var consultation_id = req.query.consultation_id;
-          if (consultation_id)
-            params.consultation_id = consultation_id;
-
-          var medication_id = req.query.medication_id;
-          if (medication_id)
-            params.medication_id = medication_id;
-
-          console.log(params);
-
           var sql_query = sql
-            .select()
+            .select('v2.prescriptions.*')
             .from(consts.table_prescriptions())
             .where(params);
+
+          var consultation_id = req.query.consultation_id;
+          if (consultation_id) {
+            sql_query.where('v2.prescriptions.consultation_id', consultation_id);
+
+          }
+          var medication_id = req.query.medication_id;
+          if (medication_id) {
+            sql_query.where('v2.prescriptions.medication_id', medication_id);
+          }
+          var visit_id = req.query.visit_id;
+          if (visit_id) {
+            sql_query.from('v2.visits');
+            sql_query.from('v2.consultations');
+            sql_query.where('v2.visits.visit_id', visit_id);
+            sql_query.where('v2.visits.visit_id', sql('v2.consultations.visit_id'));
+            sql_query.where('v2.consultations.consultation_id', sql('v2.prescriptions.consultation_id'));
+          }
+
+          console.log(params);
 
           var prescription_detail = req.query.prescription_detail;
           if (prescription_detail)
@@ -68,7 +78,7 @@ router.get('/', function (req, res) {
             //TODO check if custom sort by param is valid
             sql_query.orderBy(sort_by);
           } else {
-            sql_query.orderBy('prescription_id');
+            sql_query.orderBy('v2.prescriptions.prescription_id');
           }
 
           var limit = param_query.limit;
