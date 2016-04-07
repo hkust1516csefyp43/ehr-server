@@ -248,14 +248,6 @@ router.post('/', function (req, res) {
             res.status(errors.bad_request()).send('start_timestamp should be not null');
           }
 
-          var edited_in_consultation = body.edited_in_consultation;
-          if (edited_in_consultation)
-            params.edited_in_consultation = edited_in_consultation;
-          else if (!sent) {
-            sent = true;
-            res.status(errors.bad_request()).send('edited_in_consultation should be not null');
-          }
-
           var head_circumference = body.head_circumference;
           if (head_circumference)
             params.head_circumference = head_circumference;
