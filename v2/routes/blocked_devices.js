@@ -204,9 +204,8 @@ router.post('/', function (req, res) {
           var reporter_id = body.reporter_id;
           if (reporter_id)
             params.reporter_id = reporter_id;
-          else if (!sent) {
-            sent = true;
-            res.status(errors.bad_request()).send('reporter_id should be not null');
+          else {
+            params.reporter_id = return_value.user_id;
           }
 
           var victim_id = body.victim_id;

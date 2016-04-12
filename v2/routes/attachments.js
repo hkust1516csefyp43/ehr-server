@@ -191,26 +191,6 @@ router.post('/', function (req, res) {
           var sql_query = sql.insert(consts.table_attachments(), params).returning('*');
           console.log(sql_query.toString());
 
-          var offset = param_query.offset;
-          if (offset) {
-            sql_query.offset(offset);
-          }
-
-          var sort_by = param_query.sort_by;
-          if (sort_by) {
-            //TODO check if custom sort by param is valid
-            sql_query.orderBy(sort_by);
-          } else {
-            sql_query.orderBy('attachment_id');
-          }
-
-          var limit = param_query.limit;
-          if (limit) {
-            sql_query.limit(limit);
-          } else {    //Default limit
-            sql_query.limit(consts.list_limit());
-          }
-
           client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
             if (err) {
               res.status(errors.server_error()).send('error fetching client from pool: ' + err);
