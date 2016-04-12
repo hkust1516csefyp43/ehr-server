@@ -87,10 +87,6 @@ router.get('/', function (req, res) {
           if (chief_complains)
             params.chief_complains = chief_complains;
 
-          var remark = req.query.remark;
-          if (remark)
-            sql_query.where(sql.ilike(consts.table_relationships(), util.pre_suf_percent(remark)));
-
           var start_timestamp = req.query.start_timestamp;
           if (start_timestamp)
             params.start_timestamp = start_timestamp;
@@ -111,6 +107,10 @@ router.get('/', function (req, res) {
             .select()
             .from(consts.table_triages())
             .where(params);
+
+          var remark = req.query.remark;
+          if (remark)
+            sql_query.where(sql.ilike(consts.table_relationships(), util.pre_suf_percent(remark)));
 
           var offset = param_query.offset;
           if (offset) {
