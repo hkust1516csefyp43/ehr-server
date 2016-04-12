@@ -29,45 +29,49 @@ router.post('/', function (req, res) {
   var responseJson = { };
   if (token) {
     login_logic.return_token_info(token, function (err, return_value, client) {
-      var user_id = return_value.user_id;
-      if (err) {
-        sent = true;
-        res.status(errors.server_error()).send('Something wrong (error code 10000)');
-      } else if (return_value) {
-        responseJson.token_info = return_value;
-        if (return_value.is_access_token === true){
+      if (return_value.expiry_timestamp < Date.now()) {
+        res.status(errors.access_token_expired()).send('Access token expired');
+      } else{
+        var user_id = return_value.user_id;
+        if (err) {
           sent = true;
-          res.json(responseJson);
-        }
-        else if (return_value.is_access_token === false){
-
-          var device_id = body.device_id;
-          if (!device_id && !sent) {
+          res.status(errors.server_error()).send('Something wrong (error code 10000)');
+        } else if (return_value) {
+          responseJson.token_info = return_value;
+          if (return_value.is_access_token === true){
             sent = true;
-            res.status(errors.bad_request()).send('device_id should be not null');
+            res.json(responseJson);
           }
+          else if (return_value.is_access_token === false){
 
-          var access_token = util.random_string(consts.id_random_string_length());
-
-          login_logic.update_access_token(access_token, device_id, function (err, return_value, client) {
-            if (return_value) {
-              responseJson.update_access_token = return_value;
+            var device_id = body.device_id;
+            if (!device_id && !sent) {
               sent = true;
-              res.json(responseJson);
-            } else {
-              login_logic.insert_access_token(access_token, device_id, user_id, function (err, return_value, client) {
-                if (return_value) {
-                  responseJson.insert_access_token = return_value;
-                  sent = true;
-                  res.json(responseJson);
-                }
-              });
+              res.status(errors.bad_request()).send('device_id should be not null');
             }
-          });
+
+            var access_token = util.random_string(consts.id_random_string_length());
+
+            login_logic.update_access_token(access_token, device_id, function (err, return_value, client) {
+              if (return_value) {
+                responseJson.update_access_token = return_value;
+                sent = true;
+                res.json(responseJson);
+              } else {
+                login_logic.insert_access_token(access_token, device_id, user_id, function (err, return_value, client) {
+                  if (return_value) {
+                    responseJson.insert_access_token = return_value;
+                    sent = true;
+                    res.json(responseJson);
+                  }
+                });
+              }
+            });
+          }
+        } else if (!sent) {                                        //return value == null >> sth wrong
+          sent = true;
+          res.status(errors.bad_request()).send('Token invalid');
         }
-      } else if (!sent) {                                        //return value == null >> sth wrong
-        sent = true;
-        res.status(errors.bad_request()).send('Token invalid');
       }
     });
   } else if (!token) {      //i.e. login with username & password

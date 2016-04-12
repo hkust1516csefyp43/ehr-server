@@ -38,12 +38,10 @@ router.get('/', function (req, res) {
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
-          var sql_query = sql
-            .select()
-            .from(consts.table_visits())
-            .where(params);
 
-          params.create_timestamp = moment();
+          var create_timestamp = req.query.create_timestamp;
+          if (create_timestamp)
+            params.create_timestamp = create_timestamp;
 
           var tag = req.query.tag;
           if (tag)
@@ -56,6 +54,11 @@ router.get('/', function (req, res) {
           var patient_id = req.query.patient_id;
           if (patient_id)
             params.patient_id = patient_id;
+
+          var sql_query = sql
+            .select()
+            .from(consts.table_visits())
+            .where(params);
 
           var offset = param_query.offset;
           if (offset) {
