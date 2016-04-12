@@ -122,26 +122,6 @@ router.get('/:id', function (req, res) {
             .from(blood_types_table)
             .where(params);
 
-          var offset = param_query.offset;
-          if (offset) {
-            sql_query.offset(offset);
-          }
-
-          var order_by = param_query.order_by;
-          if (order_by) {
-            //TODO check if custom sort by param is valid
-            sql_query.orderBy(order_by);
-          } else {
-            sql_query.orderBy('blood_type_id');
-          }
-
-          var limit = param_query.limit;
-          if (limit) {
-            sql_query.limit(limit);
-          } else {    //Default limit
-            sql_query.limit(consts.list_limit());
-          }
-
           console.log("The whole query in string: " + sql_query.toString());
           if (!sent) {
             client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {

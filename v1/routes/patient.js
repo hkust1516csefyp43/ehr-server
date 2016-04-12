@@ -49,26 +49,6 @@ router.get('/:id', function (req, res) {
               .from('patient')
               .where(params);
 
-            var offset = param_query.offset;
-            if (offset) {
-              sql_query.offset(offset);
-            }
-
-            var sort_by = param_query.sort_by;
-            if (sort_by) {
-              //TODO check if custom sort by param is valid
-              sql_query.orderBy(sort_by);
-            } else {
-              sql_query.orderBy('patient_id');
-            }
-
-            var limit = param_query.limit;
-            if (limit) {
-              sql_query.limit(limit);
-            } else {    //Default limit
-              sql_query.limit(consts.list_limit());
-            }
-
             console.log("The whole query in string: " + sql_query.toString());
             if (!sent) {
               client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
