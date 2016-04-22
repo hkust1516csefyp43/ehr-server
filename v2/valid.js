@@ -72,6 +72,7 @@ module.exports = {
       callback(false);
   },
   empty_object: function (j) {
-    return _.isEmpty(j);
+    return false;
+    // return _.isEmpty(j);
   }
 };
