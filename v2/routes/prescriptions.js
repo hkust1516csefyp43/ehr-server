@@ -281,7 +281,17 @@ router.put('/:id', function (req, res) {
           if (prescription_detail)
             params.prescription_detail = prescription_detail;
 
-          if (valid.empty_object(params)) {
+          var prescribed = body.prescribed;
+          if (prescribed) {
+            if (valid.true_or_false(prescribed)) {
+              params.prescribed = prescribed;
+            } else if (!sent) {
+              sent = true;
+              res.status(errors.bad_request()).send('prescribed must be either true or false');
+            }
+          }
+
+          if (valid.empty_object(params) & !sent) {
             sent = true;
             res.status(errors.bad_request()).send('You cannnot edit nothing');
           }
