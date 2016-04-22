@@ -63,6 +63,8 @@ router.get('/', function (req, res) {
             sql_query.where('v2.medication_variants.medication_id', sql('v2.medications.medication_id'));
           }
 
+          //TODO stock?
+
           var offset = req.query.offset;
           if (offset) {
             sql_query.offset(offset);

@@ -282,12 +282,14 @@ router.put('/:id', function (req, res) {
             params.prescription_detail = prescription_detail;
 
           var prescribed = body.prescribed;
-          if (prescribed) {
-            if (valid.true_or_false(prescribed)) {
-              params.prescribed = prescribed;
-            } else if (!sent) {
+          if (prescribed == null) {
+            if (!sent) {
               sent = true;
               res.status(errors.bad_request()).send('prescribed must be either true or false');
+            }
+          } else {
+            if (valid.true_or_false(prescribed)) {
+              params.prescribed = prescribed;
             }
           }
 
