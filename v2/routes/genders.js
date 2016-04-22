@@ -64,6 +64,49 @@ router.get('/', function (req, res) {
   }
 });
 
+router.get('/:id', function (req, res) {
+  var sent = false;
+  var token = req.headers.token;
+  if (!token) {
+    res.status(errors.token_missing()).send('Token is missing');
+    sent = true;
+  } else if (!valid.token(token)) {
+    res.status(errors.bad_request()).send('Token is not token');
+    sent = true;
+  } else {
+    db.check_token_and_permission(gr, token, function (err, return_value, client) {
+      if (!return_value) {
+        sent = true;
+        res.status(errors.bad_request()).send('Token missing or invalid');
+      } else if (return_value.genders_read === false) {
+        sent = true;
+        res.status(errors.no_permission()).send('No permission');
+      } else if (return_value.genders_read === true) {
+        if (return_value.expiry_timestamp < Date.now()) {
+          sent = true;
+          res.status(errors.access_token_expired()).send('Access token expired');
+        } else {
+          var sql_query = sql.select('*').from(consts.table_genders()).where('v2.genders.gender_id', req.params.id);
+          console.log("The whole query in string: " + sql_query.toString());
+
+          if (!sent) {
+            client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+              if (err) {
+                sent = true;
+                res.status(errors.server_error()).send('error fetching client from pool: ' + err);
+                return console.error('error fetching client from pool', err);
+              } else {
+                q.save_sql_query(sql_query.toString());
+                res.json(result.rows[0]);
+              }
+            });
+          }
+        }
+      }
+    });
+  }
+});
+
 /**
  * Edit gender
  */
