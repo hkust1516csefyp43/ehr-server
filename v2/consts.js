@@ -77,6 +77,9 @@ module.exports = {
   table_prescriptions: function () {
     return this.version_table_prefix() + "prescriptions";
   },
+  table_queries: function() {
+    return this.version_table_prefix() + "queries";
+  },
   table_related_data: function () {
     return this.version_table_prefix() + "related_data";
   },
