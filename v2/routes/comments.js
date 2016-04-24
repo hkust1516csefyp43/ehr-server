@@ -130,8 +130,10 @@ router.post('/:vid', function (req, res) {
                     sent = true;
                     res.json(result.rows[0]);
                   } else if (result.rows.length === 0) {
+                    sent = true;
                     res.status(errors.not_found()).send('Insertion failed');
                   } else {
+                    sent = true;
                     res.status(errors.server_error()).send('Sth weird is happening');
                   }
                 }

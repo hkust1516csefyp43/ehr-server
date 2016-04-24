@@ -75,7 +75,55 @@ router.get('/', function (req, res) {
  * i.e. server receives requests plus a list of queries, process them one by one, and then report how many pass through, how many does not
  */
 router.post('/', function (req, res) {
-
+  var token = req.headers.token;
+  var sent = false;
+  if (!token) {
+    sent = true;
+    res.status(errors.token_missing()).send('Token is missing');
+  } else {
+    db.check_token_and_permission(permission_write, token, function (err, return_value, client) {
+      if (!return_value) {
+        sent = true;
+        res.status(errors.bad_request()).send('Token missing or invalid');
+      } else if (return_value[permission_write] === false) {
+        sent = true;
+        res.status(errors.no_permission()).send('No permission');
+      } else if (return_value[permission_write] === true) {
+        if (return_value.expiry_timestamp < Date.now()) {
+          sent = true;
+          res.status(errors.access_token_expired()).send('Access token expired');
+        } else {
+          var params = {};
+          if (req.body) {
+            console.log("query: " + JSON.stringify(req.body));
+            if (req.body.query) {
+              console.log("query: " + req.body.query);
+              if (!sent) {
+                client.query(req.body.query, function (err, result) {   //run it
+                  if (!err) {
+                    if (result.rows.length !== 1) {
+                      //if no error >> construct sql_query to queries
+                      var sql_query = sql.insert(this_table, req.body).returning('*');
+                      console.log("is it working?" + JSON.stringify(sql_query));
+                      res.send('in progress');
+                    }
+                    console.log("empty results");
+                  } //else == error >> just skip
+                  console.log(JSON.stringify(err));
+                });
+              }
+            } else {
+              sent = true;
+              res.status(errors.bad_request()).send('query cannot be empty');
+            }
+          } else {
+            sent = true;
+            res.status(errors.bad_request()).send('body cannot be empty');
+          }
+        }
+      }
+    });
+  }
 });
 
 module.exports = router;
