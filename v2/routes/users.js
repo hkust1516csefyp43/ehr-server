@@ -39,8 +39,9 @@ router.get('/', function (req, res) {
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
+          //TODO do not return password and related stuff
           var sql_query = sql
-            .select()
+            .select('v2.users.birth_day', 'v2.users.birth_month', 'v2.users.birth_year', 'v2.users.create_timestamp', 'v2.users.email', 'v2.users.first_name', 'v2.users.gender_id', 'v2.users.honorific', 'image_id', 'last_name', 'middle_name', 'nickname', 'phone_country_code', 'phone_number', 'role_id', 'user_id', 'username')
             .from(consts.table_users())
             .where(params);
 
@@ -284,7 +285,7 @@ router.post('/', function (req, res) {
               if (phone_number)
                 params.phone_number = phone_number;
 
-              var sql_query = sql.insert(consts.table_users(), params).returning('*');
+              var sql_query = sql.insert(consts.table_users(), params).returning();
               console.log(sql_query.toString());
 
               if (!sent)
@@ -418,7 +419,7 @@ router.put('/:id', function (req, res) {
           var sql_query = sql
             .update(consts.table_users(), params)
             .where(sql('user_id'), req.params.id)
-            .returning('*');
+            .returning('v2.users.birth_day', 'v2.users.birth_month', 'v2.users.birth_year', 'v2.users.create_timestamp', 'v2.users.email', 'v2.users.first_name', 'v2.users.gender_id', 'v2.users.honorific', 'image_id', 'last_name', 'middle_name', 'nickname', 'phone_country_code', 'phone_number', 'role_id', 'user_id', 'username');
 
           console.log(sql_query.toString());
           if (!sent)
@@ -551,7 +552,7 @@ router.put('/change_info/:id', function (req, res) {
           var sql_query = sql
             .update(consts.table_users(), params)
             .where(sql('user_id'), req.params.id)
-            .returning('*');
+            .returning('v2.users.birth_day', 'v2.users.birth_month', 'v2.users.birth_year', 'v2.users.create_timestamp', 'v2.users.email', 'v2.users.first_name', 'v2.users.gender_id', 'v2.users.honorific', 'image_id', 'last_name', 'middle_name', 'nickname', 'phone_country_code', 'phone_number', 'role_id', 'user_id', 'username');
 
           console.log(sql_query.toString());
           if (!sent)
@@ -599,7 +600,7 @@ router.delete('/:id', function (req, res) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
 
-          var sql_query = sql.delete().from(consts.table_users()).where(sql('user_id'), req.params.id).returning('*');
+          var sql_query = sql.delete().from(consts.table_users()).where(sql('user_id'), req.params.id).returning('v2.users.birth_day', 'v2.users.birth_month', 'v2.users.birth_year', 'v2.users.create_timestamp', 'v2.users.email', 'v2.users.first_name', 'v2.users.gender_id', 'v2.users.honorific', 'image_id', 'last_name', 'middle_name', 'nickname', 'phone_country_code', 'phone_number', 'role_id', 'user_id', 'username');
           console.log("The whole query in string: " + sql_query.toString());
 
           if (!sent) {
