@@ -93,28 +93,43 @@ router.post('/', function (req, res) {
           sent = true;
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
-          var params = {};
           if (req.body) {
             console.log("query: " + JSON.stringify(req.body));
-            if (req.body.query) {
-              console.log("query: " + req.body.query);
-              if (!sent) {
-                client.query(req.body.query, function (err, result) {   //run it
-                  if (!err) {
-                    if (result.rows.length !== 1) {
-                      //if no error >> construct sql_query to queries
-                      var sql_query = sql.insert(this_table, req.body).returning('*');
-                      console.log("is it working?" + JSON.stringify(sql_query));
-                      res.send('in progress');
-                    }
-                    console.log("empty results");
-                  } //else == error >> just skip
-                  console.log(JSON.stringify(err));
-                });
-              }
-            } else {
-              sent = true;
-              res.status(errors.bad_request()).send('query cannot be empty');
+            var params = {};
+            params.query_id = req.body.query_id;
+            params.user_id = req.body.user_id;
+            params.create_timestamp = req.body.create_timestamp;
+            params.query = req.body.query;
+
+            var sql_query = sql.insert(this_table, params).returning('*');
+            console.log("The whole query in string: " + sql_query.toString());
+            if (!sent) {
+              client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+                if (err) {
+                  res.status(errors.server_error()).send('error fetching client from pool: ' + err);
+                  sent = true;
+                  return console.error('error fetching client from pool', err);
+                } else {
+                  if (result.rows.length === 1) {
+                    client.query(req.body.query, function(err, result) {
+                      if (err) {
+                        sent = true;
+                        res.status(errors.not_found()).send('Fail to execute');
+                      } else {
+                        sent = true;
+                        res.send('Successful I guess?');
+                      }
+                    });
+                  } else if (result.rows.length === 0) {
+                    sent = true;
+                    res.status(errors.not_found()).send('Fail to insert');
+                  } else {
+                    //how can 1 pk return more than 1 row!?
+                    sent = true;
+                    res.status(errors.server_error()).send('Sth weird is happening');
+                  }
+                }
+              });
             }
           } else {
             sent = true;

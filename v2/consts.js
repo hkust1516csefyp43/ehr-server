@@ -6,7 +6,7 @@ module.exports = {
     return 16;
   },
   list_limit: function () {
-    return 500;
+    return 5000;
   },
   version: function () {
     return "v2";
