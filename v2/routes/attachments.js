@@ -188,6 +188,10 @@ router.post('/', function (req, res) {
           if (file_name)
             params.file_name = file_name;
 
+          var file_in_base64 = body.file_in_base64;
+          if (file_in_base64)
+            params.file_in_base64 = file_in_base64;
+
           var sql_query = sql.insert(consts.table_attachments(), params).returning('*');
           console.log(sql_query.toString());
 
@@ -249,6 +253,10 @@ router.put('/:id', function (req, res) {
           var user_id = body.user_id;
           if (user_id)
             params.user_id = user_id;
+
+          var file_in_base64 = body.file_in_base64;
+          if (file_in_base64)
+            params.file_in_base64 = file_in_base64;
 
           if (valid.empty_object(params)) {
             sent = true;
