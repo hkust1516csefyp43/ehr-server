@@ -117,7 +117,7 @@ router.post('/', function (req, res) {
                         res.status(errors.not_found()).send('Fail to execute');
                       } else {
                         sent = true;
-                        res.send('Successful I guess?');
+                        res.json(result.rows[0]);
                       }
                     });
                   } else if (result.rows.length === 0) {
