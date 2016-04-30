@@ -87,7 +87,14 @@ router.get('/', function (req, res) {
                 sent = true;
                 return console.error('error fetching client from pool', err);
               } else {
-                q.save_sql_query(sql_query.toString());
+                q.save_sql_query(sql_query.toString(), return_value.user_id, function (err, return_value, client) {
+                  if (err) {
+                    if (!sent) {
+                      sent = true;
+                      res.status(errors.server_error()).send("Something wrong (error code 10004)");
+                    }
+                  }
+                });
                 res.json(result.rows);
               }
             });
@@ -135,7 +142,14 @@ router.get('/:id', function (req, res) {
                 return console.error('error fetching client from pool', err);
               } else {
                 if (result.rows.length === 1) {
-                  q.save_sql_query(sql_query.toString());
+                  q.save_sql_query(sql_query.toString(), return_value.user_id, function (err, return_value, client) {
+                    if (err) {
+                      if (!sent) {
+                        sent = true;
+                        res.status(errors.server_error()).send("Something wrong (error code 10004)");
+                      }
+                    }
+                  });
                   sent = true;
                   res.json(result.rows[0]);
                 } else if (result.rows.length === 0) {
@@ -202,7 +216,14 @@ router.post('/', function (req, res) {
               return console.error('error fetching client from pool', err);
             } else {
               if (result.rows.length === 1) {
-                q.save_sql_query(sql_query.toString());
+                q.save_sql_query(sql_query.toString(), return_value.user_id, function (err, return_value, client) {
+                  if (err) {
+                    if (!sent) {
+                      sent = true;
+                      res.status(errors.server_error()).send("Something wrong (error code 10004)");
+                    }
+                  }
+                });
                 sent = true;
                 res.json(result.rows[0]);
               } else if (result.rows.length === 0) {
@@ -277,7 +298,14 @@ router.put('/:id', function (req, res) {
                 return console.error('error fetching client from pool', err);
               } else {
                 if (result.rows.length === 1) {
-                  q.save_sql_query(sql_query.toString());
+                  q.save_sql_query(sql_query.toString(), return_value.user_id, function (err, return_value, client) {
+                    if (err) {
+                      if (!sent) {
+                        sent = true;
+                        res.status(errors.server_error()).send("Something wrong (error code 10004)");
+                      }
+                    }
+                  });
                   sent = true;
                   res.json(result.rows[0]);
                 } else if (result.rows.length === 0) {
@@ -333,7 +361,14 @@ router.delete('/:id', function (req, res) {
                 return console.error('error fetching client from pool', err);
               } else {
                 if (result.rows.length === 1) {
-                  q.save_sql_query(sql_query.toString());
+                  q.save_sql_query(sql_query.toString(), return_value.user_id, function (err, return_value, client) {
+                    if (err) {
+                      if (!sent) {
+                        sent = true;
+                        res.status(errors.server_error()).send("Something wrong (error code 10004)");
+                      }
+                    }
+                  });
                   sent = true;
                   res.json(result.rows[0]);
                 } else if (result.rows.length === 0) {

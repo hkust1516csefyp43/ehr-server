@@ -96,9 +96,9 @@ router.post('/', function (req, res) {
           if (req.body) {
             console.log("query: " + JSON.stringify(req.body));
             var params = {};
-            params.query_id = req.body.query_id;
+            params.query_id = util.random_string(consts.id_random_string_length());
             params.user_id = req.body.user_id;
-            params.create_timestamp = req.body.create_timestamp;
+            params.create_timestamp = moment();
             params.query = req.body.query;
 
             var sql_query = sql.insert(this_table, params).returning('*');
