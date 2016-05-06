@@ -34,6 +34,7 @@ router.get('/', function (req, res) {
       if (err) {
         sent = true;
         res.status(errors.bad_request()).send('somethings wrong');
+        console.log(JSON.stringify(err));
       } else {
         client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
           done();

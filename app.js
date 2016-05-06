@@ -45,7 +45,6 @@ var v2Tokens = require('./v2/routes/tokens');
 var v2Triages = require('./v2/routes/triages');
 var v2Users = require('./v2/routes/users');
 var v2Visits = require('./v2/routes/visits');
-
 var v2Login = require('./v2/routes/login');
 
 //old stuff

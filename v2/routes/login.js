@@ -16,10 +16,12 @@ var login_logic = require('../login_logic');
 var q = require('../query');
 var sql = require('sql-bricks-postgres');
 
-/* POST */
+/**
+ * 1)
+ * 2) use refresh token + device_id to get new access token
+ */
 router.post('/', function (req, res) {
   var sent = false;
-  var params = {};
   var param_headers = req.headers;
   var body = req.body;
   console.log(JSON.stringify(param_headers));

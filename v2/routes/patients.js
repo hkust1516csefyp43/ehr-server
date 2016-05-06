@@ -252,6 +252,193 @@ router.get('/', function (req, res) {
   }
 });
 
+/**
+ * TODO response with the amount of patients according to params
+ */
+router.get('/count/', function (req, res) {
+
+  var sent = false;
+  var params = {};
+  var param_query = req.query;
+  var param_headers = req.headers;
+  console.log(JSON.stringify(param_query));
+  console.log(JSON.stringify(param_headers));
+  var token = param_headers.token;
+  console.log(token);
+  if (!token) {
+    res.status(errors.token_missing()).send('Token is missing');
+    sent = true;
+  } else {
+    db.check_token_and_permission("patients_read", token, function (err, return_value, client) {
+      if (!return_value) {                                        //return value == null >> sth wrong
+        res.status(errors.bad_request()).send('Token missing or invalid');
+      } else if (return_value.patients_read === false) {          //false (no permission)
+        res.status(errors.no_permission()).send('No permission');
+      } else if (return_value.patients_read === true) {           //w/ permission
+        if (return_value.expiry_timestamp < Date.now()) {
+          res.status(errors.access_token_expired()).send('Access token expired');
+        } else {
+
+          var sql_query = sql
+            .select('COUNT(' + consts.table_patients() + ".*" + ')')
+            .from(consts.table_patients());
+
+          var cont = function () {
+
+            // //These 3 are mutually exclusive
+            // var age = param_query.age;
+            // var age_ot = param_query.age_ot;
+            // var age_yt = param_query.age_yt;
+            //
+            // //TODO age_ot and age_yt can exist together iff age_yt > age_ot
+            // switch (util.mutually_exclusive(age, age_ot, age_yt)) {
+            //   case 0:
+            //     //Do nothing, LITERALLY
+            //     break;
+            //   case 1:
+            //     if (age) {
+            //       //TODO calculation
+            //     } else if (age_ot) {
+            //       //TODO calculation
+            //     } else if (age_yt) {
+            //       //TODO calculation
+            //     }
+            //     break;
+            //   case 2:
+            //     if (!age) { //i.e. age_ot and age_yt exists, although technically it can be age + age_ot/yt >> TODO fix that
+            //       if (age_yt - age_ot > 1) {
+            //         //TODO ok, calculate
+            //       } else {
+            //         res.status(errors.bad_request()).send('age_yt must be larger than age_ot; if it is equal, use age');
+            //       }
+            //     }
+            //     break;
+            //   default:
+            //     res.status(errors.bad_request()).send('age, ago_ot and age_yt must be mutually exclusive');
+            //     sent = true;
+            // }
+
+            var gender_id = param_query.gender_id;
+            if (gender_id) {
+              params.gender_id = gender_id;
+            }
+
+            var blood_type_id = param_query.blood_type_id;
+            if (blood_type_id) {
+              params.blood_type_id = blood_type_id;
+            }
+
+            var phone_number_country_code = param_query.phone_number_country_code;
+            if (phone_number_country_code) {
+              params.phone_number_country_code = phone_number_country_code;
+            }
+
+            var first_name = param_query.first_name;
+            if (first_name) {
+              sql_query.where(sql.ilike('first_name', util.pre_suf_percent(first_name)));
+            }
+
+            var middle_name = param_query.middle_name;
+            if (middle_name) {
+              sql_query.where(sql.ilike('first_name', util.pre_suf_percent(middle_name)));
+            }
+
+            var last_name = param_query.last_name;
+            if (last_name) {
+              sql_query.where(sql.ilike('first_name', util.pre_suf_percent(last_name)));
+            }
+
+            var honorific = param_query.honorific;
+            if (honorific) {
+              sql_query.where(sql.ilike('first_name', util.pre_suf_percent(honorific)));
+            }
+
+            var native_name = param_query.native_name;
+            if (native_name) {
+              sql_query.where(sql.ilike('first_name', util.pre_suf_percent(native_name)));
+            }
+            
+            var related_to_id = param_query.related_to_id;
+            if (related_to_id) {
+              sql_query.from(consts.table_relationships());
+              sql_query.where(sql.and(sql.or(sql.eq(sql(consts.table_relationships() + ".patient_id_1"), related_to_id), sql.eq(sql(consts.table_relationships() + ".patient_id_2"), related_to_id)), sql.or(sql.eq(sql(consts.table_relationships() + ".patient_id_1"), sql(consts.table_patients() + ".patient_id")), sql.eq(sql(consts.table_relationships() + ".patient_id_2"), sql(consts.table_patients() + ".patient_id"))), sql.notEq(sql(consts.table_patients() + ".patient_id"), related_to_id)));
+            }
+
+            console.log(JSON.stringify(params));
+
+            var visit_date = param_query.visit_date;
+            var visit_date_range_before = param_query.visit_date_range_before;
+            var visit_date_range_after = param_query.visit_date_range_after;
+
+
+            if (visit_date) {
+              if (visit_date_range_after || visit_date_range_before) {
+                if (!sent) {
+                  res.status(errors.bad_request()).send("You cant have both visit_date and visit_data_range_before/after");
+                  sent = true;
+                }
+              } else {
+                sql_query.from(consts.table_visits());
+                sql_query.where(sql.and(sql.gte(consts.table_visits() + ".create_timestamp", visit_date), sql.lt(consts.table_visits() + ".create_timestamp", sql("(date '" + visit_date + "' + integer '1')"))));
+                sql_query.where(sql(consts.table_visits() + ".patient_id"), sql(consts.table_patients() + ".patient_id"));
+              }
+            } else {
+              //TODO visit_date_range
+            }
+
+            var next_station = param_query.next_station;
+            if (next_station) {
+              if (!visit_date) {
+                sql_query.from(consts.table_visits());
+              }
+              sql_query.where(sql(consts.table_visits() + ".next_station"), sql(next_station));
+              sql_query.where(sql(consts.table_visits() + ".patient_id"), sql(consts.table_patients() + ".patient_id"));
+            }
+
+            sql_query.where(params);
+
+            console.log("The whole query in string A: " + sql_query.toString());
+
+            if (!sent) {
+              client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+                if (err) {
+                  res.send('error fetching client from pool 2');
+                  sent = true;
+                  return console.error('error fetching client from pool', err);
+                } else {
+                  q.save_sql_query(sql_query.toString());
+                  res.json(result.rows[0]);
+                }
+              });
+            }
+          };
+
+          var clinic_id = param_query.clinic_id;
+          if (clinic_id) {
+            db.is_clinic_global(clinic_id, function (err, return_value, client) {  //TODO i might need to cache that or it will be too slow
+              if (err) {
+                sent = true;
+                res.status(errors.server_error()).send("something wrong");
+              }
+              if (return_value) {
+                if (return_value.is_global === false) {
+                  sql_query.where('clinic_id', clinic_id.toString());
+                }
+                //else >> literally do nothing, just move on
+                cont();
+              } else {
+                //TODO response error
+              }
+            });
+          } else {
+            cont();
+          }
+        }
+      }
+    });
+  }
+});
+
 /* GET */
 router.get('/:id', function (req, res) {
   var sent = false;
