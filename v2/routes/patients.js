@@ -260,7 +260,7 @@ router.get('/', function (req, res) {
 });
 
 /**
- * TODO response with the amount of patients according to params
+ * Get a json object of count of how many patients (according to your input param)
  */
 router.get('/count/', function (req, res) {
 

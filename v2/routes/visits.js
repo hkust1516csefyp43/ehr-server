@@ -107,6 +107,94 @@ router.get('/', function (req, res) {
   }
 });
 
+router.get('/count', function (req, res) {
+  var sent = false;
+  var params = {};
+  var param_query = req.query;
+  var param_headers = req.headers;
+  console.log(JSON.stringify(param_query));
+  console.log(JSON.stringify(param_headers));
+  var token = param_headers.token;
+  console.log(token);
+  if (!token) {
+    res.status(errors.token_missing()).send('Token is missing');
+    sent = true;
+  } else {
+    db.check_token_and_permission("visits_read", token, function (err, return_value, client) {
+      if (!return_value) {                                        //return value == null >> sth wrong
+        res.status(errors.bad_request()).send('Token missing or invalid');
+      } else if (return_value.visits_read === false) {          //false (no permission)
+        res.status(errors.no_permission()).send('No permission');
+      } else if (return_value.visits_read === true) {           //w/ permission
+        if (return_value.expiry_timestamp < Date.now()) {
+          res.status(errors.access_token_expired()).send('Access token expired');
+        } else {
+
+          var tag = req.query.tag;
+          if (tag)
+            params.tag = tag;
+
+          var next_station = req.query.next_station;
+          if (next_station)
+            params.next_station = next_station;
+
+          var patient_id = req.query.patient_id;
+          if (patient_id)
+            params.patient_id = patient_id;
+
+          var visit_date = req.query.visit_date;
+          var visit_date_range_before = req.query.visit_date_range_before;
+          var visit_date_range_after = req.query.visit_date_range_after;
+
+          var sql_query = sql
+            .select('COUNT(' + consts.table_visits() + '.*)')
+            .from(consts.table_visits())
+            .where(params);
+
+          if (visit_date) {
+            if (visit_date_range_after || visit_date_range_before) {
+              if (!sent) {
+                res.status(errors.bad_request()).send("You cant have both visit_date and visit_data_range_before/after");
+                sent = true;
+              }
+            } else {
+              sql_query.where(sql.and(sql.gte(consts.table_visits() + ".create_timestamp", visit_date), sql.lt(consts.table_visits() + ".create_timestamp", sql("(date '" + visit_date + "' + integer '1')"))));
+            }
+          } else if (visit_date_range_after && visit_date_range_before) {
+            sql_query.where(sql.and(sql.gte(consts.table_visits() + ".create_timestamp", visit_date_range_after), sql.lt(consts.table_visits() + ".create_timestamp", visit_date_range_before)));
+          } else if (visit_date_range_after) {
+            sql_query.where(sql.gte(consts.table_visits() + ".create_timestamp", visit_date_range_after));
+          } else if (visit_date_range_before) {
+            sql_query.where(sql.lt(consts.table_visits() + ".create_timestamp", visit_date_range_before));
+          }
+
+          console.log("The whole query in string: " + sql_query.toString());
+
+          if (!sent) {
+            client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+              if (err) {
+                res.status(errors.server_error()).send('error fetching client from pool: ' + err);
+                sent = true;
+                return console.error('error fetching client from pool', err);
+              } else {
+                q.save_sql_query(sql_query.toString(), return_value.user_id, function (err, return_value, client) {
+                  if (err) {
+                    if (!sent) {
+                      sent = true;
+                      res.status(errors.server_error()).send("Something wrong (error code 10004)");
+                    }
+                  }
+                });
+                res.json(result.rows[0]);
+              }
+            });
+          }
+        }
+      }
+    });
+  }
+});
+
 /* POST */
 router.post('/', function (req, res) {
   var sent = false;
