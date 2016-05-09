@@ -1,13 +1,8 @@
 {
   "cloud_pgsql_connection_string": "postgres://zepqdcvrvhsmgv:k4LI83mCEcXt3v1RFKv20AOjmr@ec2-54-83-29-15.compute-1.amazonaws.com:5432/d3n867p1e7dkp?ssl=true",
-  "local_pgsql_connection_string": "postgres://localhost/sight",
+  "local_pgsql_connection_string": "postgres://sight:sight@localhost/sight",
   "cloud_api_host": "https://ehr-api.herokuapp.com/",
   "local_api_host": "http://localhost:3000/",
   "on_the_cloud": true,
-  "android_app_versionCode": 1,
-  "cloudinary": {
-    "cloud_name": "hkust1516csefyp43",
-    "api_key": "481781176725451",
-    "api_secret": "e44DHc9nERY2meBmyE8srpQWAgE"
-  }
+  "android_app_versionCode": 1
 }

@@ -101,7 +101,7 @@ router.get('/', function (req, res) {
                   if (err) {
                     if (!sent) {
                       sent = true;
-                      res.status(errors.server_error()).send("Something wrong (error code 10004)");
+                      res.status(errors.server_error()).send("Something wrong (error code 10013)");
                     }
                   }
                 })
@@ -158,7 +158,7 @@ router.get('/:id', function (req, res) {
                     if (err) {
                       if (!sent) {
                         sent = true;
-                        res.status(errors.server_error()).send("Something wrong (error code 10004)");
+                        res.status(errors.server_error()).send("Something wrong (error code 10014)");
                       }
                     }
                   })} else if (result.rows.length === 0) {
@@ -244,7 +244,7 @@ router.post('/', function (req, res) {
                     if (err) {
                       if (!sent) {
                         sent = true;
-                        res.status(errors.server_error()).send("Something wrong (error code 10004)");
+                        res.status(errors.server_error()).send("Something wrong (error code 10015)");
                       }
                     }
                   })} else if (result.rows.length === 0) {
@@ -325,7 +325,7 @@ router.put('/:id', function (req, res) {
                     if (err) {
                       if (!sent) {
                         sent = true;
-                        res.status(errors.server_error()).send("Something wrong (error code 10004)");
+                        res.status(errors.server_error()).send("Something wrong (error code 10016)");
                       }
                     }
                   })
@@ -379,7 +379,7 @@ router.delete('/:id', function (req, res) {
                     if (err) {
                       if (!sent) {
                         sent = true;
-                        res.status(errors.server_error()).send("Something wrong (error code 10004)");
+                        res.status(errors.server_error()).send("Something wrong (error code 10017)");
                       }
                     }
                   })

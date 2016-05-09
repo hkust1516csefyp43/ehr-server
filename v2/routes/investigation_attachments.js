@@ -91,7 +91,7 @@ router.get('/', function (req, res) {
                   if (err) {
                     if (!sent) {
                       sent = true;
-                      res.status(errors.server_error()).send("Something wrong (error code 10004)");
+                      res.status(errors.server_error()).send("Something wrong (error code 10064)");
                     }
                   }
                 });
@@ -146,7 +146,7 @@ router.get('/:id', function (req, res) {
                     if (err) {
                       if (!sent) {
                         sent = true;
-                        res.status(errors.server_error()).send("Something wrong (error code 10004)");
+                        res.status(errors.server_error()).send("Something wrong (error code 10065)");
                       }
                     }
                   });
@@ -226,7 +226,7 @@ router.post('/', function (req, res) {
                   if (err) {
                     if (!sent) {
                       sent = true;
-                      res.status(errors.server_error()).send("Something wrong (error code 10004)");
+                      res.status(errors.server_error()).send("Something wrong (error code 10066)");
                     }
                   }
                 });
@@ -304,7 +304,7 @@ router.put('/:id', function (req, res) {
                     if (err) {
                       if (!sent) {
                         sent = true;
-                        res.status(errors.server_error()).send("Something wrong (error code 10004)");
+                        res.status(errors.server_error()).send("Something wrong (error code 10067)");
                       }
                     }
                   });
@@ -367,7 +367,7 @@ router.delete('/:id', function (req, res) {
                     if (err) {
                       if (!sent) {
                         sent = true;
-                        res.status(errors.server_error()).send("Something wrong (error code 10004)");
+                        res.status(errors.server_error()).send("Something wrong (error code 10068)");
                       }
                     }
                   });

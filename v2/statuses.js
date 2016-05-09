@@ -22,6 +22,9 @@ module.exports = {
   refresh_token_expired: function () {
     return 440;
   },
+  device_id_blocked: function() {
+    return 450;
+  },
   token_does_not_exist: function () {
     return 497;
   },

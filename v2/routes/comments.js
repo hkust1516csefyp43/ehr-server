@@ -68,7 +68,7 @@ router.get('/:vid', function (req, res) {
                     if (err) {
                       if (!sent) {
                         sent = true;
-                        res.status(errors.server_error()).send("Something wrong (error code 10004)");
+                        res.status(errors.server_error()).send("Something wrong (error code 10028)");
                       }
                     }
                   });
@@ -137,7 +137,7 @@ router.post('/:vid', function (req, res) {
                       if (err) {
                         if (!sent) {
                           sent = true;
-                          res.status(errors.server_error()).send("Something wrong (error code 10004)");
+                          res.status(errors.server_error()).send("Something wrong (error code 10029)");
                         }
                       }
                     });
@@ -195,7 +195,7 @@ router.delete('/:id', function (req, res) {
                     if (err) {
                       if (!sent) {
                         sent = true;
-                        res.status(errors.server_error()).send("Something wrong (error code 10004)");
+                        res.status(errors.server_error()).send("Something wrong (error code 10030)");
                       }
                     }
                   });

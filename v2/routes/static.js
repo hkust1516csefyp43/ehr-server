@@ -181,7 +181,9 @@ router.get('/status/', function (req, res) {
   var cloud = require('../../config.json').on_the_cloud;
   if (cloud === false) {
     console.log('pretend rpi is doing sth');
-    ops.temperature = shell.exec('/opt/vc/bin/vcgencmd measure_temp', {silent: true});
+    var temp = shell.exec('/opt/vc/bin/vcgencmd measure_temp', {silent: true});
+    temp = temp.output.replace('temp=', '');
+    ops.temperature = temp.replace('\n', '');
   }
   res.json(ops);
 });

@@ -70,6 +70,11 @@ module.exports = {
       }
     });
   },
+  /**
+   * get the is_global value of a clinic
+   * @param clinic_id of the clinic
+   * @param callback
+   */
   is_clinic_global: function (clinic_id, callback) {
     pg.connect(module.exports.url(), function (err, client, done) {
       if (err) {
@@ -87,6 +92,34 @@ module.exports = {
           } else {
             console.log("the result: " + JSON.stringify(result.rows));
             callback(null, result.rows[0], client);
+          }
+        });
+      }
+    });
+  },
+  /**
+   * Check if this device_id is in the blocked_device table
+   * @param device_id
+   * @param err
+   * @param callback
+   */
+  is_this_device_blocked: function (device_id, callback) {
+    pg.connect(module.exports.url(), function (err, client, done) {
+      if (err) {
+        callback(err, null, client);
+        return console.error('error fetching client from pool', err);
+      } else {
+        var sql_query = sql
+          .select('blocked_device_id')
+          .from(consts.table_blocked_devices())
+          .where('blocked_device_id', device_id);
+        client.query(sql_query.toParams().text, sql_query.toParams.values, function (err, result) {
+          if (err) {
+            console.log("some error: " + err);
+            callback(err, false, client);
+          } else {
+            console.log("the result: " + JSON.stringify(result.rows));
+            callback(null, result.rows[0].device_id, client);
           }
         });
       }
