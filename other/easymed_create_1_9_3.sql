@@ -50,7 +50,7 @@ CREATE TABLE v2.clinics (
     CONSTRAINT clinics_pk PRIMARY KEY (clinic_id)
 );
 
-COMMENT ON COLUMN v2.clinics.global IS 'e.g. Office is a clinic';
+COMMENT ON COLUMN v2.clinics.is_global IS 'e.g. Office is a clinic';
 
 -- Table: comments
 CREATE TABLE v2.comments (
@@ -131,6 +131,7 @@ CREATE TABLE v2.countries (
     phone_country_code smallint  NULL,
     phone_number_syntax text  NULL,
     create_timestamp timestamp with time zone  NOT NULL,
+    emoji text NULL,
     CONSTRAINT countries_pk PRIMARY KEY (country_id)
 );
 
@@ -144,7 +145,7 @@ CREATE TABLE v2.document_types (
 -- Table: documents
 CREATE TABLE v2.documents (
     document_id text  NOT NULL,
-    document_type_id text  NOT NULL,
+    document_type text  NOT NULL,
     patient_id text  NOT NULL,
     document text  NOT NULL,
     CONSTRAINT documents_pk PRIMARY KEY (document_id)
@@ -715,7 +716,7 @@ ALTER TABLE v2.pharmacies ADD CONSTRAINT pharmacies_visits
 
 -- Reference: prescriptions_consultation (table: prescriptions)
 ALTER TABLE v2.prescriptions ADD CONSTRAINT prescriptions_consultation 
-    FOREIGN KEY (consultation_consultation_id)
+    FOREIGN KEY (consultation_id)
     REFERENCES v2.consultations (consultation_id)  
     NOT DEFERRABLE 
     INITIALLY IMMEDIATE
@@ -833,14 +834,201 @@ ALTER TABLE v2.visits ADD CONSTRAINT visits_patients
     INITIALLY IMMEDIATE
 ;
 
--- TODO countries
--- TODO clinics
--- TODO blood_types
--- TODO genders
--- TODO document_types
--- TODO suitcases
--- TODO keywords
--- TODO roles: admin
--- TODO roles: doctor
--- TODO roles: nurse
+-- countries
+INSERT INTO v2.countries (country_id, english_name, native_name, phone_country_code, phone_number_syntax, create_timestamp) VALUES
+('uVrV2ypMrMCx1bU9', 'Singapore', 'Singapore', 65,'^\d{8}\b', now()),
+('MHgJ4UAuzKQ6qeFq', 'Cambodia', 'កម្ពុជា', 855,'', now()),
+('zwhQ211hktYEMBgq', 'Timor Leste', 'Timór Lorosa\'e', 670,'', now()),
+('7UPJ6d9gbf1N4j94', 'Hong Kong', '香港', 852,'^\d{8}\b', now()),
+('NcJusq78xGHh18HA', 'Australia', 'Australia', 61,'', now());
+
+
+-- blood_types
+INSERT INTO v2.blood_types (blood_type_id, blood_type) VALUES ('y4fJB3khxq9yPt9v', 'A+');
+('DR9HX1n68Xx4uNrU', 'A-'),
+('6ck1cypE9qXEBV4T', 'B+'),
+('jKYf4bN6rjWwzwyt', 'B-'),
+('y7uPbrFW9AEfmEfk', 'O+'),
+('RrGFjPYrJvxC4MZ6', 'O-'),
+('A2chWeVAn8erppfP', 'AB+'),
+('9utJN2ewPF7M2QM9', 'AB-');
+
+-- genders
+INSERT INTO v2.genders (gender_id, description, biological_gender) VALUES
+('NztY6nwNA7FH2Z16', 'Male', 'male'),
+('JPRPQzp1PhUnQu3X', 'Female', 'female');
+
+-- document_types
+INSERT INTO "document_types"("document_type_id","type") VALUES
+('sRVN5NazMKG4FMnk','hpi'),
+('tR7fDN9Nxf86dR5d','fh'),
+('D6g6ZDNxNEhCGNpf','sh'),
+('MUwn1Duv1sgsEVga','pmh');
+
+-- keywords TODO double check
+INSERT INTO v2.keywords (keyword_id, keyword, allergen) VALUES
+('Q4eq6V6qGn1JbjtP', 'dust', true),
+('rKqMex41zuN4Skf2', 'pollen', true),
+('Ne6TpkCQVQaPNrfq', 'peanut', true),
+('fGJfrPR4b3X9D22u', 'egg', true),
+('St5wWNqSbD36DraP', 'dog', true),
+('ETz6TseTZcABxTu3', 'cat', true),
+('YwhB6mR3GNaY2dyt', 'sea food', true),
+('42DY5TnW5ySwQjkc', 'meat', true);
+
+INSERT INTO v2.keywords (keyword_id, keyword, chief_complain) VALUES
+('PQWNByXTFB28vkUD', 'Cough', true),
+('8aaJmtEYr42jqQ6v', 'Headache', true),
+('TY6P741VvtqQ3UMT', 'Lower back pain', true),
+('zd1BNcGcG7vgZGPW', 'Knee pain', true),
+('V7MdMyfCUR75NfM8', 'Chest pain', true),
+('tVt18UfepUJtNe23', 'Abdominal pain', true),
+('BhnZRFU7YKgepRRJ', 'Diarrhoea', true),
+('14uRXj9rCTgW1sjG', 'Vomiting', true),
+('KFcygVe3Fgqxzm65', 'Conspitation', true),
+('6dggN7WQ2DbJVGsH', 'Dizzy', true),
+('S5YyXsp4RuCK7w6c', 'Palpitation', true),
+('2v5VC9sE8EKJ6JFg', 'Tiredness', true),
+('2C9fgjJ5D4UWXtWa', 'Stiff neck', true),
+('nb7zRyftypCnrqt7', 'Vaginal discharge', true),
+('ZGW6mgZKDntqeedM', 'Eye pain', true),
+('9zS4pBZ1D2Bf4DGp', 'Ear pain', true),
+('zmRRny8ysyRtMMZx', 'Leg / arm numbness (right / left)', true),
+('uRyT7w1ATFR6cQkC', 'Sore throat', true),
+('5C7kYvEVnQcd7K3K', 'Runny nose', true),
+('SnsrTT2HWdUffApW', 'Itchy (whole body)', true),
+('YzD6rzJXYPKhFKEE', 'Itchy (specific location)', true),
+('BM8u9wKRf92rTpZC', 'Elbow pain', true),
+('UEQGjJBbv8paZW8v', 'Mouth pain', true),
+('gJsDd3fSC9bsA6JV', 'Mouth ulcer', true),
+('aNypN2dgJCg8y3PZ', 'Infected wound', true),
+('3v45GWkQASeZxm3h', 'Nose bleeding', true),
+('MK5Ve3W5CDer8JG1', 'Nose block', true),
+('7v3kDWkzDj4AdUKj', 'Vaginal itchiness', true),
+('Pnve8mU76T5xv5pn', 'Itchy skin', true),
+('dfKGGn2v7f1pCDYX', 'Itchy rash', true),
+('tbHm5UxFe4BuwR7x', 'Epigastralgia', true),
+('2QECmesE2DMte7ea', 'Ankle pain', true),
+('JvnCFafB3n4n2nTU', 'Wrist pain', true),
+('T7wnTrNuYbKbPN1C', 'Insomnia', true),
+('PfakA6wTZsyGpBr3', 'Dysphagia', true),
+('kY4bbf5kxq57HHUb', 'Polyuria', true),
+('XXH6dwGn8WNFdDmV', 'nocturnal polyuria ', true),
+('nd1a5EACRkn21hBd', 'Watery stool', true),
+('4q5R4pgYEByu7xdB', 'Gum bleeding', true),
+('k6TRJ6z6x6SmgN1y', 'Sleep disturbance', true),
+('G9gNZwn3yhEyup3g', 'Diabetes- type 1 or 2 ', true),
+('x3q3VuKMSPh69AVq', 'Tummy pain', true),
+('7dGfpgGnAYygdfx8', 'Weight loss', true),
+('d33bMCvs91KmVP9R', 'Appetite loss', true);
+
+INSERT INTO v2.keywords (keyword_id, keyword, diagnosis) VALUES
+('R49KMvmQBjjMtpcU', 'URTI', true),
+('S41A5C8cPr8k2s3V', 'pyelonephritis', true),
+('bjy8P9ABWVmDkb6T', 'arthritis', true),
+('VSREx4D2rXuw9mfu', 'UTI', true),
+('aufSTnMf2gtBvEWm', 'cystitis', true),
+('xgAzmuVP3rKfmsKe', 'conjunctivitis ', true),
+('rRB7rGESZhWG9b8H', 'tension headache ', true),
+('jkmUYZf9cSS2xW5x', 'migrain headache', true),
+('T5JwGpPNDRAqeYV6', 'encephalitis', true),
+('72SqDpuau2pGadNm', 'meningitis', true),
+('QFmHajtAN6kY63P9', 'cataract', true),
+('Q9c8RaJGxd9Fv6Ya', 'pterygium', true),
+('jDrSSvXdqhtN1vaZ', 'glaucoma', true),
+('n1kCwcw7TuryJkE3', 'otitis media', true),
+('YQsxC6qqvqUd7bwc', 'allergic rhinitis', true),
+('TvBqs5mxPZRsedwm', 'rhino-pharynxgitis', true),
+('yAvBevs4e7yC7B3A', 'sinusitis', true),
+('G7ftEVK3trNp6HPN', 'rhino-sinusitis', true),
+('WcM73MvBZzsv7R7x', 'larynxgitis', true),
+('fVKJ3qFGqNDxpze9', 'tonsilitis', true),
+('hTbgNRkRdrmcMCn4', 'bronchitis', true),
+('8SnQhSe6tsgkvuU9', 'bronchiolitis', true),
+('uTYh8hZR7Gpza8X4', 'bronchopneumonia', true),
+('9bmxTYKhRzBGWS9E', 'pneumonia', true),
+('8Jtf5Ef3G1zr4rPp', 'tuberculosis', true),
+('nd1gU33XWjX925eS', 'lung abcess', true),
+('RJqq4PefMvf5e1n2', 'asthma', true),
+('Ddfz6UJCzat135AC', 'COPD', true),
+('uPYpNpsjP3V573bk', 'lung cancer', true),
+('4xZpynbmzCY5zzse', 'pneumothorax', true),
+('1dae7S9sFVXn36X8', 'pleuritis', true),
+('x6u2FUBQZUEqg9Yc', 'lung trauma', true),
+('QjQxVM6YPsj7vK1Y', 'emphysema', true),
+('sb6P6Bgbq598XKev', 'atelectasis', true),
+('S16y6WY76nY1qKSm', 'heart failure', true),
+('5NVWQkeEAPdY9Bkd', 'hypertension', true),
+('e7Bb5YJgWEcXAvVt', 'diabetes', true),
+('qnNKvfPJeF5dQgbY', 'gastritis', true),
+('guQpnh5AqzgywUVY', 'gastroneteritis', true),
+('Jne3DuQUv22MRmKQ', 'IBD', true),
+('mQzu1MEexv3KFKeT', 'colonitis', true),
+('KdkfZtg6WzgvUwBp', 'appendicitis', true),
+('vnwrvA1fKS3NrFpx', 'hemorrhoid', true),
+('UHVG8YaPy1EKaEjw', 'oesteoarthritis', true),
+('v7sqN1gP8KZRJhVw', 'rheumatoid arthritis', true),
+('c4JJzd6dmhasWK5R', 'gout', true),
+('bC3h1qKMjVAXAHMm', 'GORD', true),
+('aWMpy7WGn6yB658K', 'sciatica', true),
+('Gbjs8Xg7zkZ5dgJt', 'stroke', true),
+('6PSADWf6G5kXeqss', 'external otitis', true),
+('GFYnxmadP4qXhbfT', 'nose polype', true),
+('snYB33gtAR1npzbR', 'common cold', true),
+('Yv68ZaXmZXsd2GSh', 'red eyes', true),
+('4EdhZHpkUxd2Pjtj', 'breast tumour', true),
+('enTjSGCBANe6Rwpv', 'vaginitis', true),
+('3ZVQSGFPNCv7Uyet', 'abdomen mass', true),
+('Mr21bcP1uKQG1pFr', 'herpes simplex', true),
+('sbkRrErNqc62xk6D', 'herpes zoster', true),
+('843ZFzA1DCtTpd3g', 'anemia', true),
+('cUGJM37F3zy46JNZ', 'enuresis', true),
+('HQTfQ7e8hCsCxsfq', 'infertility', true),
+('UghC4BGtRBh7Nn7A', 'menopause', true),
+('Hs7T1tExvesG179h', 'menorrhagia', true),
+('Xseuf9z8TWf8R5Zt', 'abscess', true),
+('awTT4sE9b552XBra', 'acne vulgaris', true),
+('qBNdwtAAhs741M8T', 'acne ropgaris', true);
+
+-- roles: admin, TODO doctor, nurse
+INSERT INTO v2.roles (role_id, name, attachments_read, attachments_write, blocked_devices_read, blocked_devices_write, blood_types_read, blood_types_write, clinics_read, clinics_write, comments_read, comments_write, consultation_attachments_read, consultation_attachments_write, consultations_read, consultations_write, countries_read, countries_write, document_types_read, document_types_write, documents_read, documents_write, emergency_contacts_read, emergency_contacts_write, genders_read, genders_write, investigation_attachments_read, investigation_attachments_write, investigations_read, investigations_write, keywords_read, keywords_write, medication_variants_read, medication_variants_write, medications_read, medications_write, notifications_read, notifications_write, patients_read, patients_write, pharmacies_read, pharmacies_write, prescriptions_read, prescriptions_write, related_data_read, related_data_write, relationship_types_read, relationship_types_write, roles_read, roles_write, suitcases_read, suitcases_write, tokens_read, tokens_write, triages_read, triages_write, users_read, users_write, visits_read, visits_write, relationships_read, relationships_write, queries_read, queries_write) VALUES
+('ncZ5EnnNtD9p4f7F','Admin',TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE);
+
 -- TODO users: admin
+INSERT INTO v2.users (user_id, role_id, first_name, username, salt, processed_password, create_timestamp) VALUES
+('5pFGdEw1hR3uSCgQ', 'ncZ5EnnNtD9p4f7F', 'Admin', 'admin', '', '', now());
+
+-- medications
+INSERT INTO v2.medications (medication_id, create_timestamp, user_id, medication) VALUES
+('gQ9ypgF7JxGJYmM2', now(), '5pFGdEw1hR3uSCgQ', 'Paracetamol'),
+('TyJD2gj6gtenvU1t', now(), '5pFGdEw1hR3uSCgQ', 'Ibuprofen'),
+('6TERHseFZ6FBWtS4', now(), '5pFGdEw1hR3uSCgQ', 'Diazepam'),
+('6bwpzVrBdFuC59n4', now(), '5pFGdEw1hR3uSCgQ', 'Penicilline'),
+('ennae9FN2UjBa9v7', now(), '5pFGdEw1hR3uSCgQ', 'Amoxicilline'),
+('EXaREUv8dzjmQ47M', now(), '5pFGdEw1hR3uSCgQ', 'Amlodipine'),
+('9s1x7MvUAHgwGW54', now(), '5pFGdEw1hR3uSCgQ', 'Ciprofloxacine'),
+('tdXw8ZFWPqMe2FYz', now(), '5pFGdEw1hR3uSCgQ', 'Omeprazole'),
+('nGXEpwpWKmWWjm1B', now(), '5pFGdEw1hR3uSCgQ', 'Cimetidine'),
+('4tSDj5mfAMGkY8Bp', now(), '5pFGdEw1hR3uSCgQ', 'Laxative'),
+('bye4WepqGgWqWPzS', now(), '5pFGdEw1hR3uSCgQ', 'Lisinopril'),
+('xVuPQF2xxHjxvFPS', now(), '5pFGdEw1hR3uSCgQ', 'Propranolol'),
+('Mmmh4dWWDp6ReCBX', now(), '5pFGdEw1hR3uSCgQ', 'Metformine'),
+('rKqmYUjuKdnf3J8X', now(), '5pFGdEw1hR3uSCgQ', 'Erythromycine'),
+('MqP8drcBAWCCNpH5', now(), '5pFGdEw1hR3uSCgQ', 'Doxycycline'),
+('r9xyxSCgc8wYp3g8', now(), '5pFGdEw1hR3uSCgQ', 'Tramadol'),
+('rMTWWjq6c7nsqD1P', now(), '5pFGdEw1hR3uSCgQ', 'Chlorpheniramin'),
+('jETsYUY9CM1BGbWH', now(), '5pFGdEw1hR3uSCgQ', 'Certirizine'),
+('K4SXdkMDmv74Z2JK', now(), '5pFGdEw1hR3uSCgQ', 'Metronidazole'),
+('5Y3t7cS9Gmq9kQUY', now(), '5pFGdEw1hR3uSCgQ', 'Captopril'),
+('fAWFtk1Yt3A5Jfs2', now(), '5pFGdEw1hR3uSCgQ', 'Bromexine'),
+('3p29jUyRPU1FUQkc', now(), '5pFGdEw1hR3uSCgQ', 'Aspirine'),
+('A3bN2Es8DXtGHDBA', now(), '5pFGdEw1hR3uSCgQ', 'Declofenac'),
+('qCuCtMC5PaWJJ1sT', now(), '5pFGdEw1hR3uSCgQ', 'Spasfon'),
+('q51SespX84v6Wy3V', now(), '5pFGdEw1hR3uSCgQ', 'Fluconazole'),
+('Qke49P2bZ68qefaa', now(), '5pFGdEw1hR3uSCgQ', 'Ketoconazole'),
+('NYCFVQFRb1kxumEN', now(), '5pFGdEw1hR3uSCgQ', 'Acyclovir '),
+('wHuKWf3D9U4mbVHr', now(), '5pFGdEw1hR3uSCgQ', 'Domperidone'),
+('hfK3DnmkUXGpK7RF', now(), '5pFGdEw1hR3uSCgQ', 'Promethazine'),
+('xavDP3sq8wfKdbN1', now(), '5pFGdEw1hR3uSCgQ', 'Loperamide'),
+('9nexJejgUCDfYk6n', now(), '5pFGdEw1hR3uSCgQ', 'Multivitamine'),
+('81HuT14Dxz3f4MTY', now(), '5pFGdEw1hR3uSCgQ', 'Vitamin C');

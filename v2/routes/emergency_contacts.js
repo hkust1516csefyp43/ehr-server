@@ -62,7 +62,7 @@ router.get('/:uid', function (req, res) {
                     if (err) {
                       if (!sent) {
                         sent = true;
-                        res.status(errors.server_error()).send("Something wrong (error code 10004)");
+                        res.status(errors.server_error()).send("Something wrong (error code 10055)");
                       }
                     }
                   });
@@ -178,7 +178,7 @@ router.put('/:id', function (req, res) {
                     if (err) {
                       if (!sent) {
                         sent = true;
-                        res.status(errors.server_error()).send("Something wrong (error code 10004)");
+                        res.status(errors.server_error()).send("Something wrong (error code 10056)");
                       }
                     }
                   });
@@ -298,7 +298,7 @@ router.post('/', function (req, res) {
                       if (err) {
                         if (!sent) {
                           sent = true;
-                          res.status(errors.server_error()).send("Something wrong (error code 10004)");
+                          res.status(errors.server_error()).send("Something wrong (error code 10057)");
                         }
                       }
                     });
@@ -354,7 +354,7 @@ router.delete('/:id', function (req, res) {
                     if (err) {
                       if (!sent) {
                         sent = true;
-                        res.status(errors.server_error()).send("Something wrong (error code 10004)");
+                        res.status(errors.server_error()).send("Something wrong (error code 10058)");
                       }
                     }
                   });
