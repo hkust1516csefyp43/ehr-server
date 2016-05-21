@@ -28,7 +28,6 @@ module.exports = {
    * err: dah;
    * return value: an object of all permissions and expiry timestamp of token;
    * client: a client object (reduce time of getting another client)
-   * TODO get all permissions instead just those have been specified from db (and then cache the whole thing)
    */
   check_token_and_permission: function (permission, token, callback) {
     pg.connect(module.exports.url(), function (err, client, done) {

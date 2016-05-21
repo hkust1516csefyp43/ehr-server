@@ -1,6 +1,6 @@
 {
   "name": "nodejs",
-  "version": "0.5.0",
+  "version": "0.7.0",
   "private": false,
   "author": "HKUST 2015-2016 CSE FYP Group 43 <hkust1516csefyp43@gmail.com> (http://hkust1516csefyp43.github.io)",
   "license":"UNLICENSED",
@@ -11,16 +11,13 @@
       "url": "http://louistsaitszho.github.io"
     },
     {
-      "name": "John Choi",
-      "email": ""
+      "name": "John"
     },
     {
-      "name": "Ricky Lo",
-      "email": ""
+      "name": "Ricky"
     },
     {
-      "name": "Ron Ip",
-      "email": ""
+      "name": "Ron"
     }
   ],
   "repository": {
@@ -31,6 +28,8 @@
     "hkust",
     "ehr",
     "mrs",
+    "emrs",
+    "easymed",
     "sight",
     "one-2-one"
   ],

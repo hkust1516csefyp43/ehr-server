@@ -3,16 +3,7 @@ var path = require('path');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var routes = require('./v1/routes/index');
-
-var v1Inventory = require('./v1/routes/inventory');
-var v1Patient = require('./v1/routes/patient');
-var v1User = require('./v1/routes/user');
-var v1Static = require('./v1/routes/static');
-var v1ChiefComplain = require('./v1/routes/chief_complain');
-var v1Diagnosis = require('./v1/routes/diagnosis');
-var v1Medication = require('./v1/routes/medication');
-var v1Location = require('./v1/routes/location');
+var routes = require('./v2/routes/index');
 
 //v2
 var v2Attachments = require('./v2/routes/attachments');
@@ -63,16 +54,6 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
-
-//v1
-app.use('/v1/inventory', v1Inventory);
-app.use('/v1/patient', v1Patient);
-app.use('/v1/user', v1User);
-app.use('/v1/static', v1Static);
-app.use('/v1/chief_complain', v1ChiefComplain);
-app.use('/v1/diagnosis', v1Diagnosis);
-app.use('/v1/medication', v1Medication);
-app.use('/v1/location', v1Location);
 
 //v2
 app.use('/v2/attachments', v2Attachments);

@@ -12,7 +12,6 @@ var errors = require('../statuses');
 var consts = require('../consts');
 var valid = require('../valid');
 var db = require('../database');
-var q = require('../query');
 var sql = require('sql-bricks-postgres');
 
 var permission_read = 'queries_read';
