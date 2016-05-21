@@ -46,7 +46,6 @@ util.set_port(port);
 //1. Connect to database
 //2. Reset some tables
 //- Token
-q.update_query_path();
 //if raspberry pi >> turn on/off leds
 
 /**

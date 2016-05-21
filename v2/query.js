@@ -9,13 +9,8 @@ var queries_table = 'v2.queries';
 var conString = config.cloud_pgsql_connection_string;
 var localConString = config.local_pgsql_connection_string;
 var onTheCloud = config.on_the_cloud;
-var endOfLine = require('os').EOL;
-var query_count = 0;
-var query_file_name;
-var query_path;
 
 /**
- * TODO change it to save queries to db
  * A bunch of utilities related to the db synchronization
  */
 module.exports = {
@@ -35,7 +30,12 @@ module.exports = {
   remoteUrl: function () {
     return conString;
   },
-
+  /**
+   * TODO check if this is correct
+   * @param sq
+   * @param user_id
+   * @param callback
+   */
   save_sql_query: function (sq, user_id, callback) {
     pg.connect(module.exports.url(), function (err, client, done) {
       if (err) {
@@ -48,8 +48,7 @@ module.exports = {
         params.create_timestamp = moment();
         params.query = sq;
         var sql_query;
-        sql_query = sql.
-        insert(queries_table, params).returning('*');
+        sql_query = sql.insert(queries_table, params).returning('*');
 
         console.log("The whole query in string: " + sql_query.toString());
         var sqp = sql_query.toParams();
@@ -65,28 +64,5 @@ module.exports = {
         });
       }
     });
-  },
-  save_sql_query_2: function (sq) {
-    //TODO save to db
-    //1. connect to db
-    //2. generate sql query
-    //3. run that query
-    //INSERT INTO queries ("random_string", user_id, create_timestamp, query);
-    //4. output successful or not
-    //TODO what if save failed? what can you do?
-    
-  },
-  get_query_count: function () {
-    return query_count;
-  },
-  /**
-   * generate a new query file name + save the whole path
-   */
-  update_query_path: function () {
-    query_file_name = '' + moment().year() + moment().month() + moment().date() + "_" + moment().hour() + moment().minute() + moment().second() + moment().millisecond() + "_" + moment().utcOffset() + "_" + util.random_string(16) + ".txt";
-    query_path = "../query/" + query_file_name;
-  },
-  get_query_file_name: function () {
-    return query_file_name;
   }
 };

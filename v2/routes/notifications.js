@@ -55,14 +55,6 @@ router.get('/', function (req, res) {
                 res.status(errors.server_error()).send('error fetching client from pool: ' + err);
                 return console.error('error fetching client from pool', err);
               } else {
-                q.save_sql_query(sql_query.toString(), return_value.user_id, function (err, return_value, client) {
-                  if (err) {
-                    if (!sent) {
-                      sent = true;
-                      res.status(errors.server_error()).send("Something wrong (error code 10092)");
-                    }
-                  }
-                });
                 res.json(result.rows);
               }
             });

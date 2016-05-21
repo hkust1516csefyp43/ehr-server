@@ -47,9 +47,7 @@ router.get('/status/', function (req, res) {
   ops.node = util.to_version_number(shell.exec('node --version', {silent: true}).output);
   ops.npm = util.to_version_number(shell.exec('npm --version', {silent: true}).output);
   ops.port = util.get_port();
-  ops.query_count = q.get_query_count();
   ops.running_for = util.millisecondToJson(new Date().getTime() - util.get_start_time().getTime());
-  ops.query_file = q.get_query_file_name();
   var cloud = require('../../config.json').on_the_cloud;
   if (cloud === false) {
     console.log('pretend rpi is doing sth');
