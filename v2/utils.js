@@ -120,7 +120,10 @@ module.exports = {
     return s.replace(/(\r\n|\n|\r)/gm, "");
   },
   to_version_number: function (s) {
-    return s.replace(/(\r\n|\n|\r|v)/gm, "");
+    if (s)
+      return s.replace(/(\r\n|\n|\r|v)/gm, "");
+    else
+      return null;
   },
   normalize_country_string: function(s) {
     var slash = s.indexOf("/");

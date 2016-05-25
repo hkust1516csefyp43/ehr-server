@@ -14,10 +14,6 @@ var onTheCloud = config.on_the_cloud;
  * A bunch of utilities related to the db synchronization
  */
 module.exports = {
-  /**
-   * save query into a txt file + append a ";" at the end
-   * @param sq == the query string
-   */
   url: function () {
     if (onTheCloud === false)
       return localConString;

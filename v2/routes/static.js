@@ -11,23 +11,34 @@ var http = require('http');
 var multer = require('multer');
 var mt = require('moment-timezone');
 var mime = require('mime');
-var cloudinary = require('cloudinary').v2;
-var Datauri = require('datauri');
+var parseApk = require('apk-parser');
+
 //files and other js
 var util = require('../utils');
 var errors = require('../statuses');
 var consts = require('../consts');
 var valid = require('../valid');
 var q = require('../query');
+
 var db = require('../database');
-var dUri = new Datauri();
+var apkVersion = {};
+var apkFilePath = '../../other/app.apk';
+parseApk(apkFilePath, function (err, data) {
+  if (err) {
+    console.error(err);
+    apkVersion.package = 'Unknown';
+  } else {
+    apkVersion = data;
+    // apkVersion.package = 'Unknown';
+  }
+});
 
 /**
  * Send apk for installation
  * No auth, no checking, no instruction, just the apk
  */
 router.get('/ehr.apk/', function (req, res) {
-  var p = '../../other/app.apk';
+  var p = apkFilePath;
   res.sendFile(path.join(__dirname, p));
 });
 
@@ -42,6 +53,7 @@ router.get('/android/', function (req, res) {
  * get system status
  */
 router.get('/status/', function (req, res) {
+  console.log(JSON.stringify(apkVersion));
   var ops = {};         //outputs
   ops.app = require('../../package.json').version;
   ops.node = util.to_version_number(shell.exec('node --version', {silent: true}).output);
@@ -56,63 +68,6 @@ router.get('/status/', function (req, res) {
     ops.temperature = temp.replace('\n', '');
   }
   res.json(ops);
-});
-
-/**
- * TODO return the whole txt
- * id >> filename
- */
-router.get('/sync/:id', function (req, res) {
-  fs.stat('../query/' + req.params.id, function (err, stats) {
-    if (err) {
-      res.status(errors.bad_request()).send("Error finding file: " + err);
-    } else {
-      res.sendFile(path.join(__dirname, '../../query', req.params.id));
-    }
-  });
-});
-
-/**
- * TODO get a json array of file (names, last update, etc)
- */
-router.get('/sync/', function (req, res) {
-  fs.readdir('../query/', function (err, files) {
-    if (err) {
-      res.send("error");
-    } else {
-      var op = [];
-      for (var i in files) {
-        var f = files[i];
-        var stat = fs.statSync('../query/' + f);
-        var file = {};
-        file.filename = f;
-        file.mtime = stat.mtime;
-        op.push(file);
-      }
-      res.json(op);
-    }
-  });
-});
-
-/**
- * RPi posting to Heroku
- * Logic:
- * 1. find the right file by id(i.e. file name)
- * 2. sendFile() to remoteUrl()
- * https://docs.nodejitsu.com/articles/HTTP/clients/how-to-create-a-HTTP-request
- */
-router.post('/sync/:id', function (req, res) {
-  http.request(util.get_cloud_options(), function (response) {
-    var str = '';
-    response.on('data', function (chunk) {
-      str += chunk;
-    });
-    response.on('end', function () {
-      console.log(str);
-    });
-  }).end();
-
-  res.send("in progress");
 });
 
 /**
