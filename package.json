@@ -63,6 +63,7 @@
     "mime": "~1.3.4",
     "wait.for": "~0.6.6",
     "datauri": "~1.0.4",
-    "apk-parser": "~0.1.5"
+    "apk-parser": "~0.1.5",
+    "forever": "~0.15.2"
   }
 }

@@ -250,7 +250,7 @@ router.get('/upd/', function (req, res) {
          [DONE] 2. check if device_id has been blocked
          [DONE] 3. check if username exists
          4. check if sha256(password + salt) match the processed_password
-         5. upsert token table (https://blog.heroku.com/archives/2016/1/7/postgres-95-now-available-on-heroku)
+         5. try update, if not work, insert
          */
       }
     }
