@@ -29,7 +29,7 @@ router.post('/', function (req, res) {
   var token = param_headers.token;
   console.log(token);
   var responseJson = { };
-  if (token) {
+  if (token) {                                                                                                          //got token (i.e. it should be refresh token)
     login_logic.return_token_info(token, function (err, return_value, client) {
       if (return_value.expiry_timestamp < Date.now()) {
         res.status(errors.access_token_expired()).send('Access token expired');
@@ -76,7 +76,7 @@ router.post('/', function (req, res) {
         }
       }
     });
-  } else if (!token) {      //i.e. login with username & password
+  } else if (!token) {                                                                                                  //i.e. login with username & password
     var username = body.username;
     if (!username && !sent) {
       sent = true;
@@ -92,7 +92,7 @@ router.post('/', function (req, res) {
       sent = true;
       res.status(errors.bad_request()).send('device_id should be not null');
     }
-
+    
     login_logic.return_user_info(username, function (err, return_value, client) {
       if (err) {
         if (!sent) {
@@ -107,13 +107,13 @@ router.post('/', function (req, res) {
         }
       } else {
         var user_id = return_value.user_id;
-        //TODO: implement password to processed_password
-        password = password;
-        if (return_value.processed_password !== password && !sent) {
+        var userInputPlusSalt = password + return_value.salt;
+        var result = require('crypto').createHash('sha256').update(userInputPlusSalt).digest('base64');
+        // console.log(result);
+        if (return_value.processed_password !== result && !sent) {
           sent = true;
           res.status(errors.bad_request()).send('password missing or invalid');
-        }
-        else if (return_value.processed_password === password) {
+        } else if (return_value.processed_password === result) {
           var access_token = util.random_string(consts.id_random_string_length());
           var refresh_token = util.random_string(consts.id_random_string_length());
           login_logic.update_access_token(access_token, device_id, function (err, return_value, client) {
