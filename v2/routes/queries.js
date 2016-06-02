@@ -71,7 +71,7 @@ router.get('/', function (req, res) {
 
 /**
  * POST list of queries
- * i.e. server receives requests plus a list of queries, process them one by one, and then report how many pass through, how many does not
+ * This API execute a query to see if it works, and then
  */
 router.post('/', function (req, res) {
   var token = req.headers.token;
@@ -94,11 +94,7 @@ router.post('/', function (req, res) {
         } else {
           if (req.body) {
             console.log("query: " + JSON.stringify(req.body));
-            var params = {};
-            params.query_id = util.random_string(consts.id_random_string_length());
-            params.user_id = req.body.user_id;
-            params.create_timestamp = moment();
-            params.query = req.body.query;
+            var params = req.body;
 
             var sql_query = sql.insert(this_table, params).returning('*');
             console.log("The whole query in string: " + sql_query.toString());
