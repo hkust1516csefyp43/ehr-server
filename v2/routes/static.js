@@ -49,6 +49,23 @@ router.get('/android/', function (req, res) {
   res.send('In progress');
 });
 
+router.get('/shutdown/', function (req, res) {
+  var token = req.headers.token;
+  if (token) {
+    db.check_token_and_permission('', token, function (err, return_value, client) {
+      if (err || !return_value) {
+        res.status(errors.server_error()).send('Something is wrong');
+      } else {
+        //shutdown
+        res.send('Shutting down...');
+        shell.exec('sudo halt', {silent: true});
+      }
+    });
+  } else {
+    res.status(errors.token_missing()).send('Token is missing');
+  }
+});
+
 /**
  * get system status
  */
