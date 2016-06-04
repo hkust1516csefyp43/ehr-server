@@ -51,22 +51,26 @@ router.get('/android/', function (req, res) {
 
 router.get('/shutdown/', function (req, res) {
   var token = req.headers.token;
-  if (token) {
-    db.check_token_and_permission(null, token, function (err, return_value, client) {
-      if (err || !return_value) {
-        res.status(errors.server_error()).send('Something is wrong');
-      } else {
-        if (return_value.expiry_timestamp < Date.now()) {
-          res.status(errors.access_token_expired()).send('Access token expired');
-        } else {
-          //shutdown
-          res.send('Shutting down...');
-          shell.exec('sudo halt', {silent: true});
-        }
-      }
-    });
+  var cloud = require('../../config.json').on_the_cloud;
+  if (cloud) {
+    res.status(errors.bad_request()).send('You cannot turn off the cloud');
   } else {
-    res.status(errors.token_missing()).send('Token is missing');
+    if (token) {
+      db.check_token_and_permission(null, token, function (err, return_value, client) {
+        if (err || !return_value) {
+          res.status(errors.server_error()).send('Something is wrong');
+        } else {
+          if (return_value.expiry_timestamp < Date.now()) {
+            res.status(errors.access_token_expired()).send('Access token expired');
+          } else {
+            res.send('Shutting down...');
+            shell.exec('sudo halt', {silent: true});
+          }
+        }
+      });
+    } else {
+      res.status(errors.token_missing()).send('Token is missing');
+    }
   }
 });
 
