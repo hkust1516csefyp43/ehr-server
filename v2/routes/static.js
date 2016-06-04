@@ -81,8 +81,11 @@ router.get('/status/', function (req, res) {
   if (cloud === false) {
     console.log('pretend rpi is doing sth');
     var temp = shell.exec('/opt/vc/bin/vcgencmd measure_temp', {silent: true});
-    temp = temp.output.replace('temp=', '');
-    ops.temperature = temp.replace('\n', '');
+    console.log(JSON.stringify(temp));
+    if (temp) {
+      temp = temp.output.replace('temp=', '');
+      ops.temperature = temp.replace('\n', '');
+    } //else >> error
   }
   res.json(ops);
 });
