@@ -37,13 +37,17 @@ module.exports = {
       } else {
         aClient = client;
         var sql_query;
-        if (permission.isArray) {
-          sql_query = sql;
-          for (var i = 0; i < permission.length; i++) {
-            sql_query = sql_query.select('r.' + permission[i]);
+        if (permission) {
+          if (permission.isArray) {
+            sql_query = sql;
+            for (var i = 0; i < permission.length; i++) {
+              sql_query = sql_query.select('r.' + permission[i]);
+            }
+          } else {
+            sql_query = sql.select('r.' + permission);
           }
         } else {
-          sql_query = sql.select('r.' + permission);
+          sql_query = sql;
         }
         sql_query = sql_query
           .select('u.*')

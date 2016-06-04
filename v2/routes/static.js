@@ -52,10 +52,11 @@ router.get('/android/', function (req, res) {
 router.get('/shutdown/', function (req, res) {
   var token = req.headers.token;
   if (token) {
-    db.check_token_and_permission('', token, function (err, return_value, client) {
+    db.check_token_and_permission(null, token, function (err, return_value, client) {
       if (err || !return_value) {
         res.status(errors.server_error()).send('Something is wrong');
       } else {
+        //TODO check expiry timestamp
         //shutdown
         res.send('Shutting down...');
         shell.exec('sudo halt', {silent: true});
@@ -79,10 +80,10 @@ router.get('/status/', function (req, res) {
   ops.running_for = util.millisecondToJson(new Date().getTime() - util.get_start_time().getTime());
   var cloud = require('../../config.json').on_the_cloud;
   if (cloud === false) {
-    console.log('pretend rpi is doing sth');
     var temp = shell.exec('/opt/vc/bin/vcgencmd measure_temp', {silent: true});
+
     console.log(JSON.stringify(temp));
-    if (temp) {
+    if (temp && temp.output) {
       temp = temp.output.replace('temp=', '');
       ops.temperature = temp.replace('\n', '');
     } //else >> error
