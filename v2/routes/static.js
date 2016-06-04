@@ -56,10 +56,13 @@ router.get('/shutdown/', function (req, res) {
       if (err || !return_value) {
         res.status(errors.server_error()).send('Something is wrong');
       } else {
-        //TODO check expiry timestamp
-        //shutdown
-        res.send('Shutting down...');
-        shell.exec('sudo halt', {silent: true});
+        if (return_value.expiry_timestamp < Date.now()) {
+          res.status(errors.access_token_expired()).send('Access token expired');
+        } else {
+          //shutdown
+          res.send('Shutting down...');
+          shell.exec('sudo halt', {silent: true});
+        }
       }
     });
   } else {
