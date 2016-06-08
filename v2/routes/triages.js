@@ -252,6 +252,9 @@ router.post('/', function (req, res) {
           if (head_circumference)
             params.head_circumference = head_circumference;
 
+          var blood_sugar = body.blood_sugar;
+          if (blood_sugar)
+            params.blood_sugar = blood_sugar;
 
           var sql_query = sql.insert(consts.table_triages(), params).returning('*');
           console.log(sql_query.toString());
