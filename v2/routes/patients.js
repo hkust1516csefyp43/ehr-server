@@ -196,7 +196,13 @@ router.get('/', function (req, res) {
             var sort_by = param_query.sort_by;
             if (sort_by) {
               //TODO check if custom sort by param is valid
-              sql_query.orderBy(sort_by);
+              if (sort_by == "tag"){
+                if (next_station){
+                  sql_query.orderBy('v2.visits.tag')
+                }
+              }else{
+                sql_query.orderBy(sort_by);
+                }
             } else {
               sql_query.orderBy('v2.patients.patient_id');
             }
