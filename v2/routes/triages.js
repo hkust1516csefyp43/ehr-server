@@ -386,6 +386,10 @@ router.put('/:id', function (req, res) {
           if (head_circumference)
             params.head_circumference = head_circumference;
 
+          var blood_sugar = body.blood_sugar;
+          if (blood_sugar)
+            params.blood_sugar = blood_sugar;
+
           if (valid.empty_object(params)) {
             sent = true;
             res.status(errors.bad_request()).send('You cannnot edit nothing');
