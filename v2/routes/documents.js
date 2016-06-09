@@ -204,11 +204,11 @@ router.post('/', function (req, res) {
           console.log(sql_query.toString());
 
           client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
-            if (err) {
+            if (err && !sent) {
               res.status(errors.server_error()).send('error fetching client from pool: ' + err);
               sent = true;
               return console.error('error fetching client from pool', err);
-            } else {
+            } else if (result && result.rows) {
               if (result.rows.length === 1) {
                 q.save_sql_query(sql_query.toString(), return_value.user_id, function (err, return_value, client) {
                   if (err) {
@@ -226,6 +226,8 @@ router.post('/', function (req, res) {
                 //how can 1 pk return more than 1 row!?
                 res.status(errors.server_error()).send('Sth weird is happening');
               }
+            } else {
+              res.status(errors.server_error().send("SQL query wrong temp fix?"));
             }
           });
         }

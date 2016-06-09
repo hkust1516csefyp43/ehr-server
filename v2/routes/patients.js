@@ -607,6 +607,8 @@ router.post('/', function (req, res) {
           if (native_name)
             params.native_name = native_name;
 
+          //TODO status (just string)
+
           var sql_query = sql.insert(consts.table_patients(), params).returning('*');
           console.log(sql_query.toString());
 
