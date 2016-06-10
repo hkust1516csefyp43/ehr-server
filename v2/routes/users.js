@@ -155,6 +155,62 @@ router.get('/', function (req, res) {
   }
 });
 
+router.get('/:id', function (req, res) {
+  var sent = false;
+  var params = {};
+  var param_query = req.query;
+  var param_headers = req.headers;
+  console.log(JSON.stringify(param_query));
+  console.log(JSON.stringify(param_headers));
+  console.log("id:",req.params.id);
+  var token = param_headers.token;
+  console.log(token);
+  if (!token) {
+    res.status(errors.token_missing()).send('Token is missing');
+    sent = true;
+  } else {
+    db.check_token_and_permission("users_read", token, function (err, return_value, client) {
+      if (!return_value) {                                        //return value == null >> sth wrong
+        res.status(errors.bad_request()).send('Token missing or invalid');
+      } else if (return_value.users_read === false) {          //false (no permission)
+        res.status(errors.no_permission()).send('No permission');
+      } else if (return_value.users_read === true) {           //w/ permission
+        if (return_value.expiry_timestamp < Date.now()) {
+          res.status(errors.access_token_expired()).send('Access token expired');
+        } else {
+          params.user_id = req.params.id;
+
+          var sql_query = sql
+            .select('v2.users.birth_day', 'v2.users.birth_month', 'v2.users.birth_year', 'v2.users.create_timestamp', 'v2.users.email', 'v2.users.first_name', 'v2.users.gender_id', 'v2.users.honorific', 'image_id', 'last_name', 'middle_name', 'nickname', 'phone_country_code', 'phone_number', 'role_id', 'user_id', 'username')
+            .from(consts.table_users())
+            .where(params);
+
+          console.log("The whole query in string: " + sql_query.toString());
+          if (!sent) {
+            client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+              if (err) {
+                res.status(errors.server_error()).send('error fetching client from pool: ' + err);
+                sent = true;
+                return console.error('error fetching client from pool', err);
+              } else {
+                if (result.rows.length === 1) {
+                  sent = true;
+                  res.json(result.rows[0]);
+                } else if (result.rows.length === 0) {
+                  res.status(errors.not_found()).send('Cannot find user according to this id.');
+                } else {
+                  //how can 1 pk return more than 1 row!?
+                  res.status(errors.server_error()).send('Sth weird is happening');
+                }
+              }
+            });
+          }
+        }
+      }
+    });
+  }
+});
+
 /* POST */
 router.post('/', function (req, res) {
   var sent = false;
@@ -181,6 +237,8 @@ router.post('/', function (req, res) {
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else{
+          var user_id = return_value.user_id;
+
           params.create_timestamp = moment();
           params.user_id = util.random_string(consts.id_random_string_length());
 
@@ -233,27 +291,21 @@ router.post('/', function (req, res) {
             if (return_value) {
               sent = true;
               res.status(errors.bad_request()).send('username should be unique');
-            }else{
+            } else {
 
               var email = body.email;
               if (email)
                 params.email = email;
 
-              var salt = body.salt;
-              if (salt)
-                params.salt = salt;
-              else if (!sent) {
-                sent = true;
-                res.status(errors.bad_request()).send('salt should be not null');
-              }
+              params.salt = util.random_string(16);
 
-              //TODO: automatically update the processed password
-              var processed_password = body.processed_password;
-              if (processed_password)
-                params.processed_password = processed_password;
-              else if (!sent) {
+              var password = body.password;
+              if (password) {
+                var userInputPlusSalt = password + params.salt;
+                params.processed_password = require('crypto').createHash('sha256').update(userInputPlusSalt).digest('base64');
+              } else if (!sent) {
                 sent = true;
-                res.status(errors.bad_request()).send('processed_password should be not null');
+                res.status(errors.bad_request()).send('password should be not null');
               }
 
               var birth_year = body.birth_year;
@@ -280,7 +332,7 @@ router.post('/', function (req, res) {
               if (phone_number)
                 params.phone_number = phone_number;
 
-              var sql_query = sql.insert(consts.table_users(), params).returning();
+              var sql_query = sql.insert(consts.table_users(), params).returning('v2.users.birth_day', 'v2.users.birth_month', 'v2.users.birth_year', 'v2.users.create_timestamp', 'v2.users.email', 'v2.users.first_name', 'v2.users.gender_id', 'v2.users.honorific', 'image_id', 'last_name', 'middle_name', 'nickname', 'phone_country_code', 'phone_number', 'role_id', 'user_id', 'username');
               console.log(sql_query.toString());
 
               if (!sent)
@@ -291,7 +343,7 @@ router.post('/', function (req, res) {
                     return console.error('error fetching client from pool', err);
                   } else {
                     if (result.rows.length === 1) {
-                      q.save_sql_query(sql_query.toString(), return_value.user_id, function (err, return_value, client) {
+                      q.save_sql_query(sql_query.toString(), user_id, function (err, return_value, client) {
                         if (err) {
                           if (!sent) {
                             sent = true;
