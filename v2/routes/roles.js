@@ -287,7 +287,7 @@ router.get('/', function (req, res) {
           if (relationships_read)
             params.relationships_read = relationships_read;
 
-          var relationships_write = body.relationships_write;
+          var relationships_write = req.query.relationships_write;
           if (relationships_write)
             params.relationships_write = relationships_write;
 
