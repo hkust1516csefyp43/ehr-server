@@ -23,15 +23,15 @@ var q = require('../query');
 var db = require('../database');
 var apkVersion = {};
 var apkFilePath = '../../other/app.apk';
-parseApk(apkFilePath, function (err, data) {
-  if (err) {
-    console.error(err);
-    apkVersion.package = 'Unknown';
-  } else {
-    apkVersion = data;
-    // apkVersion.package = 'Unknown';
-  }
-});
+// parseApk(apkFilePath, function (err, data) {
+//   if (err) {
+//     console.error(err);
+//     apkVersion.package = 'Unknown';
+//   } else {
+//     apkVersion = data;
+//     // apkVersion.package = 'Unknown';
+//   }
+// });
 
 /**
  * Send apk for installation

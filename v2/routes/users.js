@@ -155,6 +155,62 @@ router.get('/', function (req, res) {
   }
 });
 
+router.get('/:id', function (req, res) {
+  var sent = false;
+  var params = {};
+  var param_query = req.query;
+  var param_headers = req.headers;
+  console.log(JSON.stringify(param_query));
+  console.log(JSON.stringify(param_headers));
+  console.log("id:",req.params.id);
+  var token = param_headers.token;
+  console.log(token);
+  if (!token) {
+    res.status(errors.token_missing()).send('Token is missing');
+    sent = true;
+  } else {
+    db.check_token_and_permission("users_read", token, function (err, return_value, client) {
+      if (!return_value) {                                        //return value == null >> sth wrong
+        res.status(errors.bad_request()).send('Token missing or invalid');
+      } else if (return_value.users_read === false) {          //false (no permission)
+        res.status(errors.no_permission()).send('No permission');
+      } else if (return_value.users_read === true) {           //w/ permission
+        if (return_value.expiry_timestamp < Date.now()) {
+          res.status(errors.access_token_expired()).send('Access token expired');
+        } else {
+          params.user_id = req.params.id;
+
+          var sql_query = sql
+            .select('v2.users.birth_day', 'v2.users.birth_month', 'v2.users.birth_year', 'v2.users.create_timestamp', 'v2.users.email', 'v2.users.first_name', 'v2.users.gender_id', 'v2.users.honorific', 'image_id', 'last_name', 'middle_name', 'nickname', 'phone_country_code', 'phone_number', 'role_id', 'user_id', 'username')
+            .from(consts.table_users())
+            .where(params);
+
+          console.log("The whole query in string: " + sql_query.toString());
+          if (!sent) {
+            client.query(sql_query.toParams().text, sql_query.toParams().values, function (err, result) {
+              if (err) {
+                res.status(errors.server_error()).send('error fetching client from pool: ' + err);
+                sent = true;
+                return console.error('error fetching client from pool', err);
+              } else {
+                if (result.rows.length === 1) {
+                  sent = true;
+                  res.json(result.rows[0]);
+                } else if (result.rows.length === 0) {
+                  res.status(errors.not_found()).send('Cannot find user according to this id.');
+                } else {
+                  //how can 1 pk return more than 1 row!?
+                  res.status(errors.server_error()).send('Sth weird is happening');
+                }
+              }
+            });
+          }
+        }
+      }
+    });
+  }
+});
+
 /* POST */
 router.post('/', function (req, res) {
   var sent = false;
