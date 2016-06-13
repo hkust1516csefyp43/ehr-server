@@ -138,7 +138,8 @@ router.put('/clock/', function (req, res) {
                   console.log('Program output 2:', stdout);
                   console.log('Program stderr 2:', stderr);
                   var response = {};
-                  response.time = require('moment');
+                  var time = require('moment');
+                  response.time = time();
                   res.json(response);
                 });
               });
