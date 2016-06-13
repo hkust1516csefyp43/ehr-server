@@ -58,10 +58,6 @@ router.get('/', function (req, res) {
           if (end_timestamp)
             params.end_timestamp = end_timestamp;
 
-          var ros_ga = req.query.ros_ga;
-          if (ros_ga)
-            params.ros_ga = ros_ga;
-
           var ros_respi = req.query.ros_respi;
           if (ros_respi)
             params.ros_respi = ros_respi;
@@ -569,10 +565,6 @@ router.put('/:id', function (req, res) {
           var end_timestamp = body.end_timestamp;
           if (end_timestamp)
             params.end_timestamp = end_timestamp;
-
-          var ros_ga = body.ros_ga;
-          if (ros_ga)
-            params.ros_ga = ros_ga;
 
           var ros_respi = body.ros_respi;
           if (ros_respi)
