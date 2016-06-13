@@ -103,7 +103,7 @@ router.get('/status/', function (req, res) {
  */
 router.get('/clock/', function (req, res) {
   var time = require('moment');
-  res.send(time);
+  res.json(time());
 });
 
 /**
