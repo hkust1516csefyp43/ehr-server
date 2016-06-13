@@ -7,14 +7,11 @@
 var app = require('../app');
 var debug = require('debug')('nodejs:server');
 var http = require('http');
-var db = require('../v2/database');
 var util = require('../v2/utils');
 var q = require('../v2/query');
-var mt = require('moment-timezone');
 
 /**
  * Get port from environment and store in Express.
- * TODO find a way to get another port if 3000 is occupied
  */
 
 var port = normalizePort(process.env.PORT || '3000');
@@ -41,12 +38,6 @@ console.log('http://localhost:' + port);
 //v2
 util.set_start_time(date);
 util.set_port(port);
-
-//TODO custom startup script
-//1. Connect to database
-//2. Reset some tables
-//- Token
-//if raspberry pi >> turn on/off leds
 
 /**
  * Normalize a port into a number, string, or false.

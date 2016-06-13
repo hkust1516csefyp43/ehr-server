@@ -6,6 +6,7 @@ var router = express.Router();
 var pg = require('pg');
 var moment = require('moment');
 var wait = require('wait.for');
+var _ = require('lodash');
 
 var util = require('../utils');
 var errors = require('../statuses');
@@ -13,6 +14,8 @@ var consts = require('../consts');
 var valid = require('../valid');
 var db = require('../database');
 var sql = require('sql-bricks-postgres');
+
+var sortable = ["attachment_id", "cloudinary_url", "file_name", "user_id", "create_timestamp", "file_in_base64"];
 
 /* GET list */
 router.get('/', function (req, res) {
@@ -64,15 +67,24 @@ router.get('/', function (req, res) {
 
           var sort_by = param_query.sort_by;
           if (sort_by) {
-            //TODO check if custom sort by param is valid
-            sql_query.orderBy(sort_by);
+            if (_.include(sortable, sort_by())) {
+              sql_query.orderBy(sort_by);
+            } else if (!sent) {
+              sent = true;
+              res.status(errors.bad_request()).send('invalid sort_by');
+            }
           } else {
             sql_query.orderBy('attachment_id');
           }
 
           var limit = param_query.limit;
           if (limit) {
-            sql_query.limit(limit);
+            if (limit > 0) {
+              sql_query.limit(limit);
+            } else {
+              sent = true;
+              res.status(errors.bad_request()).send('limit must be at least 1');
+            }
           } else {    //Default limit
             sql_query.limit(consts.list_limit());
           }
@@ -100,12 +112,8 @@ router.get('/', function (req, res) {
 router.get('/:id', function (req, res) {
   var sent = false;
   var params = {};
-  var param_query = req.query;
-  var param_headers = req.headers;
-  console.log(JSON.stringify(param_query));
-  console.log(JSON.stringify(param_headers));
   console.log("id:",req.params.id);
-  var token = param_headers.token;
+  var token = req.headers.token;
   console.log(token);
   if (!token) {
     res.status(errors.token_missing()).send('Token is missing');

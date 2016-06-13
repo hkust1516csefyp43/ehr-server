@@ -348,9 +348,9 @@ router.post('/', function (req, res) {
           if (end_timestamp)
             params.end_timestamp = end_timestamp;
 
-          var ros_ga = body.ros_ga;
-          if (ros_ga)
-            params.ros_ga = ros_ga;
+          var ros_general = body.ros_general;
+          if (ros_general)
+            params.ros_general = ros_general;
 
           var ros_respi = body.ros_respi;
           if (ros_respi)
