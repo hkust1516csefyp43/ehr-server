@@ -39,12 +39,6 @@ router.get('/', function (req, res) {
         if (return_value.expiry_timestamp < Date.now()) {
           res.status(errors.access_token_expired()).send('Access token expired');
         } else {
-          //TODO do not return password and related stuff
-          var sql_query = sql
-            .select('v2.users.birth_day', 'v2.users.birth_month', 'v2.users.birth_year', 'v2.users.create_timestamp', 'v2.users.email', 'v2.users.first_name', 'v2.users.gender_id', 'v2.users.honorific', 'image_id', 'last_name', 'middle_name', 'nickname', 'phone_country_code', 'phone_number', 'role_id', 'user_id', 'username')
-            .from(consts.table_users())
-            .where(params);
-
           var gender_id = req.query.gender_id;
           if (gender_id)
             params.gender_id = gender_id;
@@ -115,6 +109,11 @@ router.get('/', function (req, res) {
           var phone_number = req.query.phone_number;
           if (phone_number)
             params.phone_number = phone_number;
+
+          var sql_query = sql
+            .select('v2.users.birth_day', 'v2.users.birth_month', 'v2.users.birth_year', 'v2.users.create_timestamp', 'v2.users.email', 'v2.users.first_name', 'v2.users.gender_id', 'v2.users.honorific', 'image_id', 'last_name', 'middle_name', 'nickname', 'phone_country_code', 'phone_number', 'role_id', 'user_id', 'username')
+            .from(consts.table_users())
+            .where(params);
 
           var offset = param_query.offset;
           if (offset) {
