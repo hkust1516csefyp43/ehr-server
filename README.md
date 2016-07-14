@@ -1,6 +1,6 @@
 # EHR(Server)
 
-[![Slack Status](https://slack.hkust1516csefyp43.com/badge.svg)](https://hkust1516csefyp43.com)
+[![Slack Status](https://join-easymed-slack.herokuapp.com/badge.svg)](https://join-easymed-slack.herokuapp.com)
 [![Build Status](https://travis-ci.org/hkust1516csefyp43/ehr-server.svg?branch=master)](https://travis-ci.org/hkust1516csefyp43/ehr-server)
 [![Dependency Status](https://david-dm.org/hkust1516csefyp43/ehr-server.svg)](https://david-dm.org/hkust1516csefyp43/ehr-server.svg)
 
